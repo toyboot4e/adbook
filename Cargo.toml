@@ -1,0 +1,13 @@
+[package]
+name = "adbook"
+version = "0.1.0"
+authors = ["toyboot4e <toyboot4e@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4.11"
+anyhow = "1.0.33"
+thiserror = "1.0.21"
+
+clap = "3.0.0-beta.2"
+serde = "1.0.116"
