@@ -5,8 +5,9 @@ use std::path::PathBuf;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
     pub authors: Vec<String>,
-    pub src: PathBuf,
     pub title: String,
+    pub src: PathBuf,
+    pub out: PathBuf,
 }
 
 pub struct Book {

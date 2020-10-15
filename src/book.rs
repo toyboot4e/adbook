@@ -1,8 +1,12 @@
 //! Book data structure
 
 use {
-    anyhow::Result,
-    std::path::{Path, PathBuf},
+    anyhow::{Context, Result},
+    serde::de::Deserialize,
+    std::{
+        fs,
+        path::{Path, PathBuf},
+    },
     thiserror::Error,
 };
 
@@ -22,21 +26,19 @@ pub struct Book {
 
 impl Book {
     pub fn load_dir(path: impl AsRef<Path>) -> Result<Self> {
-        let book_ron = self::find_book_ron(path)?;
-        info!("book.ron located at {}", book_ron.display());
+        let cfg_path = self::find_book_ron(path)?;
+        info!("book.ron located at {}", cfg_path.display());
 
-        // default configuration (hard coded)
-        let cfg = Config {
-            authors: vec!["toyboot4e".into()],
-            src: "src".into(),
-            title: "test book".into(),
-        };
+        let cfg_str = fs::read_to_string(&cfg_path)?;
+        let cfg = ron::from_str(&cfg_str)
+            .with_context(|| format!("failed to load book.ron at `{}`", cfg_path.display()))?;
+        trace!("{:?}", cfg);
 
         Ok(Self { cfg })
     }
 }
 
-/// Tries to return a canoncalized path to `book.ron`
+/// Tries to return a canonicalized path to `book.ron`
 fn find_book_ron(path: impl AsRef<Path>) -> Result<PathBuf> {
     let path = path.as_ref().canonicalize()?;
     ensure!(path.is_dir(), BookLoadError::NotGivenDirectoryPath);
