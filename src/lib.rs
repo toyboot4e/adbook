@@ -1,8 +1,13 @@
-//! adbook is mdbook with AsciiDoc renderer
+//! adbook
 
+// Globally importing `info!`, `warn!`, etc.
 #[macro_use]
 extern crate log;
 
-use anyhow::*;
+// Globally importing `anyhow!`, `bail!` and `ensure!`
+#[macro_use]
+extern crate anyhow;
+
+pub mod book;
 pub mod cli;
 pub mod config;
