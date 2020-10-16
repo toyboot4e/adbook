@@ -1,4 +1,4 @@
-//! adbook
+//! `adbook`
 
 // Globally importing `info!`, `warn!`, etc.
 #[macro_use]
@@ -9,5 +9,5 @@ extern crate log;
 extern crate anyhow;
 
 pub mod book;
+pub mod builder;
 pub mod cli;
-pub mod config;

@@ -1,5 +1,7 @@
 //! Book data structure
 
+pub mod config;
+
 use {
     anyhow::{Context, Result},
     std::{
@@ -9,8 +11,9 @@ use {
     thiserror::Error,
 };
 
-use crate::config::{BookRon, Toc, TocRon};
+use self::config::{BookRon, Toc, TocRon};
 
+/// Error while loading `book.ron`
 #[derive(Error, Debug)]
 pub enum BookLoadError {
     #[error("Given non-directory path")]
@@ -19,11 +22,23 @@ pub enum BookLoadError {
     NotFoundBookRon,
 }
 
-/// Directory structure of a book project
+/// Files structure of an adbook project read from `book.ron` and `toc.ron`s
 #[derive(Debug)]
 pub struct BookStructure {
+    /// Absolute path to a directory with `book.ron`
+    pub root: PathBuf,
     pub book_ron: BookRon,
     pub toc: Toc,
+}
+
+impl BookStructure {
+    pub fn src_dir_path(&self) -> PathBuf {
+        self.root.join(&self.book_ron.src)
+    }
+
+    pub fn site_dir_path(&self) -> PathBuf {
+        self.root.join(&self.book_ron.site)
+    }
 }
 
 impl BookStructure {
@@ -82,7 +97,11 @@ impl BookStructure {
             }
         }
 
-        Ok(Self { book_ron, toc })
+        Ok(Self {
+            root,
+            book_ron,
+            toc,
+        })
     }
 }
 

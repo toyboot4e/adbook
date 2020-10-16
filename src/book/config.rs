@@ -1,9 +1,11 @@
-//! Configuration files
+//! `adbook` configuration
 //!
-//! * `book.ron`: It is put in root directory and sets general settings
-//! * `toc.ron`: They are in each directory and list files/sub directories giving names
+//! # Configuration files
 //!
-//! Types with name `Ron` are directly deserialized from configuration files.
+//! * `book.ron`: Something like `Cargo.toml`, a root file for an adbook project
+//! * `toc.ron`: Something like `mod.rs`, which lists `(name, path)` pairs
+//!
+//! ToC stands for table of contents.
 
 use {
     serde::{Deserialize, Serialize},
@@ -14,20 +16,24 @@ use {
     thiserror::Error,
 };
 
-/// `book.ron`, configurations
+/// Deserialized from `book.ron`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct BookRon {
     pub authors: Vec<String>,
     pub title: String,
+    /// Where source files are located
     pub src: PathBuf,
-    pub out: PathBuf,
+    /// Where destination files are located
+    pub site: PathBuf,
 }
 
+/// Deserialized from `toc.ron`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct TocRon {
     pub items: Vec<(String, String)>,
 }
 
+/// Error when loading `toc.ron`
 #[derive(Debug, Error)]
 pub enum TocLoadError {
     #[error("Failed to locate toc item at: {0}")]
@@ -44,6 +50,7 @@ pub enum TocLoadError {
     FoundErrorsInSubToc(Box<SubTocLoadErrors>),
 }
 
+/// Errors when loading a sub `toc.ron`
 #[derive(Debug)]
 pub struct SubTocLoadErrors {
     errors: Vec<TocLoadError>,
@@ -58,10 +65,24 @@ impl fmt::Display for SubTocLoadErrors {
     }
 }
 
-/// `toc.ron`, table of contents in the module
+/// Got from [`TocRon`], which is deserialiezd from `toc.ron`
 #[derive(Debug)]
 pub struct Toc {
     items: Vec<TocItem>,
+}
+
+/// Item in `toc.ron`: (File | SubToc) with name
+#[derive(Debug)]
+pub struct TocItem {
+    pub name: String,
+    pub content: TocItemContent,
+}
+
+/// File | SubToc
+#[derive(Debug)]
+pub enum TocItemContent {
+    File(PathBuf),
+    SubToc(Box<Toc>),
 }
 
 impl Toc {
@@ -137,17 +158,4 @@ impl Toc {
 
         (Self { items }, errors)
     }
-}
-
-/// Item in `toc.ron`
-#[derive(Debug)]
-pub struct TocItem {
-    pub name: String,
-    pub content: TocItemContent,
-}
-
-#[derive(Debug)]
-pub enum TocItemContent {
-    File(PathBuf),
-    SubToc(Box<Toc>),
 }

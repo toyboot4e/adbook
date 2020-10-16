@@ -1,6 +1,11 @@
+//! Command line interface
+
 use {anyhow::*, clap::Clap};
 
-use crate::book::BookStructure;
+use crate::{
+    book::BookStructure,
+    builder::{adoc, BookBuilder, BuildConfig},
+};
 
 /// `adbook` command line interface
 #[derive(Clap, Debug)]
@@ -16,6 +21,7 @@ impl Cli {
     }
 }
 
+/// `adbook <sub command>`
 #[derive(Clap, Debug)]
 pub enum SubCommand {
     #[clap(name = "build", alias = "b")]
@@ -31,6 +37,7 @@ impl SubCommand {
     }
 }
 
+/// `adbook build`
 #[derive(Clap, Debug)]
 pub struct Build {
     #[clap(short, long, default_value = ".")]
@@ -39,7 +46,13 @@ pub struct Build {
 
 impl Build {
     pub fn run(&self) -> Result<()> {
+        trace!("===> Loading book structure");
         let book = BookStructure::from_dir(&self.dir)?;
+        let build_cfg = BuildConfig::from_site_path(&book.site_dir_path());
+
+        trace!("===> Building the book");
+        let mut builder = adoc::AdocBuilder::new();
+        builder.build_book(&book, &build_cfg)?;
 
         Ok(())
     }
