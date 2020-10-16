@@ -39,7 +39,7 @@ pub struct Build {
 
 impl Build {
     pub fn run(&self) -> Result<()> {
-        let book = BookStructure::load_dir(&self.dir)?;
+        let book = BookStructure::from_dir(&self.dir)?;
 
         Ok(())
     }

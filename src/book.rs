@@ -14,9 +14,9 @@ use crate::config::{BookRon, Toc, TocRon};
 
 #[derive(Error, Debug)]
 pub enum BookLoadError {
-    #[error("Not given directory path")]
-    NotGivenDirectoryPath,
-    #[error("No `book.ron` found")]
+    #[error("Given non-directory path")]
+    GivenNonDirectoryPath,
+    #[error("Not found `book.ron`")]
     NotFoundBookRon,
 }
 
@@ -28,7 +28,8 @@ pub struct BookStructure {
 }
 
 impl BookStructure {
-    pub fn load_dir(path: impl AsRef<Path>) -> Result<Self> {
+    /// Tries to find `book.ron` going up the directories and parses it
+    pub fn from_dir(path: impl AsRef<Path>) -> Result<Self> {
         let book_ron_path = self::find_book_ron(path)?;
         info!("book.ron located at: {}", book_ron_path.display());
 
@@ -51,6 +52,7 @@ impl BookStructure {
                 )
             })?;
 
+            // Here we actually load `book.ron`
             ron::from_str(&cfg_str).with_context(|| {
                 format!("Failed to load book.ron at: {}", book_ron_path.display())
             })?
@@ -69,6 +71,7 @@ impl BookStructure {
                 .with_context(|| format!("Failed to parse `toc.ron` at: {}", toc_path.display()))?;
             trace!("root toc.ron loaded: {:?}", toc_ron);
 
+            // Here we actually load a root `toc.ron`
             Toc::from_toc_ron_recursive(&toc_ron, &src)
         };
         trace!("toc.ron loaded: {:#?}", toc);
@@ -87,7 +90,7 @@ impl BookStructure {
 /// Tries to return a canonicalized path to `book.ron`
 fn find_book_ron(path: impl AsRef<Path>) -> Result<PathBuf> {
     let path = path.as_ref().canonicalize()?;
-    ensure!(path.is_dir(), BookLoadError::NotGivenDirectoryPath);
+    ensure!(path.is_dir(), BookLoadError::GivenNonDirectoryPath);
 
     // go up the ancestors and find `book.ron`
     for dir in path.ancestors() {

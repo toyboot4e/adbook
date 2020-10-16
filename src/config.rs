@@ -34,9 +34,11 @@ pub enum TocLoadError {
     FailedToLocateItem(PathBuf),
     #[error("Unexpected item with path: {0}")]
     FoundOddItem(PathBuf),
-    #[error("Failed to load item at: {0}. IO error: {1}")]
-    FailedToLoadFile(PathBuf, io::Error),
-    #[error("Failed to parse toc.ron at: {0}. Ron error: {1}")]
+    #[error("Found directory without `toc.ron`: {0}")]
+    FoundDirectoryWithoutTocRon(PathBuf),
+    #[error("Failed to read toc.ron at: {0}. IO error: {1}")]
+    FailedToReadTocRon(PathBuf, io::Error),
+    #[error("Failed to parse toc.ron at: {0}")]
     FailedToParseTocRon(PathBuf, ron::Error),
     #[error("Errors in sub `toc.ron`: {0}")]
     FoundErrorsInSubToc(Box<SubTocLoadErrors>),
@@ -93,10 +95,16 @@ impl Toc {
                 });
             } else if path.is_dir() {
                 // case 2. Directory
-                let toc_ron_str = match fs::read_to_string(&path) {
+                let nested_toc_ron = path.join("toc.ron");
+                if !nested_toc_ron.is_file() {
+                    errors.push(TocLoadError::FoundDirectoryWithoutTocRon(path));
+                    continue;
+                }
+
+                let toc_ron_str = match fs::read_to_string(&nested_toc_ron) {
                     Ok(s) => s,
                     Err(err) => {
-                        errors.push(TocLoadError::FailedToLoadFile(path, err));
+                        errors.push(TocLoadError::FailedToReadTocRon(path, err));
                         continue;
                     }
                 };
