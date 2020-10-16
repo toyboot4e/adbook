@@ -28,6 +28,7 @@ pub struct BuildConfig {
 }
 
 impl BuildConfig {
+    /// Creates default configuration from path to a destination (site) directory
     pub fn from_site_path(site: &Path) -> Self {
         Self {
             site: site.to_owned(),
@@ -35,7 +36,7 @@ impl BuildConfig {
         }
     }
 
-    /// Where [`BookBuilder`] should output temporary files
+    /// adbook builder should output temporary files to this directory
     pub fn tmp_dir(&self) -> PathBuf {
         self.site.join(&self.tmp)
     }

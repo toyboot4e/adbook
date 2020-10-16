@@ -1,4 +1,6 @@
 //! Command line interface
+//!
+//! Built on top of clap ver.3 beta.
 
 use {anyhow::*, clap::Clap};
 
