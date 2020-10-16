@@ -1,4 +1,8 @@
-//! Book data structure
+/*! Book data structure
+
+The book structure is actually built into a site (destination) directory with
+[`crate::builder`].
+!*/
 
 pub mod config;
 

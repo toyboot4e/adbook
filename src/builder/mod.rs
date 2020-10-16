@@ -1,4 +1,4 @@
-//! Adbook directory builder
+//! Book builder
 
 mod builtin;
 
