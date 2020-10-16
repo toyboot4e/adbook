@@ -64,6 +64,16 @@ fn run_builder(
     book: &BookStructure,
     cfg: &BuildConfig,
 ) -> Result<()> {
+    // make sure there is site (destination) directory
+    {
+        let site = book.site_dir_path();
+        if !site.exists() {
+            fs::create_dir(&site).with_context(|| {
+                format!("Failed to create site directory at: {}", site.display())
+            })?;
+        }
+    }
+
     let out_dir = cfg.tmp_dir();
 
     // make sure we have an available temporary output directory
