@@ -16,6 +16,9 @@ use {
     thiserror::Error,
 };
 
+// --------------------------------------------------------------------------------
+// Directly deserialized from ron files
+
 /// Deserialized from `book.ron`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct BookRon {
@@ -34,6 +37,9 @@ pub struct BookRon {
 pub struct TocRon {
     pub items: Vec<(String, String)>,
 }
+
+// --------------------------------------------------------------------------------
+// Retrieved from ron struct
 
 /// Error when loading `toc.ron`
 #[derive(Debug, Error)]
@@ -70,7 +76,7 @@ impl fmt::Display for SubTocLoadErrors {
 /// Got from [`TocRon`], which is deserialiezd from `toc.ron`
 #[derive(Debug)]
 pub struct Toc {
-    items: Vec<TocItem>,
+    pub items: Vec<TocItem>,
 }
 
 /// Item in `toc.ron`: (File | SubToc) with name
@@ -83,6 +89,7 @@ pub struct TocItem {
 /// File | SubToc
 #[derive(Debug)]
 pub enum TocItemContent {
+    /// Absolute path to the file
     File(PathBuf),
     SubToc(Box<Toc>),
 }
@@ -109,6 +116,8 @@ impl Toc {
                 errors.push(TocLoadError::FailedToLocateItem(path));
                 continue;
             }
+
+            let path = path.canonicalize().unwrap();
 
             // 3 cases:
             if path.is_file() {

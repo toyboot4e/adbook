@@ -1,6 +1,8 @@
 //! Adbook directory builder
 
-pub mod adoc;
+mod builtin;
+
+use self::builtin::BuiltinAdbookBuilder;
 
 use {
     anyhow::{Context, Result},
@@ -12,14 +14,10 @@ use {
 
 use crate::book::BookStructure;
 
-pub trait BookBuilder {
-    /// Walk through the [`BookStructure`] and build it into the site (destination) directory
-    fn build_book_to_tmp_dir(
-        &mut self,
-        book: &BookStructure,
-        cfg: &BuildConfig,
-        out_dir: &Path,
-    ) -> Result<()>;
+/// Builds an `adbook` project with a configuration
+pub fn build(book: &BookStructure, cfg: &BuildConfig) -> Result<()> {
+    let mut builder = BuiltinAdbookBuilder::new();
+    self::run_builder(&mut builder, book, cfg)
 }
 
 pub struct BuildConfig {
@@ -43,8 +41,24 @@ impl BuildConfig {
     }
 }
 
-/// Drives [`BookBuilder`] providing temporary output directory
-pub fn run_builder(
+// --------------------------------------------------------------------------------
+// Structure for implementing custom builder (hidden for now)
+
+/// adbook builder run via [`run_builder`]
+trait BookBuilder {
+    /// Walk through the [`BookStructure`] and build it into the temporary directory
+    ///
+    /// Creation & deletion of the temporay output directory is done via [`run_builder`].
+    fn build_book_to_tmp_dir(
+        &mut self,
+        book: &BookStructure,
+        cfg: &BuildConfig,
+        out_dir: &Path,
+    ) -> Result<()>;
+}
+
+/// Drives [`BookBuilder`] handling temporary output directory
+fn run_builder(
     builder: &mut impl BookBuilder,
     book: &BookStructure,
     cfg: &BuildConfig,

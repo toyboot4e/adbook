@@ -2,12 +2,9 @@
 
 use {anyhow::*, clap::Clap};
 
-use crate::{
-    book::BookStructure,
-    builder::{adoc, BuildConfig},
-};
+use crate::{book::BookStructure, builder::BuildConfig};
 
-/// `adbook` command line interface
+/// `adbook`
 #[derive(Clap, Debug)]
 #[clap(name = "adbook", about = "Creates a book from AsciiDoc files")]
 pub struct Cli {
@@ -51,8 +48,7 @@ impl Build {
         let build_cfg = BuildConfig::from_site_path(&book.site_dir_path());
 
         trace!("===> Building the book");
-        let mut builder = adoc::AdocBuilder::new();
-        crate::builder::run_builder(&mut builder, &book, &build_cfg)?;
+        crate::builder::build(&book, &build_cfg)?;
 
         Ok(())
     }
