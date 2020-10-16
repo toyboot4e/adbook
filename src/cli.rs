@@ -1,6 +1,6 @@
 use {anyhow::*, clap::Clap};
 
-use crate::book::Book;
+use crate::book::BookStructure;
 
 /// `adbook` command line interface
 #[derive(Clap, Debug)]
@@ -39,7 +39,7 @@ pub struct Build {
 
 impl Build {
     pub fn run(&self) -> Result<()> {
-        let book = Book::load_dir(&self.dir)?;
+        let book = BookStructure::load_dir(&self.dir)?;
 
         Ok(())
     }
