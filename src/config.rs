@@ -52,7 +52,7 @@ pub struct SubTocLoadErrors {
 impl fmt::Display for SubTocLoadErrors {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for err in &self.errors {
-            writeln!(f, "{}", err);
+            writeln!(f, "{}", err)?;
         }
         Ok(())
     }
@@ -87,6 +87,7 @@ impl Toc {
                 continue;
             }
 
+            // 3 cases:
             if path.is_file() {
                 // case 1. File
                 items.push(TocItem {
@@ -94,7 +95,7 @@ impl Toc {
                     content: TocItemContent::File(path.clone()),
                 });
             } else if path.is_dir() {
-                // case 2. Directory
+                // case 2. Directory with `toc.ron`
                 let nested_toc_ron = path.join("toc.ron");
                 if !nested_toc_ron.is_file() {
                     errors.push(TocLoadError::FoundDirectoryWithoutTocRon(path));

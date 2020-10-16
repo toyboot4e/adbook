@@ -2,7 +2,6 @@
 
 use {
     anyhow::{Context, Result},
-    serde::de::Deserialize,
     std::{
         fs,
         path::{Path, PathBuf},
