@@ -14,15 +14,15 @@ use crate::{
 };
 
 /// Builtin adbook builder
-pub struct BuiltinAdbookBuilder {}
+pub struct BuiltinBookBuilder {}
 
-impl BuiltinAdbookBuilder {
+impl BuiltinBookBuilder {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl BookBuilder for BuiltinAdbookBuilder {
+impl BookBuilder for BuiltinBookBuilder {
     fn build_book_to_tmp_dir(
         &mut self,
         book: &BookStructure,
@@ -35,11 +35,13 @@ impl BookBuilder for BuiltinAdbookBuilder {
     }
 }
 
-impl BuiltinAdbookBuilder {
+impl BuiltinBookBuilder {
     /// Depth-first walk
     ///
     /// depth-first serach: https://en.wikipedia.org/wiki/Depth-first_search
     fn visit_toc(&mut self, toc: &Toc, cfg: &BuildConfig, out_dir: &Path) -> Result<()> {
+        trace!("visit toc: {}", toc.path.display());
+
         for item in &toc.items {
             match item.content {
                 TocItemContent::File(ref file) => self.visit_file(file, cfg, out_dir)?,
@@ -51,6 +53,8 @@ impl BuiltinAdbookBuilder {
     }
 
     fn visit_file(&mut self, file: &Path, cfg: &BuildConfig, out_dir: &Path) -> Result<()> {
+        trace!("visit file: {}", file.display());
+
         Ok(())
     }
 }

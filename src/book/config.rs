@@ -76,6 +76,8 @@ impl fmt::Display for SubTocLoadErrors {
 /// Got from [`TocRon`], which is deserialiezd from `toc.ron`
 #[derive(Debug)]
 pub struct Toc {
+    /// Absolute path to the [`toc.ron`]
+    pub path: PathBuf,
     pub items: Vec<TocItem>,
 }
 
@@ -167,6 +169,12 @@ impl Toc {
             }
         }
 
-        (Self { items }, errors)
+        (
+            Self {
+                path: toc_ron_dir.to_path_buf(),
+                items,
+            },
+            errors,
+        )
     }
 }

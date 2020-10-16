@@ -2,7 +2,7 @@
 
 mod builtin;
 
-use self::builtin::BuiltinAdbookBuilder;
+use self::builtin::BuiltinBookBuilder;
 
 use {
     anyhow::{Context, Result},
@@ -16,7 +16,7 @@ use crate::book::BookStructure;
 
 /// Builds an `adbook` project with a configuration
 pub fn build(book: &BookStructure, cfg: &BuildConfig) -> Result<()> {
-    let mut builder = BuiltinAdbookBuilder::new();
+    let mut builder = BuiltinBookBuilder::new();
     self::run_builder(&mut builder, book, cfg)
 }
 
