@@ -19,11 +19,13 @@ use {
 /// Deserialized from `book.ron`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct BookRon {
+    /// Authors of the book
     pub authors: Vec<String>,
+    /// Title of the book
     pub title: String,
-    /// Where source files are located
+    /// The source directory
     pub src: PathBuf,
-    /// Where destination files are located
+    /// The destination directory where source files are converted
     pub site: PathBuf,
 }
 

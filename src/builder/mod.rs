@@ -10,6 +10,7 @@ use {
 use crate::book::BookStructure;
 
 pub trait BookBuilder {
+    /// Walk through the [`BookStructure`] and build it into the site (destination) directory
     fn build_book(&mut self, book: &BookStructure, cfg: &BuildConfig) -> Result<()>;
 }
 
