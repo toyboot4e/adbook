@@ -4,7 +4,7 @@ use {anyhow::*, clap::Clap};
 
 use crate::{
     book::BookStructure,
-    builder::{adoc, BookBuilder, BuildConfig},
+    builder::{adoc, BuildConfig},
 };
 
 /// `adbook` command line interface
@@ -52,7 +52,7 @@ impl Build {
 
         trace!("===> Building the book");
         let mut builder = adoc::AdocBuilder::new();
-        builder.build_book(&book, &build_cfg)?;
+        crate::builder::run_builder(&mut builder, &book, &build_cfg)?;
 
         Ok(())
     }
