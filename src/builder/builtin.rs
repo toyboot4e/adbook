@@ -79,18 +79,24 @@ impl BuiltinBookBuilder {
         Ok(())
     }
 
+    /// Tries to convert given file at path
     fn visit_file(&mut self, file: &Path, parent_dir: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!("visit file: {}", file.display());
 
         match file.extension().and_then(|o| o.to_str()) {
             Some("adoc") => self.visit_adoc(file, parent_dir, bcx)?,
-            Some("md") => {}
-            _ => {}
+            Some("md") => {
+                bail!(".md file is not yet handled: {}", file.display());
+            }
+            _ => {
+                bail!("Unexpected kind of file: {}", file.display());
+            }
         }
 
         Ok(())
     }
 
+    /// Gets destination path and runs [`self::convert_adoc`]
     fn visit_adoc(
         &mut self,
         src_file: &Path,
@@ -99,15 +105,15 @@ impl BuiltinBookBuilder {
     ) -> Result<()> {
         let rel = match src_file.strip_prefix(parent_dir) {
             Ok(r) => r,
-            Err(_err) => return Err(anyhow!(
+            Err(_err) => bail!(
                 "Tried to read child item but it was not located relative to parent directory. Item: `{}`, parent dir: `{}`",
                 src_file.display(),
                 parent_dir.display()
-            )),
+            ),
         };
-        let rel = rel.with_extension("html");
 
-        let dst_file = bcx.out_dir.join(&rel);
+        let dst_file = bcx.out_dir.join(&rel).with_extension("html");
+
         let dst_dir = dst_file.parent().with_context(|| {
             format!(
                 "Failed to get parent directory of `.adoc` file: {}",
@@ -129,6 +135,7 @@ impl BuiltinBookBuilder {
         Ok(())
     }
 
+    /// Actually converts an `.adoc` file using `asciidoctor` in PATH
     fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!(
             "Converting `.adoc` file from `{}` to `{}`",
