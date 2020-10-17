@@ -20,6 +20,7 @@ pub fn build(book: &BookStructure, cfg: &BuildConfig) -> Result<()> {
     self::run_builder(&mut builder, book, cfg)
 }
 
+#[derive(Debug, Clone)]
 pub struct BuildConfig {
     /// Absolute path to site directory
     site: PathBuf,

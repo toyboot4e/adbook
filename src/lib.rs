@@ -30,9 +30,9 @@ adbook project has such a file structure:
 
 ```
 .
-├── book.ron #
-├── site     # `.html` files are outputted here
-└── src      # source files are put here
+├── book.ron  #
+├── site      # `.html` files are outputted here
+└── src       # source files are put here
     └── toc.ron
 ```
 
