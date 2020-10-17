@@ -129,8 +129,10 @@ fn run_builder(
         out_dir.display()
     );
 
+    // ----------------------------------------
     builder.build_book_to_tmp_dir(book, cfg, &out_dir)?;
     // TODO: clear the destination and copy the temporary outputs to the actual destination
+    // ----------------------------------------
 
     trace!("==> Removing the temporary output directory");
     fs::remove_dir_all(&out_dir).with_context(|| {

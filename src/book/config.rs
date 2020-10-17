@@ -20,7 +20,7 @@ use {
 // Directly deserialized from ron files
 
 /// Deserialized from `book.ron`
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct BookRon {
     /// Authors of the book
     pub authors: Vec<String>,
@@ -74,7 +74,7 @@ impl fmt::Display for SubTocLoadErrors {
 }
 
 /// Got from [`TocRon`], which is deserialiezd from `toc.ron`
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Toc {
     /// Absolute path to the [`toc.ron`]
     pub path: PathBuf,
@@ -82,14 +82,14 @@ pub struct Toc {
 }
 
 /// Item in `toc.ron`: (File | SubToc) with name
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TocItem {
     pub name: String,
     pub content: TocItemContent,
 }
 
 /// File | SubToc
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TocItemContent {
     /// Absolute path to the file
     File(PathBuf),

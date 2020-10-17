@@ -27,7 +27,7 @@ pub enum BookLoadError {
 }
 
 /// Files structure of an adbook project read from `book.ron` and `toc.ron`s
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BookStructure {
     /// Absolute path to a directory with `book.ron`
     pub root: PathBuf,

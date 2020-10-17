@@ -4,6 +4,7 @@ use {
     anyhow::{Context, Error, Result},
     std::{
         fs,
+        io::prelude::*,
         path::{Path, PathBuf},
         process::Command,
     },
@@ -39,6 +40,7 @@ impl BookBuilder for BuiltinBookBuilder {
 
         let mut bcx = BuildContext {
             errors: Vec::with_capacity(10),
+            book: book.clone(),
             cfg: cfg.clone(),
             out_dir: out_dir.to_path_buf(),
         };
@@ -52,6 +54,7 @@ impl BookBuilder for BuiltinBookBuilder {
 #[derive(Debug)]
 struct BuildContext {
     errors: Vec<Error>,
+    book: BookStructure,
     cfg: BuildConfig,
     out_dir: PathBuf,
 }
@@ -135,13 +138,54 @@ impl BuiltinBookBuilder {
         Ok(())
     }
 
-    /// Actually converts an `.adoc` file using `asciidoctor` in PATH
+    /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
     fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!(
             "Converting `.adoc` file from `{}` to `{}`",
             src.display(),
             dst.display()
         );
+
+        let mut cmd = Command::new("asciidoctor");
+
+        let src_dir = bcx.book.src_dir_path();
+        let src_dir_str = format!("{}", src_dir.display());
+        let dst_dir = bcx.book.site_dir_path();
+        let dst_dir_str = format!("{}", dst_dir.display());
+
+        // output to stdout
+        cmd.current_dir(&src_dir).arg(src).args(&["-o", "-"]);
+
+        cmd.args(&["-B", &src_dir_str])
+            .args(&["-D", &dst_dir_str])
+            .arg("--trace")
+            .arg("-t") // time
+            .arg("--no-header-footer")
+            .args(&["-a", "noheader"])
+            .args(&["-a", "nofooter"]);
+
+        let output = cmd.output().with_context(|| {
+            format!(
+                "Unexpected error when converting an adoc file:\n  src: {}\n  dst: {}",
+                src.display(),
+                dst.display()
+            )
+        })?;
+
+        let mut out = fs::File::create(dst).with_context(|| {
+            format!(
+                "Unexpected error when trying to write to destination file:\n  {}",
+                dst.display(),
+            )
+        })?;
+
+        // let html_string = String::from_utf8(output.stdout)
+        //     .with_context(|| format!(
+        //         "Unexpected error when trying to create UTF8 string from the output of asciidoctor run over file:\n  {}",
+        //         src.display()
+        // ))?;
+
+        out.write_all(&output.stdout)?;
 
         Ok(())
     }
