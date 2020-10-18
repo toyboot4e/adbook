@@ -17,10 +17,11 @@ pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
         format!(
             "{} {}",
             errors.len(),
-            if errors.len() == 0 { "error" } else { "errors" }
+            if errors.len() == 1 { "error" } else { "errors" }
         )
+        .bold()
         .red(),
-        header_text.red()
+        header_text.bold().red()
     );
 
     for err in errors {
