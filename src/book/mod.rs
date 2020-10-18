@@ -8,6 +8,7 @@ pub mod config;
 
 use {
     anyhow::{Context, Result},
+    colored::*,
     std::{
         fs,
         path::{Path, PathBuf},
@@ -22,8 +23,8 @@ use self::config::{BookRon, Toc, TocRon};
 pub enum BookLoadError {
     #[error("Given non-directory path")]
     GivenNonDirectoryPath,
-    #[error("Not found `book.ron`")]
-    NotFoundBookRon,
+    #[error("Not found root directory (not found `book.ron`)")]
+    NotFoundRoot,
 }
 
 /// File structure of an adbook project read from `book.ron` and `toc.ron`s
@@ -46,9 +47,9 @@ impl BookStructure {
 }
 
 impl BookStructure {
-    /// Tries to find `book.ron` going up the directories and parses it
+    /// Tries to find `book.ron` going up the directories and parses it into a file structure
     pub fn from_dir(path: impl AsRef<Path>) -> Result<Self> {
-        let book_ron_path = self::find_book_ron(path)?;
+        let book_ron_path = self::find_root_book_ron(path)?;
         info!("book.ron located at: {}", book_ron_path.display());
 
         let root = book_ron_path
@@ -65,7 +66,7 @@ impl BookStructure {
         let book_ron: BookRon = {
             let cfg_str = fs::read_to_string(&book_ron_path).with_context(|| {
                 format!(
-                    "Failed to locate `book.ron`. Expected path: {}",
+                    "Failed to load root `book.ron` file. Expected path: {}",
                     book_ron_path.display()
                 )
             })?;
@@ -75,14 +76,14 @@ impl BookStructure {
                 format!("Failed to load book.ron at: {}", book_ron_path.display())
             })?
         };
-        trace!("book.ron loaded: {:?}", book_ron);
+        trace!("root `book.ron` loaded: {:?}", book_ron);
 
-        let src = root.join(&book_ron.src);
+        let src_dir = root.join(&book_ron.src);
 
         let (toc, toc_errors) = {
-            let toc_path = src.join("toc.ron");
+            let toc_path = src_dir.join("toc.ron");
             let toc_str = fs::read_to_string(&toc_path).with_context(|| {
-                format!("Failed to locate root toc file at: {}", toc_path.display())
+                format!("Unable to read root `toc.ron` at: {}", toc_path.display())
             })?;
 
             let toc_ron: TocRon = ron::from_str(&toc_str)
@@ -90,12 +91,16 @@ impl BookStructure {
             trace!("root toc.ron loaded: {:?}", toc_ron);
 
             // Here we actually load a root `toc.ron`
-            Toc::from_toc_ron_recursive(&toc_ron, &src)
+            Toc::from_toc_ron_recursive(&toc_ron, &src_dir)
         };
         trace!("toc.ron loaded: {:#?}", toc);
 
         if !toc_errors.is_empty() {
-            eprintln!("{} errors while parsing `toc.ron`:", toc_errors.len());
+            eprintln!(
+                "{} {}",
+                format!("{}", toc_errors.len()).red(),
+                "errors while parsing `toc.ron`:".red()
+            );
             for err in &toc_errors {
                 eprintln!("- {}", err);
             }
@@ -109,9 +114,15 @@ impl BookStructure {
     }
 }
 
-/// Tries to return a canonicalized path to `book.ron`
-fn find_book_ron(path: impl AsRef<Path>) -> Result<PathBuf> {
-    let path = path.as_ref().canonicalize()?;
+/// Tries to return a canonicalized path to `book.ron` locating a root directory
+fn find_root_book_ron(path: impl AsRef<Path>) -> Result<PathBuf> {
+    let path = path.as_ref().canonicalize().with_context(|| {
+        format!(
+            "Unable to find given directory path: {}",
+            path.as_ref().display()
+        )
+    })?;
+
     ensure!(path.is_dir(), BookLoadError::GivenNonDirectoryPath);
 
     // go up the ancestors and find `book.ron`
@@ -123,5 +134,5 @@ fn find_book_ron(path: impl AsRef<Path>) -> Result<PathBuf> {
         return Ok(book_ron);
     }
 
-    Err(BookLoadError::NotFoundBookRon.into())
+    Err(BookLoadError::NotFoundRoot.into())
 }

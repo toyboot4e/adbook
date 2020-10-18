@@ -2,6 +2,7 @@
 
 use {
     anyhow::{Context, Error, Result},
+    colored::*,
     std::{
         fs,
         io::prelude::*,
@@ -48,12 +49,17 @@ impl BookBuilder for BuiltinBookBuilder {
 
         self.visit_toc(&book.toc, &mut bcx)?;
 
+        // print errors if aany
         if !bcx.errors.is_empty() {
-            println!("==> ERRORS");
+            println!(
+                "{} {}:",
+                format!("{}", bcx.errors.len()).red(),
+                "erros while build the book".red()
+            );
             for err in &bcx.errors {
                 println!("{}", err);
             }
-            println!("<== ERRORS");
+            println!("{}", "<== errors".bright_black());
         }
 
         Ok(())
@@ -100,6 +106,7 @@ impl BuiltinBookBuilder {
     fn visit_file(&mut self, file: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!("visit file: {}", file.display());
 
+        // TODO: spawn thread
         match file.extension().and_then(|o| o.to_str()) {
             Some("adoc") => self.visit_adoc(file, bcx)?,
             Some("md") => {
@@ -174,8 +181,11 @@ impl BuiltinBookBuilder {
             // include backtrace information when reporting error
             cmd.arg("--trace");
 
-            // TODO: it doesn't contain revdate, author name etc.
-            // cmd.arg("--no-header-footer").args(&["-a", "showtitle"]);
+            // use "embedded" document without frame
+            // REMARK: it doesn't contain revdate, author name etc.
+            cmd.arg("--no-header-footer");
+
+            cmd.args(&["-a", "showtitle"]);
 
             bcx.book.book_ron.adoc_opts.apply(&mut cmd);
 
@@ -190,7 +200,7 @@ impl BuiltinBookBuilder {
             )
         })?;
 
-        // if failed to convert the document, report is as an error
+        // ensure the conversion succeeded or else report is as an error
         ensure!(
             output.status.success(),
             BuildError::FailedToConvert(

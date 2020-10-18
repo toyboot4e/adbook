@@ -5,16 +5,19 @@ authors = ["toyboot4e <toyboot4e@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+# basic
 log = "0.4.11"
 anyhow = "1.0.33"
 thiserror = "1.0.21"
 
+# for implementation
 serde = { version = "1.0.116", features = ["derive"] }
 ron = "0.6.2"
+colored = "2.0.0"
 
-# command line
+# for `cli` module
 clap = "3.0.0-beta.2"
 rprompt = "1.0.5"
 
-# main.rs
+# for `main.rs`
 env_logger = "0.7.1"

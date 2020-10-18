@@ -9,6 +9,7 @@ ToC stands for table of contents.
 !*/
 
 use {
+    colored::*,
     serde::{Deserialize, Serialize},
     std::{
         fmt, fs, io,
@@ -69,8 +70,9 @@ pub struct TocRon {
 /// Error when loading `toc.ron`
 #[derive(Debug, Error)]
 pub enum TocLoadError {
-    #[error("Failed to locate toc item at: {0}")]
-    FailedToLocateItem(PathBuf),
+    /// (relative_path_to_the_file, book_ron_directory_path)
+    #[error("Unable to locate `{0}` in `{1}`")]
+    FailedToLocateItem(PathBuf, PathBuf),
     #[error("Unexpected item with path: {0}")]
     FoundOddItem(PathBuf),
     #[error("Found directory without `toc.ron`: {0}")]
@@ -140,7 +142,10 @@ impl Toc {
         for (name, rel_path) in &toc_ron.items {
             let path = toc_ron_dir.join(rel_path);
             if !path.exists() {
-                errors.push(TocLoadError::FailedToLocateItem(path));
+                errors.push(TocLoadError::FailedToLocateItem(
+                    rel_path.into(),
+                    toc_ron_dir.to_path_buf(),
+                ));
                 continue;
             }
 
