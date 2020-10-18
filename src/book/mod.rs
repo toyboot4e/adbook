@@ -95,16 +95,7 @@ impl BookStructure {
         };
         trace!("toc.ron loaded: {:#?}", toc);
 
-        if !toc_errors.is_empty() {
-            eprintln!(
-                "{} {}",
-                format!("{}", toc_errors.len()).red(),
-                "errors while parsing `toc.ron`:".red()
-            );
-            for err in &toc_errors {
-                eprintln!("- {}", err);
-            }
-        }
+        crate::utils::print_errors(&toc_errors, "while parsing toc.ron");
 
         Ok(Self {
             root,

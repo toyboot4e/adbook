@@ -57,3 +57,4 @@ extern crate anyhow;
 pub mod book;
 pub mod builder;
 pub mod cli;
+pub mod utils;

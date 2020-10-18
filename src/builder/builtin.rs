@@ -17,7 +17,7 @@ use crate::{
         config::{Toc, TocItemContent},
         BookStructure,
     },
-    builder::{BookBuilder, BuildConfig},
+    builder::BookBuilder,
 };
 
 /// Builtin adbook builder
@@ -30,12 +30,7 @@ impl BuiltinBookBuilder {
 }
 
 impl BookBuilder for BuiltinBookBuilder {
-    fn build_book_to_tmp_dir(
-        &mut self,
-        book: &BookStructure,
-        cfg: &BuildConfig,
-        out_dir: &Path,
-    ) -> Result<()> {
+    fn build_book_to_tmp_dir(&mut self, book: &BookStructure, out_dir: &Path) -> Result<()> {
         Command::new("asciidoctor")
             .output()
             .with_context(|| "Error when trying to validate `asciidoctor` in PATH")?;
@@ -43,24 +38,13 @@ impl BookBuilder for BuiltinBookBuilder {
         let mut bcx = BuildContext {
             errors: Vec::with_capacity(10),
             book: book.clone(),
-            cfg: cfg.clone(),
             out_dir: out_dir.to_path_buf(),
         };
 
         self.visit_toc(&book.toc, &mut bcx)?;
 
-        // print errors if aany
-        if !bcx.errors.is_empty() {
-            println!(
-                "{} {}:",
-                format!("{}", bcx.errors.len()).red(),
-                "erros while build the book".red()
-            );
-            for err in &bcx.errors {
-                println!("{}", err);
-            }
-            println!("{}", "<== errors".bright_black());
-        }
+        // print errors if any
+        crate::utils::print_errors(&bcx.errors, "while building the book");
 
         Ok(())
     }
@@ -70,7 +54,6 @@ impl BookBuilder for BuiltinBookBuilder {
 struct BuildContext {
     errors: Vec<Error>,
     book: BookStructure,
-    cfg: BuildConfig,
     out_dir: PathBuf,
 }
 
@@ -157,7 +140,7 @@ impl BuiltinBookBuilder {
     /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
     fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!(
-            "Converting `.adoc` file from `{}` to `{}`",
+            "Converting adoc: `{}` -> `{}`",
             src.display(),
             dst.display()
         );

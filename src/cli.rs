@@ -4,7 +4,7 @@
 
 use {anyhow::*, clap::Clap};
 
-use crate::{book::BookStructure, builder::BuildConfig};
+use crate::book::BookStructure;
 
 /// `adbook`
 #[derive(Clap, Debug)]
@@ -47,10 +47,9 @@ impl Build {
     pub fn run(&self) -> Result<()> {
         trace!("===> Loading book structure");
         let book = BookStructure::from_dir(&self.dir)?;
-        let build_cfg = BuildConfig::from_site_path(&book.site_dir_path());
 
         trace!("===> Building the book");
-        crate::builder::build(&book, &build_cfg)?;
+        crate::builder::build(&book)?;
 
         Ok(())
     }
