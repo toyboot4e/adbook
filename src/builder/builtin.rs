@@ -14,7 +14,7 @@ use {
 
 use crate::{
     book::{
-        config::{Toc, TocItemContent},
+        config::{BookRon, CmdOptions, Toc, TocItemContent},
         BookStructure,
     },
     builder::BookBuilder,
@@ -55,6 +55,26 @@ struct BuildContext {
     errors: Vec<Error>,
     book: BookStructure,
     out_dir: PathBuf,
+}
+
+impl BuildContext {
+    /// Applies `asciidoctor` options listed in `book.ron` to [`std::proces::Command`]
+    pub fn apply_adoc_opts(&self, cmd: &mut Command) {
+        let src_dir = self.book.src_dir_path();
+        let src_dir_str = format!("{}", src_dir.display());
+
+        for (opt, args) in &self.book.book_ron.adoc_opts.0 {
+            if args.is_empty() {
+                cmd.arg(opt);
+            } else {
+                // translated as (opt, arg)+
+                for arg in args {
+                    let arg = arg.replace(r#"${src_dir}"#, &src_dir_str);
+                    cmd.args(&[opt, &arg]);
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Error)]
@@ -166,11 +186,12 @@ impl BuiltinBookBuilder {
 
             // use "embedded" document without frame
             // REMARK: it doesn't contain revdate, author name etc.
+            // TODO: collect AsciiDoc attributes and create header manually
+            // (maybe using a templating engine)
             cmd.arg("--no-header-footer");
-
             cmd.args(&["-a", "showtitle"]);
 
-            bcx.book.book_ron.adoc_opts.apply(&mut cmd);
+            bcx.apply_adoc_opts(&mut cmd);
 
             cmd
         };

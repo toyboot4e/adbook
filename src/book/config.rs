@@ -23,21 +23,6 @@ use {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CmdOptions(pub Vec<(String, Vec<String>)>);
 
-impl CmdOptions {
-    pub fn apply(&self, cmd: &mut Command) {
-        for (opt, args) in &self.0 {
-            if args.is_empty() {
-                cmd.arg(opt);
-            } else {
-                // translated as (opt, arg)+
-                for arg in args {
-                    cmd.args(&[opt, arg]);
-                }
-            }
-        }
-    }
-}
-
 // --------------------------------------------------------------------------------
 // Directly deserialized from ron files
 
