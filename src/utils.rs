@@ -11,7 +11,7 @@ pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
         return;
     }
 
-    // header
+    // header string: "<n> error[s] <header_text>"
     eprintln!(
         "{} {}:",
         format!(

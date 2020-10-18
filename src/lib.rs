@@ -7,22 +7,26 @@ The name came from [mdbook], which was inspired by [GitBook].
 
 # Installation
 
-The following command will install `adbook `in `$HOME/.cargo/bin` (on macOS or Linux):
+## adbook
+
+Install `adbook `in `$HOME/.cargo/bin` (on macOS or Linux):
 
 ```sh
 $ cargo install adbook
 ```
 
-To get started, create a new book project with `cargo new path/for/your/book/directory`.
+To get started, create a new adbook project with `cargo new path/to/the/new/book/directory`.
 
 > I'm 0% sure about Windows though..
 
-# Supported source file formats
+## Asciidoctor
 
-* AsciiDoc via [AsciiDoctor] in `PATH`
-* markdown via TODO: what?
+You'll need:
 
-[AsciiDoctor]: https://asciidoctor.org/
+* [asciidoctor](https://asciidoctor.org)
+* [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)
+
+> I recommend using `rvm` over `gem` because it's faster (at least on macOS).
 
 # File structure in adbook projects
 
@@ -30,10 +34,9 @@ adbook project has such a file structure:
 
 ```
 .
-├── book.ron  #
+├── book.ron  # configuration file
 ├── site      # `.html` files are outputted here
 └── src       # source files are put here
-    └── toc.ron
 ```
 
 Configuration files are written in [Ron]:
@@ -44,6 +47,17 @@ Configuration files are written in [Ron]:
 [Ron]: https://github.com/ron-rs/ron
 [`BookRon`]: crate::book::config::BookRon
 [`TocRon`]: crate::book::config::TocRon
+
+`adbook` will look into `src/toc.ron` and searches files in it, recursively:
+
+```
+└── src
+    ├── a.adoc
+    ├── sub_directory
+    │   ├── b.adoc
+    │   └── toc.ron  # alternative to `SUMMARY.md` in `mdbook` or `mod.rs` in Cargo
+    └── toc.ron      # alternative to `SUMMARY.md` in `mdbook` or `lib.rs` in Cargo
+```
 !*/
 
 // Globally importing `info!`, `warn!`, etc.

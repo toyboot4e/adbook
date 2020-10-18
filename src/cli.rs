@@ -6,9 +6,12 @@ use {anyhow::*, clap::Clap};
 
 use crate::book::BookStructure;
 
-/// `adbook`
+// `adbook`
 #[derive(Clap, Debug)]
-#[clap(name = "adbook", about = "Creates a book from AsciiDoc files")]
+#[clap(
+    name = "adbook creates a book from AsciiDoc files",
+    setting = clap::AppSettings::ColoredHelp
+)]
 pub struct Cli {
     #[clap(subcommand)]
     cmd: SubCommand,
@@ -20,11 +23,14 @@ impl Cli {
     }
 }
 
-/// `adbook <sub command>`
+// `adbook <sub command>`
 #[derive(Clap, Debug)]
 pub enum SubCommand {
+    #[clap(name = "new", alias = "n")]
+    /// Initializes a directory as an `adbook` project
+    Init(Init),
     #[clap(name = "build", alias = "b")]
-    /// Builds adbook directory
+    /// Builds `adbook` projects
     Build(Build),
 }
 
@@ -32,6 +38,7 @@ impl SubCommand {
     pub fn run(&self) -> Result<()> {
         match self {
             SubCommand::Build(build) => build.run(),
+            SubCommand::Init(new) => new.run(),
         }
     }
 }
@@ -44,6 +51,25 @@ pub struct Build {
 }
 
 impl Build {
+    pub fn run(&self) -> Result<()> {
+        trace!("===> Loading book structure");
+        let book = BookStructure::from_dir(&self.dir)?;
+
+        trace!("===> Building the book");
+        crate::builder::build(&book)?;
+
+        Ok(())
+    }
+}
+
+/// `adbook init`
+#[derive(Clap, Debug)]
+pub struct Init {
+    #[clap(short, long, default_value = ".")]
+    dir: String,
+}
+
+impl Init {
     pub fn run(&self) -> Result<()> {
         trace!("===> Loading book structure");
         let book = BookStructure::from_dir(&self.dir)?;

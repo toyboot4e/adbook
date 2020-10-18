@@ -69,7 +69,9 @@ impl BuildContext {
             } else {
                 // translated as (opt, arg)+
                 for arg in args {
+                    // setup placeholder string
                     let arg = arg.replace(r#"${src_dir}"#, &src_dir_str);
+
                     cmd.args(&[opt, &arg]);
                 }
             }
