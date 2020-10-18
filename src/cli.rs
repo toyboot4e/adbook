@@ -146,13 +146,15 @@ impl Init {
         }
 
         let toc = src.join("toc.ron");
-        if !src.exists() {
+        if !toc.exists() {
             let mut f = fs::File::create(&toc)?;
             write!(
                 f,
-                r#"(items:[
-    ("1", "1.adoc"),
-])"#
+                r#"(
+    items:[
+        ("1", "1.adoc"),
+    ]
+)"#
             )?;
         }
 

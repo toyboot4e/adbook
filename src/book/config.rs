@@ -9,12 +9,10 @@ ToC stands for table of contents.
 !*/
 
 use {
-    colored::*,
     serde::{Deserialize, Serialize},
     std::{
         fmt, fs, io,
         path::{Path, PathBuf},
-        process::Command,
     },
     thiserror::Error,
 };
