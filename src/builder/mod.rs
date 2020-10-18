@@ -98,7 +98,7 @@ fn run_builder(
         }
     }
 
-    // trace!("==> Removing the temporary output directory");
+    trace!("==> Removing the temporary output directory");
     fs::remove_dir_all(&out_dir).with_context(|| {
         format!(
             "Unexpected error when removing the temporary output directory at: {}",

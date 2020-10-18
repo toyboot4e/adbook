@@ -66,10 +66,9 @@ impl BuiltinBookBuilder {
     fn visit_toc(&mut self, toc: &Toc, bcx: &mut BuildContext) -> Result<()> {
         trace!("visit toc: {}", toc.path.display());
 
-        let parent_dir = toc.path.parent().unwrap();
         for item in &toc.items {
             let res = match item.content {
-                TocItemContent::File(ref file) => self.visit_file(file, &parent_dir, bcx),
+                TocItemContent::File(ref file) => self.visit_file(file, bcx),
                 TocItemContent::SubToc(ref toc) => self.visit_toc(toc, bcx),
             };
 
@@ -83,11 +82,11 @@ impl BuiltinBookBuilder {
     }
 
     /// Tries to convert given file at path
-    fn visit_file(&mut self, file: &Path, parent_dir: &Path, bcx: &mut BuildContext) -> Result<()> {
+    fn visit_file(&mut self, file: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!("visit file: {}", file.display());
 
         match file.extension().and_then(|o| o.to_str()) {
-            Some("adoc") => self.visit_adoc(file, parent_dir, bcx)?,
+            Some("adoc") => self.visit_adoc(file, bcx)?,
             Some("md") => {
                 bail!(".md file is not yet handled: {}", file.display());
             }
@@ -100,18 +99,13 @@ impl BuiltinBookBuilder {
     }
 
     /// Gets destination path and runs [`self::convert_adoc`]
-    fn visit_adoc(
-        &mut self,
-        src_file: &Path,
-        parent_dir: &Path,
-        bcx: &mut BuildContext,
-    ) -> Result<()> {
-        let rel = match src_file.strip_prefix(parent_dir) {
+    fn visit_adoc(&mut self, src_file: &Path, bcx: &mut BuildContext) -> Result<()> {
+        // relative path from source directory
+        let rel = match src_file.strip_prefix(bcx.book.src_dir_path()) {
             Ok(r) => r,
             Err(_err) => bail!(
-                "Tried to read child item but it was not located relative to parent directory. Item: `{}`, parent dir: `{}`",
+                "Fail that is not in source directly found: {}",
                 src_file.display(),
-                parent_dir.display()
             ),
         };
 
