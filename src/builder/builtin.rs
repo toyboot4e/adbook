@@ -8,6 +8,7 @@ use {
         path::{Path, PathBuf},
         process::Command,
     },
+    thiserror::Error,
 };
 
 use crate::{
@@ -47,6 +48,14 @@ impl BookBuilder for BuiltinBookBuilder {
 
         self.visit_toc(&book.toc, &mut bcx)?;
 
+        if !bcx.errors.is_empty() {
+            println!("==> ERRORS");
+            for err in &bcx.errors {
+                println!("{}", err);
+            }
+            println!("<== ERRORS");
+        }
+
         Ok(())
     }
 }
@@ -57,6 +66,12 @@ struct BuildContext {
     book: BookStructure,
     cfg: BuildConfig,
     out_dir: PathBuf,
+}
+
+#[derive(Debug, Error)]
+pub enum BuildError {
+    #[error("Failed to convert file: {0}\n{1}")]
+    FailedToConvert(PathBuf, String),
 }
 
 impl BuiltinBookBuilder {
@@ -140,24 +155,32 @@ impl BuiltinBookBuilder {
             dst.display()
         );
 
-        let mut cmd = Command::new("asciidoctor");
+        let mut cmd = {
+            let mut cmd = Command::new("asciidoctor");
 
-        let src_dir = bcx.book.src_dir_path();
-        let src_dir_str = format!("{}", src_dir.display());
-        let dst_dir = bcx.book.site_dir_path();
-        let dst_dir_str = format!("{}", dst_dir.display());
+            let src_dir = bcx.book.src_dir_path();
+            let src_dir_str = format!("{}", src_dir.display());
+            let dst_dir = bcx.book.site_dir_path();
+            let dst_dir_str = format!("{}", dst_dir.display());
 
-        // output to stdout
-        cmd.arg(src).args(&["-o", "-"]);
+            // output to stdout
+            cmd.arg(src).args(&["-o", "-"]);
 
-        cmd.current_dir(&src_dir)
-            .args(&["-B", &src_dir_str])
-            .args(&["-D", &dst_dir_str])
+            // setup directory settings (base (source)/destination directory)
+            cmd.current_dir(&src_dir)
+                .args(&["-B", &src_dir_str])
+                .args(&["-D", &dst_dir_str]);
+
             // include backtrace information when reporting error
-            .arg("--trace")
-            .arg("--no-header-footer");
+            cmd.arg("--trace");
 
-        bcx.book.book_ron.adoc_opts.apply(&mut cmd);
+            // TODO: it doesn't contain revdate, author name etc.
+            // cmd.arg("--no-header-footer").args(&["-a", "showtitle"]);
+
+            bcx.book.book_ron.adoc_opts.apply(&mut cmd);
+
+            cmd
+        };
 
         let output = cmd.output().with_context(|| {
             format!(
@@ -166,6 +189,16 @@ impl BuiltinBookBuilder {
                 dst.display()
             )
         })?;
+
+        // if failed to convert the document, report is as an error
+        ensure!(
+            output.status.success(),
+            BuildError::FailedToConvert(
+                src.to_path_buf(),
+                String::from_utf8(output.stderr)
+                    .unwrap_or("<undecodable UTF8 output by asciidoctor?".to_string())
+            )
+        );
 
         let mut out = fs::File::create(dst).with_context(|| {
             format!(

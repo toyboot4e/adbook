@@ -25,8 +25,13 @@ pub struct CmdOptions(pub Vec<(String, Vec<String>)>);
 impl CmdOptions {
     pub fn apply(&self, cmd: &mut Command) {
         for (opt, args) in &self.0 {
-            for arg in args {
-                cmd.args(&[opt, arg]);
+            if args.is_empty() {
+                cmd.arg(opt);
+            } else {
+                // translated as (opt, arg)+
+                for arg in args {
+                    cmd.args(&[opt, arg]);
+                }
             }
         }
     }
