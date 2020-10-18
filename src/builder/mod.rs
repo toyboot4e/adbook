@@ -2,8 +2,6 @@
 
 mod builtin;
 
-use self::builtin::BuiltinBookBuilder;
-
 use {
     anyhow::{Context, Result},
     std::{
@@ -13,6 +11,8 @@ use {
 };
 
 use crate::book::BookStructure;
+
+use self::builtin::BuiltinBookBuilder;
 
 /// Builds an `adbook` project with a configuration
 pub fn build(book: &BookStructure, cfg: &BuildConfig) -> Result<()> {
@@ -59,13 +59,13 @@ trait BookBuilder {
     ) -> Result<()>;
 }
 
-/// Drives [`BookBuilder`] handling temporary output directory
+/// Runs [`BookBuilder`] with guards for temporary directory
 fn run_builder(
     builder: &mut impl BookBuilder,
     book: &BookStructure,
     cfg: &BuildConfig,
 ) -> Result<()> {
-    // make sure there is site (destination) directory
+    // create site (destination) directory if there's not
     {
         let site = book.site_dir_path();
         if !site.exists() {
@@ -75,17 +75,51 @@ fn run_builder(
         }
     }
 
+    // create temporary directory if there's not
     let out_dir = cfg.tmp_dir();
+    if !self::validate_out_dir(&out_dir)? {
+        println!("Stopped building adbook directory");
+        return Ok(());
+    }
 
+    // now let's build the project!
+    builder.build_book_to_tmp_dir(book, cfg, &out_dir)?;
+
+    // TODO: clear files in site directory one by one except `.git` etc.
+
+    // copy the output files and includes to the site
+    for rel_path in &book.book_ron.includes {
+        let path = book.root.join(rel_path);
+        if path.is_file() {
+            //
+        }
+        if path.is_dir() {
+            //
+        }
+    }
+
+    // trace!("==> Removing the temporary output directory");
+    fs::remove_dir_all(&out_dir).with_context(|| {
+        format!(
+            "Unexpected error when removing the temporary output directory at: {}",
+            out_dir.display()
+        )
+    })?;
+
+    Ok(())
+}
+
+/// Returns if the directory is valid or not
+fn validate_out_dir(out_dir: &Path) -> Result<bool> {
     // make sure we have an available temporary output directory
     if out_dir.exists() {
         ensure!(
             out_dir.is_dir(),
-            "There's something that prevents `adbook` from making a temporary output directory: {}",
+            "There's something that prevents `adbook` from making a temporary output directory at: {}",
             out_dir.display()
         );
 
-        // can we use it as a temporary output directory?
+        // ask user if `adbook` is allowed to clear the to-be temporary directory
         println!("-----------------------------------------------------------");
         println!("There's already a directory where `adbook` wants to output temporary files:");
         println!("{}", out_dir.display());
@@ -94,8 +128,7 @@ fn run_builder(
         match rprompt::prompt_reply_stdout("> [y/n]: ")?.as_str() {
             "y" | "yes" => {}
             _ => {
-                println!("Stopped building adbook directory");
-                return Ok(());
+                return Ok(false);
             }
         }
 
@@ -104,19 +137,22 @@ fn run_builder(
             out_dir.display()
         );
 
-        fs::remove_dir_all(&out_dir).with_context(|| format!(
-                "Unexpected error while clearing an output directory so that `adbook` can use it: {}",
+        fs::remove_dir_all(&out_dir).with_context(|| {
+            format!(
+                "Unexpected error while clearing an output directory for `adbook`: {}",
                 out_dir.display()
-            ))?;
+            )
+        })?;
     }
 
+    // now `out_dir` must NOT exist
     assert!(
-            !out_dir.exists(),
-            "Fatal error: adbook must have ensured that temporary output directory doesn't exist at: {}",
-            out_dir.display()
-        );
+        !out_dir.exists(),
+        "Fatal error: adbook must have ensured that temporary output directory doesn't exist at: {}",
+        out_dir.display()
+    );
 
-    // now create the temporary outputting directory
+    // create the temporary outputting directory
     fs::create_dir(&out_dir).with_context(|| {
         format!(
             "Failed to temporary output directory at: {}",
@@ -129,18 +165,5 @@ fn run_builder(
         out_dir.display()
     );
 
-    // ----------------------------------------
-    builder.build_book_to_tmp_dir(book, cfg, &out_dir)?;
-    // TODO: clear the destination and copy the temporary outputs to the actual destination
-    // ----------------------------------------
-
-    trace!("==> Removing the temporary output directory");
-    fs::remove_dir_all(&out_dir).with_context(|| {
-        format!(
-            "Unexpected error when removing the temporary output directory at: {}",
-            out_dir.display()
-        )
-    })?;
-
-    Ok(())
+    Ok(true)
 }

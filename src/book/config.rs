@@ -1,20 +1,36 @@
-//! `adbook` configuration
-//!
-//! # Configuration files
-//!
-//! * `book.ron`: Something like `Cargo.toml`, a root file for an adbook project
-//! * `toc.ron`: Something like `mod.rs`, which lists `(name, path)` pairs
-//!
-//! ToC stands for table of contents.
+/*! `adbook` configuration
+
+# Configuration files
+
+* `book.ron`: Something like `Cargo.toml`, a root file for an adbook project
+* `toc.ron`: Something like `mod.rs`, which lists `(name, path)` pairs
+
+ToC stands for table of contents.
+!*/
 
 use {
     serde::{Deserialize, Serialize},
     std::{
         fmt, fs, io,
         path::{Path, PathBuf},
+        process::Command,
     },
     thiserror::Error,
 };
+
+/// Arguments to a command
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct CmdOptions(pub Vec<(String, Vec<String>)>);
+
+impl CmdOptions {
+    pub fn apply(&self, cmd: &mut Command) {
+        for (opt, args) in &self.0 {
+            for arg in args {
+                cmd.args(&[opt, arg]);
+            }
+        }
+    }
+}
 
 // --------------------------------------------------------------------------------
 // Directly deserialized from ron files
@@ -30,6 +46,10 @@ pub struct BookRon {
     pub src: PathBuf,
     /// The destination directory where source files are converted
     pub site: PathBuf,
+    /// Files or directories copied to `site` directory
+    pub includes: Vec<PathBuf>,
+    /// Additional options for `asciidoctor` command
+    pub adoc_opts: CmdOptions,
 }
 
 /// Deserialized from `toc.ron`

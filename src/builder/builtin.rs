@@ -154,15 +154,16 @@ impl BuiltinBookBuilder {
         let dst_dir_str = format!("{}", dst_dir.display());
 
         // output to stdout
-        cmd.current_dir(&src_dir).arg(src).args(&["-o", "-"]);
+        cmd.arg(src).args(&["-o", "-"]);
 
-        cmd.args(&["-B", &src_dir_str])
+        cmd.current_dir(&src_dir)
+            .args(&["-B", &src_dir_str])
             .args(&["-D", &dst_dir_str])
+            // include backtrace information when reporting error
             .arg("--trace")
-            .arg("-t") // time
-            .arg("--no-header-footer")
-            .args(&["-a", "noheader"])
-            .args(&["-a", "nofooter"]);
+            .arg("--no-header-footer");
+
+        bcx.book.book_ron.adoc_opts.apply(&mut cmd);
 
         let output = cmd.output().with_context(|| {
             format!(
@@ -179,11 +180,7 @@ impl BuiltinBookBuilder {
             )
         })?;
 
-        // let html_string = String::from_utf8(output.stdout)
-        //     .with_context(|| format!(
-        //         "Unexpected error when trying to create UTF8 string from the output of asciidoctor run over file:\n  {}",
-        //         src.display()
-        // ))?;
+        // TODO: templating
 
         out.write_all(&output.stdout)?;
 
