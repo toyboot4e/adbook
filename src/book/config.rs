@@ -20,8 +20,7 @@ use {
 };
 
 /// Arguments to a command
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct CmdOptions(pub Vec<(String, Vec<String>)>);
+pub type CmdOptions = Vec<(String, Vec<String>)>;
 
 // --------------------------------------------------------------------------------
 // Directly deserialized from ron files

@@ -63,7 +63,7 @@ impl BuildContext {
         let src_dir = self.book.src_dir_path();
         let src_dir_str = format!("{}", src_dir.display());
 
-        for (opt, args) in &self.book.book_ron.adoc_opts.0 {
+        for (opt, args) in &self.book.book_ron.adoc_opts {
             if args.is_empty() {
                 cmd.arg(opt);
             } else {
@@ -193,6 +193,7 @@ impl BuiltinBookBuilder {
             cmd.arg("--no-header-footer");
             cmd.args(&["-a", "showtitle"]);
 
+            // apply options set by user (`book.ron`)
             bcx.apply_adoc_opts(&mut cmd);
 
             cmd

@@ -115,7 +115,7 @@ impl Init {
     ],
 
     // options for `asciidoctor`
-    adoc_opts: ([
+    adoc_opts: [
         ("-a", [
             "linkcss",
             //
@@ -135,7 +135,7 @@ impl Init {
         ("-r", [
             "asciidoctor-diagram",
         ]),
-    ])
+    ]
 )
 "#
         )?;
