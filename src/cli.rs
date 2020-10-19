@@ -103,8 +103,8 @@ impl Init {
             r#"(
     authors: ["author"],
     title: "title",
-    src: "src",
-    site: "site",
+    src_dir: "src",
+    site_dir: "site",
 
     includes: [
         "img",

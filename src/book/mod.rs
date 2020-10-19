@@ -37,11 +37,11 @@ pub struct BookStructure {
 
 impl BookStructure {
     pub fn src_dir_path(&self) -> PathBuf {
-        self.root.join(&self.book_ron.src)
+        self.root.join(&self.book_ron.src_dir)
     }
 
     pub fn site_dir_path(&self) -> PathBuf {
-        self.root.join(&self.book_ron.site)
+        self.root.join(&self.book_ron.site_dir)
     }
 }
 
@@ -77,7 +77,7 @@ impl BookStructure {
         };
         trace!("root `book.ron` loaded: {:?}", book_ron);
 
-        let src_dir = root.join(&book_ron.src);
+        let src_dir = root.join(&book_ron.src_dir);
 
         let (toc, toc_errors) = {
             let toc_path = src_dir.join("toc.ron");

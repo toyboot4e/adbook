@@ -31,9 +31,9 @@ pub struct BookRon {
     /// Title of the book
     pub title: String,
     /// The source directory
-    pub src: PathBuf,
+    pub src_dir: PathBuf,
     /// The destination directory where source files are converted
-    pub site: PathBuf,
+    pub site_dir: PathBuf,
     /// Files or directories copied to `site` directory
     pub includes: Vec<PathBuf>,
     /// Additional options for `asciidoctor` command

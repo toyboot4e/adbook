@@ -10,9 +10,23 @@ use {
 use crate::book::BookStructure;
 
 /// Builds an `adbook` project with a configuration
-pub fn build(book: &BookStructure) -> Result<()> {
+pub fn build_book(book: &BookStructure) -> Result<()> {
     let mut builder = self::builtin::BuiltinBookBuilder::new();
     self::run_builder(&mut builder, book)
+}
+
+/// Converts an AsciiDoc file into html using some configuration
+pub fn convert_adoc(src: &Path, dst: &Path) -> Result<()> {
+    ensure!(src.is_file(), "Given invalid source file path");
+    ensure!(!dst.exists(), "Something in the destination file path");
+
+    // setup dummy context & builder for an article
+    use crate::builder::builtin::{BuildContext, BuiltinBookBuilder};
+    let mut bcx = BuildContext::single_article(src, dst)?;
+    let mut builder = BuiltinBookBuilder::new();
+    builder.convert_adoc(src, dst, &mut bcx)?;
+
+    Ok(())
 }
 
 // --------------------------------------------------------------------------------
@@ -51,7 +65,7 @@ fn run_builder(builder: &mut impl BookBuilder, book: &BookStructure) -> Result<(
     trace!("==> Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
-        let res = self::copy_outputs(builder, book, &out_dir, &mut errors);
+        let res = self::copy_outputs(book, &out_dir, &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }

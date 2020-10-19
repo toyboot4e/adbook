@@ -49,14 +49,52 @@ impl BookBuilder for BuiltinBookBuilder {
     }
 }
 
+/// Context for running a book/article builder
 #[derive(Debug)]
-struct BuildContext {
+pub struct BuildContext {
     errors: Vec<Error>,
     book: BookStructure,
     out_dir: PathBuf,
 }
 
 impl BuildContext {
+    /// Creates a context for building an article
+    ///
+    /// TODO: separate book/article build context
+    pub fn single_article(src: &Path, dst: &Path) -> Result<Self> {
+        use crate::book::config::TocItem;
+
+        let src_dir = src.parent().ok_or(anyhow!("invalid src"))?;
+        let dst_dir = dst.parent().ok_or(anyhow!("invalid dst"))?;
+
+        let book_ron = BookRon {
+            src_dir: src_dir.to_path_buf(),
+            site_dir: dst_dir.to_path_buf(),
+            // adoc_opts: vec![("-a"
+            ..Default::default()
+        };
+
+        let toc = Toc {
+            path: src.parent().unwrap().join("_dummy_toc_.ron"),
+            items: vec![TocItem {
+                name: "dummy_name".to_string(),
+                content: TocItemContent::File(src.to_path_buf()),
+            }],
+        };
+
+        let dummy_book = crate::book::BookStructure {
+            root: src.to_path_buf(),
+            book_ron,
+            toc,
+        };
+
+        Ok(Self {
+            errors: Vec::with_capacity(10),
+            book: dummy_book,
+            out_dir: dst.parent().unwrap().to_path_buf(),
+        })
+    }
+
     /// Applies `asciidoctor` options listed in `book.ron` to [`std::proces::Command`]
     pub fn apply_adoc_opts(&self, cmd: &mut Command) {
         let src_dir = self.book.src_dir_path();
@@ -159,7 +197,7 @@ impl BuiltinBookBuilder {
     }
 
     /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
-    fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
+    pub fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
         trace!(
             "Converting adoc: `{}` -> `{}`",
             src.display(),
@@ -182,15 +220,14 @@ impl BuiltinBookBuilder {
                 .args(&["-B", &src_dir_str])
                 .args(&["-D", &dst_dir_str]);
 
-            // include backtrace information when reporting error
-            cmd.arg("--trace");
+            cmd.arg("--trace").arg("--verbose");
 
             // use "embedded" document without frame
             // REMARK: it doesn't contain revdate, author name etc.
             // TODO: collect AsciiDoc attributes and create header manually
             // (maybe using a templating engine)
-            cmd.arg("--no-header-footer");
-            cmd.args(&["-a", "showtitle"]);
+            // cmd.arg("--no-header-footer");
+            // cmd.args(&["-a", "showtitle"]);
 
             // apply options set by user (`book.ron`)
             bcx.apply_adoc_opts(&mut cmd);
@@ -200,7 +237,7 @@ impl BuiltinBookBuilder {
 
         let output = cmd.output().with_context(|| {
             format!(
-                "Unexpected error when converting an adoc file:\n  src: {}\n  dst: {}",
+                "Error while running `asciidoctor`:\n  src: {}\n  dst: {}",
                 src.display(),
                 dst.display()
             )
