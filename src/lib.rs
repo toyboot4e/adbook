@@ -32,7 +32,7 @@ You'll need:
 
 adbook project has such a file structure:
 
-```
+```sh
 .
 ├── book.ron  # configuration file
 ├── site      # `.html` files are outputted here
@@ -50,7 +50,7 @@ Configuration files are written in [Ron]:
 
 `adbook` will look into `src/toc.ron` and searches files in it, recursively:
 
-```
+```sh
 └── src
     ├── a.adoc
     ├── sub_directory
