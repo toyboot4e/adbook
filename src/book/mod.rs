@@ -8,7 +8,6 @@ pub mod config;
 
 use {
     anyhow::{Context, Result},
-    colored::*,
     std::{
         fs,
         path::{Path, PathBuf},

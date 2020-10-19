@@ -130,12 +130,7 @@ fn validate_out_dir(out_dir: &Path) -> Result<bool> {
     Ok(true)
 }
 
-fn copy_outputs(
-    builder: &mut impl BookBuilder,
-    book: &BookStructure,
-    out_dir: &Path,
-    errors: &mut Vec<Error>,
-) -> Result<()> {
+fn copy_outputs(book: &BookStructure, out_dir: &Path, errors: &mut Vec<Error>) -> Result<()> {
     // clear most files in site directory
     let site_dir = book.site_dir_path();
     for entry in fs::read_dir(&site_dir).context("Unable to `read_dir` the source directory")? {

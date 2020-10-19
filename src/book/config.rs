@@ -1,4 +1,4 @@
-/*! `adbook` configuration
+/*! `adbook` configuration deserialized from `.ron` files
 
 # Configuration files
 
@@ -24,7 +24,7 @@ pub type CmdOptions = Vec<(String, Vec<String>)>;
 // Directly deserialized from ron files
 
 /// Deserialized from `book.ron`
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct BookRon {
     /// Authors of the book
     pub authors: Vec<String>,

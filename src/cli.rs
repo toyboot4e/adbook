@@ -6,11 +6,7 @@ use {
     anyhow::*,
     clap::Clap,
     colored::*,
-    std::{
-        fs,
-        io::prelude::*,
-        path::{Path, PathBuf},
-    },
+    std::{fs, io::prelude::*, path::PathBuf},
 };
 
 use crate::book::BookStructure;
@@ -66,7 +62,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         trace!("===> Building the book");
-        crate::builder::build(&book)?;
+        crate::builder::build_book(&book)?;
 
         Ok(())
     }
@@ -151,7 +147,7 @@ impl Init {
             write!(
                 f,
                 r#"(
-    items:[
+    items: [
         ("1", "1.adoc"),
     ]
 )"#

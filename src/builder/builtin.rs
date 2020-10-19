@@ -2,7 +2,6 @@
 
 use {
     anyhow::{Context, Error, Result},
-    colored::*,
     std::{
         fs,
         io::prelude::*,
@@ -14,7 +13,7 @@ use {
 
 use crate::{
     book::{
-        config::{BookRon, CmdOptions, Toc, TocItemContent},
+        config::{BookRon, Toc, TocItemContent},
         BookStructure,
     },
     builder::BookBuilder,
