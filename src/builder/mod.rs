@@ -16,7 +16,7 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
 }
 
 /// Converts an AsciiDoc file into html using some configuration
-pub fn convert_adoc(src: &Path, dst: &Path) -> Result<()> {
+pub fn convert_adoc(src: &Path, dst: &Path, out: &mut impl io::Write) -> Result<()> {
     ensure!(src.is_file(), "Given invalid source file path");
     ensure!(!dst.exists(), "Something in the destination file path");
 
@@ -25,9 +25,8 @@ pub fn convert_adoc(src: &Path, dst: &Path) -> Result<()> {
     let mut bcx = BuildContext::single_article(src, dst)?;
     let mut builder = BuiltinBookBuilder::new();
 
-    let out = io::stdout();
-    let mut out = out.lock();
-    builder.convert_adoc(src, dst, &mut out, &mut bcx)?;
+    // stub: write to stdout
+    builder.convert_adoc(src, dst, out, &mut bcx)?;
 
     Ok(())
 }
