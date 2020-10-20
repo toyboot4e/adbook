@@ -4,7 +4,7 @@ mod builtin;
 
 use {
     anyhow::{Context, Error, Result},
-    std::{fs, path::Path},
+    std::{fs, io, path::Path},
 };
 
 use crate::book::BookStructure;
@@ -24,7 +24,10 @@ pub fn convert_adoc(src: &Path, dst: &Path) -> Result<()> {
     use crate::builder::builtin::{BuildContext, BuiltinBookBuilder};
     let mut bcx = BuildContext::single_article(src, dst)?;
     let mut builder = BuiltinBookBuilder::new();
-    builder.convert_adoc(src, dst, &mut bcx)?;
+
+    let out = io::stdout();
+    let mut out = out.lock();
+    builder.convert_adoc(src, dst, &mut out, &mut bcx)?;
 
     Ok(())
 }

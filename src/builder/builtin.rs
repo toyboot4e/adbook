@@ -191,13 +191,26 @@ impl BuiltinBookBuilder {
             })?;
         }
 
-        self.convert_adoc(src_file, &dst_file, bcx)?;
+        let mut out = fs::File::create(&dst_file).with_context(|| {
+            format!(
+                "Unexpected error when trying to get access to destination file:\n  {}",
+                dst_file.display(),
+            )
+        })?;
+
+        self.convert_adoc(src_file, &dst_file, &mut out, bcx)?;
 
         Ok(())
     }
 
     /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
-    pub fn convert_adoc(&mut self, src: &Path, dst: &Path, bcx: &mut BuildContext) -> Result<()> {
+    pub fn convert_adoc(
+        &mut self,
+        src: &Path,
+        dst: &Path,
+        out: &mut impl Write,
+        bcx: &mut BuildContext,
+    ) -> Result<()> {
         trace!(
             "Converting adoc: `{}` -> `{}`",
             src.display(),
@@ -252,13 +265,6 @@ impl BuiltinBookBuilder {
                     .unwrap_or("<undecodable UTF8 output by asciidoctor?".to_string())
             )
         );
-
-        let mut out = fs::File::create(dst).with_context(|| {
-            format!(
-                "Unexpected error when trying to write to destination file:\n  {}",
-                dst.display(),
-            )
-        })?;
 
         // TODO: templating
 
