@@ -13,7 +13,7 @@ use {
 
 use crate::{
     book::{
-        config::{BookRon, Toc, TocItemContent},
+        config::{BookRon, CmdOptions, Toc, TocItemContent},
         BookStructure,
     },
     builder::BookBuilder,
@@ -60,17 +60,17 @@ pub struct BuildContext {
 impl BuildContext {
     /// Creates a context for building an article
     ///
-    /// TODO: separate book/article build context
-    pub fn single_article(src: &Path, dst: &Path) -> Result<Self> {
+    /// * `src`: source file path
+    /// * `site_dir`: destination directory path
+    pub fn single_article(src: &Path, site_dir: &Path, opts: CmdOptions) -> Result<Self> {
         use crate::book::config::TocItem;
 
-        let src_dir = src.parent().ok_or(anyhow!("invalid src"))?;
-        let dst_dir = dst.parent().ok_or(anyhow!("invalid dst"))?;
+        let src_dir = src.parent().ok_or(anyhow!("invalid dst"))?;
 
         let book_ron = BookRon {
             src_dir: src_dir.to_path_buf(),
-            site_dir: dst_dir.to_path_buf(),
-            // adoc_opts: vec![("-a"
+            site_dir: site_dir.to_path_buf(),
+            adoc_opts: opts,
             ..Default::default()
         };
 
@@ -91,7 +91,7 @@ impl BuildContext {
         Ok(Self {
             errors: Vec::with_capacity(10),
             book: dummy_book,
-            out_dir: dst.parent().unwrap().to_path_buf(),
+            out_dir: site_dir.to_path_buf(),
         })
     }
 
@@ -162,7 +162,7 @@ impl BuiltinBookBuilder {
         Ok(())
     }
 
-    /// Gets destination path and runs [`self::convert_adoc`]
+    /// Gets destination path and kicks `asciidoctor` runner
     fn visit_adoc(&mut self, src_file: &Path, bcx: &mut BuildContext) -> Result<()> {
         // relative path from source directory
         let rel = match src_file.strip_prefix(bcx.book.src_dir_path()) {
@@ -191,24 +191,33 @@ impl BuiltinBookBuilder {
             })?;
         }
 
-        let mut out = fs::File::create(&dst_file).with_context(|| {
+        let mut buf = String::with_capacity(5 * 1024);
+        self.run_asciidoctor_to_buf(src_file, &dst_file, &mut buf, bcx)?;
+
+        fs::write(&dst_file, &buf).with_context(|| {
             format!(
                 "Unexpected error when trying to get access to destination file:\n  {}",
                 dst_file.display(),
             )
         })?;
 
-        self.convert_adoc(src_file, &dst_file, &mut out, bcx)?;
-
         Ok(())
     }
+}
 
+impl BuiltinBookBuilder {
     /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
-    pub fn convert_adoc(
+    /// and outputs to given [`String`] buffer
+    ///
+    /// * `src`: source file path
+    /// * `dst`: destination path, metadata, not actually used for conversion
+    /// * `out`: actuall handle to destination
+    /// * `bcx`: command line arguments and source/site directory paths
+    pub fn run_asciidoctor_to_buf(
         &mut self,
         src: &Path,
         dst: &Path,
-        out: &mut impl Write,
+        out: &mut String,
         bcx: &mut BuildContext,
     ) -> Result<()> {
         trace!(
@@ -268,7 +277,9 @@ impl BuiltinBookBuilder {
 
         // TODO: templating
 
-        out.write_all(&output.stdout)?;
+        let text = std::str::from_utf8(&output.stdout)
+            .with_context(|| "Unable to decode asciidoctor output to UTF8")?;
+        out.push_str(text);
 
         Ok(())
     }

@@ -7,7 +7,7 @@ use {
     std::{fs, io, path::Path},
 };
 
-use crate::book::BookStructure;
+use crate::book::{config::CmdOptions, BookStructure};
 
 /// Builds an `adbook` project with a configuration
 pub fn build_book(book: &BookStructure) -> Result<()> {
@@ -16,19 +16,20 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
 }
 
 /// Converts an AsciiDoc file into html using some configuration
-pub fn convert_adoc(src: &Path, dst: &Path, out: &mut impl io::Write) -> Result<()> {
+pub fn convert_adoc(src: &Path, dst: &Path) -> Result<String> {
     ensure!(src.is_file(), "Given invalid source file path");
     ensure!(!dst.exists(), "Something in the destination file path");
 
     // setup dummy context & builder for an article
     use crate::builder::builtin::{BuildContext, BuiltinBookBuilder};
-    let mut bcx = BuildContext::single_article(src, dst)?;
+    let opts: CmdOptions = vec![("--embedded".to_string(), vec![])];
+    let mut bcx = BuildContext::single_article(src, dst, opts)?;
     let mut builder = BuiltinBookBuilder::new();
 
-    // stub: write to stdout
-    builder.convert_adoc(src, dst, out, &mut bcx)?;
+    let mut buf = String::with_capacity(5 * 1024);
+    builder.run_asciidoctor_to_buf(src, dst, &mut buf, &mut bcx)?;
 
-    Ok(())
+    Ok(buf)
 }
 
 // --------------------------------------------------------------------------------
