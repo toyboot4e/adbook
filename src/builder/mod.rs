@@ -1,10 +1,13 @@
 //! Book builder
 
 mod builtin;
+mod hbs;
 
 use {
     anyhow::{Context, Error, Result},
-    std::{fs, io, path::Path},
+    handlebars::Handlebars,
+    serde::Serialize,
+    std::{fs, path::Path},
 };
 
 use crate::book::{config::CmdOptions, BookStructure};
@@ -15,14 +18,13 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     self::run_builder(&mut builder, book)
 }
 
-/// Converts an AsciiDoc file into html using some configuration
-pub fn convert_adoc(src: &Path, dst: &Path) -> Result<String> {
+/// Converts AsciiDoc file to html just by running `asciidoctor`
+pub fn convert_adoc(src: &Path, dst: &Path, opts: CmdOptions) -> Result<String> {
     ensure!(src.is_file(), "Given invalid source file path");
     ensure!(!dst.exists(), "Something in the destination file path");
 
     // setup dummy context & builder for an article
     use crate::builder::builtin::{BuildContext, BuiltinBookBuilder};
-    let opts: CmdOptions = vec![("--embedded".to_string(), vec![])];
     let mut bcx = BuildContext::single_article(src, dst, opts)?;
     let mut builder = BuiltinBookBuilder::new();
 
@@ -30,6 +32,44 @@ pub fn convert_adoc(src: &Path, dst: &Path) -> Result<String> {
     builder.run_asciidoctor_to_buf(src, dst, &mut buf, &mut bcx)?;
 
     Ok(buf)
+}
+
+/// Variables provided to handlebars template
+#[derive(Serialize)]
+pub struct HbsTemplate<'a> {
+    article: &'a str,
+    // TODO: supply title and attributes
+    // TODO: supply css etc.
+}
+
+/// Converts an AsciiDoc file to html using a handlebars template
+///
+/// * `src`: source file path.
+/// * `dst`: destination file path. it may be virtual but it has to be supplied because it's used
+/// for specifying output file path
+/// * `hbs`: handlebars file
+/// * `opts`: options provided with `asciidoctor`
+pub fn convert_adoc_with_hbs(
+    src: &Path,
+    dst: &Path,
+    hbs_file: &Path,
+    opts: CmdOptions,
+) -> Result<String> {
+    let hbs_template = fs::read_to_string(hbs_file)?;
+    let text = self::convert_adoc(src, dst, opts)?;
+
+    // FIXME: stub handlebars runner
+    let mut hbs = Handlebars::new();
+    hbs.set_strict_mode(true);
+    hbs.register_template_string("article", &hbs_template)?;
+
+    let hbs_data = HbsTemplate { article: &text };
+
+    let final_output = hbs
+        .render("article", &hbs_data)
+        .with_context(|| "Unable to render handlebars template")?;
+
+    Ok(final_output)
 }
 
 // --------------------------------------------------------------------------------

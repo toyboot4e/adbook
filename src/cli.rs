@@ -37,6 +37,8 @@ pub enum SubCommand {
     #[clap(name = "build", alias = "b")]
     /// Builds an `adbook` project
     Build(Build),
+    // TODO: clean
+    // TODO: convert
 }
 
 impl SubCommand {
