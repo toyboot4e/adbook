@@ -24,10 +24,5 @@
             "stem@=latexmath",
             "icons@=font",
         ]),
-
-        // add extensions
-        ("-r", [
-            "asciidoctor-diagram",
-        ]),
     ]
 )

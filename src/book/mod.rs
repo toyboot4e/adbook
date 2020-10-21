@@ -31,7 +31,9 @@ pub enum BookLoadError {
 pub struct BookStructure {
     /// Absolute path to a directory with `book.ron`
     pub root: PathBuf,
+    /// `book.ron`
     pub book_ron: BookRon,
+    /// `src/toc.ron`
     pub toc: Toc,
 }
 

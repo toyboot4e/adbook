@@ -1,22 +1,76 @@
-//! `adbook` building framework
+//! Book walker
 
 use {
     anyhow::{Context, Error, Result},
-    std::{fs, path::Path},
+    std::{
+        fs,
+        path::{Path, PathBuf},
+    },
 };
 
-use crate::book::BookStructure;
+use crate::book::{
+    config::{Toc, TocItemContent},
+    BookStructure,
+};
 
-/// adbook builder
-pub trait BookBuilder {
-    /// Walk through the [`BookStructure`] and build it into the temporary directory
-    ///
-    /// Creation & deletion of the temporay output directory is done via [`run_builder`].
-    fn build_book_to_tmp_dir(&mut self, book: &BookStructure, out_dir: &Path) -> Result<()>;
+/// Walks a book structure and converts each file using [`BookVisitor`]
+pub fn walk_book(
+    v: &mut impl BookVisitor,
+    root_toc: &Toc,
+    src_dir: &Path,
+    dst_dir: &Path,
+) -> Result<()> {
+    let mut vcx = BookVisitContext {
+        errors: Vec::with_capacity(10),
+        src_dir: src_dir.to_path_buf(),
+        dst_dir: dst_dir.to_path_buf(),
+    };
+
+    self::walk_toc(v, root_toc, &mut vcx)?;
+
+    // print errors if any
+    crate::utils::print_errors(&vcx.errors, "while building the book");
+
+    Ok(())
 }
 
-/// Runs [`BookBuilder`] with guards for temporary directory
-pub fn run_builder(builder: &mut impl BookBuilder, book: &BookStructure) -> Result<()> {
+/// Supplied to [`BookVisitor`]
+pub struct BookVisitContext {
+    pub errors: Vec<anyhow::Error>,
+    pub src_dir: PathBuf,
+    pub dst_dir: PathBuf,
+}
+
+/// Converts each file in book
+pub trait BookVisitor {
+    fn visit_file(&mut self, file: &Path, vcx: &mut BookVisitContext) -> Result<()>;
+}
+
+/// Depth-first walk
+///
+/// depth-first serach: https://en.wikipedia.org/wiki/Depth-first_search
+fn walk_toc(v: &mut impl BookVisitor, toc: &Toc, vcx: &mut BookVisitContext) -> Result<()> {
+    trace!("walk toc: {}", toc.path.display());
+
+    for item in &toc.items {
+        let res = match item.content {
+            TocItemContent::File(ref file) => v.visit_file(file, vcx),
+            TocItemContent::SubToc(ref toc) => self::walk_toc(v, toc, vcx),
+        };
+
+        match res {
+            Ok(_) => {}
+            Err(err) => vcx.errors.push(err),
+        }
+    }
+
+    Ok(())
+}
+
+// --------------------------------------------------------------------------------
+
+/// Runs [`BookVisitor`] with guards for temporary directory
+pub fn build_book(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()> {
     // create site (destination) directory if there's not
     {
         let site = book.site_dir_path();
@@ -28,32 +82,32 @@ pub fn run_builder(builder: &mut impl BookBuilder, book: &BookStructure) -> Resu
     }
 
     // create temporary directory if there's not
-    let out_dir = book.site_dir_path().join("__tmp__");
-    if !self::validate_out_dir(&out_dir)? {
+    let tmp_dir = book.site_dir_path().join("__tmp__");
+    if !self::validate_out_dir(&tmp_dir)? {
         println!("Stopped building adbook directory");
         return Ok(());
     }
 
     // now let's build the project!
-    builder.build_book_to_tmp_dir(book, &out_dir)?;
+    self::walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir)?;
 
     info!("===> Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
-        let res = self::copy_outputs(book, &out_dir, &mut errors);
+        let res = self::copy_outputs(book, &tmp_dir, &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
 
     info!(
         "===> Removing the temporary output directory: {}",
-        out_dir.display()
+        tmp_dir.display()
     );
 
-    fs::remove_dir_all(&out_dir).with_context(|| {
+    fs::remove_dir_all(&tmp_dir).with_context(|| {
         format!(
             "Unexpected error when removing the temporary output directory at: {}",
-            out_dir.display()
+            tmp_dir.display()
         )
     })?;
 

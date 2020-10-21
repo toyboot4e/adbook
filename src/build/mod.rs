@@ -1,9 +1,10 @@
 //! Book builder
 
 pub mod adoc;
-pub mod guard;
 pub mod hbs;
-pub mod visit;
+pub mod walk;
+
+pub mod adoc_visit;
 
 use {
     anyhow::{Context, Result},
@@ -14,12 +15,13 @@ use {
 
 use crate::book::{config::CmdOptions, BookStructure};
 
-use self::{adoc::BuildContext, visit::AdocBuilder};
+use self::{adoc::AdocContext, adoc_visit::AdocVisitor};
 
 /// Builds an `adbook` project with a configuration
 pub fn build_book(book: &BookStructure) -> Result<()> {
-    let mut builder = AdocBuilder::new();
-    self::guard::run_builder(&mut builder, book)
+    let opts = vec![("--embedded".to_string(), vec![])];
+    let mut builder = AdocVisitor::new(opts);
+    self::walk::build_book(&mut builder, book)
 }
 
 /// Converts AsciiDoc file to html just by running `asciidoctor`
@@ -27,13 +29,14 @@ pub fn convert_adoc(
     src_file: &Path,
     site_dir: &Path,
     dummy_dst_name: &str,
-    opts: CmdOptions,
+    opts: &CmdOptions,
 ) -> Result<String> {
     ensure!(
         src_file.is_file(),
         "Given invalid source file path: {}",
         src_file.display()
     );
+
     ensure!(
         site_dir.exists(),
         "Given non-existing site directory path: {}",
@@ -41,9 +44,10 @@ pub fn convert_adoc(
     );
 
     // setup dummy context & builder for an article
-    let mut bcx = BuildContext::single_article(src_file, site_dir, opts)?;
+    let src_dir = src_file.parent().unwrap();
+    let mut acx = AdocContext::new(src_dir, site_dir, opts)?;
     let mut buf = String::with_capacity(5 * 1024);
-    adoc::run_asciidoctor_buf(src_file, dummy_dst_name, &mut buf, &mut bcx)?;
+    adoc::run_asciidoctor_buf(src_file, dummy_dst_name, &mut buf, &mut acx)?;
 
     Ok(buf)
 }
@@ -68,7 +72,7 @@ pub fn convert_adoc_with_hbs(
     site_dir: &Path,
     dummy_dst_name: &str,
     hbs_file: &Path,
-    opts: CmdOptions,
+    opts: &CmdOptions,
 ) -> Result<String> {
     let hbs_template = fs::read_to_string(hbs_file)?;
     let text = self::convert_adoc(src_file, site_dir, dummy_dst_name, opts)?;
