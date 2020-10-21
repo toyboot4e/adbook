@@ -14,14 +14,19 @@ mod test {
 
         let root = man_dir.join("samples/demo");
 
-        let src = root.join("src/demo.adoc");
-        let dst = man_dir.join("demo.html");
+        let src_file = root.join("src/demo.adoc");
+        let dst_file = man_dir.join("demo.html");
         let hbs = root.join("src/hbs/simple.hbs");
 
+        let dst_dir = dst_file.parent().unwrap();
+        let site_dir = dst_dir.to_path_buf();
+        let dst_name = format!("{}", dst_file.display());
+
         // generate html text
-        println!("test: {} => {}", src.display(), dst.display());
+        println!("test: {} => {}", src_file.display(), dst_file.display());
         let opts = vec![("--embedded".to_string(), vec![])];
-        let text = crate::builder::convert_adoc_with_hbs(&src, &dst, &hbs, opts)?;
+        let text =
+            crate::builder::convert_adoc_with_hbs(&src_file, &site_dir, &dst_name, &hbs, opts)?;
 
         // output to stdout
         let out = io::stdout();

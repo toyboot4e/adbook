@@ -19,17 +19,31 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
 }
 
 /// Converts AsciiDoc file to html just by running `asciidoctor`
-pub fn convert_adoc(src: &Path, dst: &Path, opts: CmdOptions) -> Result<String> {
-    ensure!(src.is_file(), "Given invalid source file path");
-    ensure!(!dst.exists(), "Something in the destination file path");
+pub fn convert_adoc(
+    src_file: &Path,
+    site_dir: &Path,
+    dummy_dst_name: &str,
+    opts: CmdOptions,
+) -> Result<String> {
+    ensure!(
+        src_file.is_file(),
+        "Given invalid source file path: {}",
+        src_file.display()
+    );
+    ensure!(
+        site_dir.exists(),
+        "Given non-existing site directory path: {}",
+        site_dir.display()
+    );
 
     // setup dummy context & builder for an article
     use crate::builder::builtin::{BuildContext, BuiltinBookBuilder};
-    let mut bcx = BuildContext::single_article(src, dst, opts)?;
+
+    let mut bcx = BuildContext::single_article(src_file, site_dir, opts)?;
     let mut builder = BuiltinBookBuilder::new();
 
     let mut buf = String::with_capacity(5 * 1024);
-    builder.run_asciidoctor_to_buf(src, dst, &mut buf, &mut bcx)?;
+    builder.run_asciidoctor_buf(src_file, dummy_dst_name, &mut buf, &mut bcx)?;
 
     Ok(buf)
 }
@@ -50,13 +64,14 @@ pub struct HbsTemplate<'a> {
 /// * `hbs`: handlebars file
 /// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc_with_hbs(
-    src: &Path,
-    dst: &Path,
+    src_file: &Path,
+    site_dir: &Path,
+    dummy_dst_name: &str,
     hbs_file: &Path,
     opts: CmdOptions,
 ) -> Result<String> {
     let hbs_template = fs::read_to_string(hbs_file)?;
-    let text = self::convert_adoc(src, dst, opts)?;
+    let text = self::convert_adoc(src_file, site_dir, dummy_dst_name, opts)?;
 
     // FIXME: stub handlebars runner
     let mut hbs = Handlebars::new();

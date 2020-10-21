@@ -4,7 +4,6 @@ use {
     anyhow::{Context, Error, Result},
     std::{
         fs,
-        io::prelude::*,
         path::{Path, PathBuf},
         process::Command,
     },
@@ -62,10 +61,28 @@ impl BuildContext {
     ///
     /// * `src`: source file path
     /// * `site_dir`: destination directory path
-    pub fn single_article(src: &Path, site_dir: &Path, opts: CmdOptions) -> Result<Self> {
+    /// * `opts`: options to `asciidoctor`
+    ///
+    /// TODO: separate ArticleBuildContext and BookBuildContext
+    pub fn single_article(src_file: &Path, site_dir: &Path, opts: CmdOptions) -> Result<Self> {
         use crate::book::config::TocItem;
 
-        let src_dir = src.parent().ok_or(anyhow!("invalid dst"))?;
+        let src_dir = src_file
+            .parent()
+            .ok_or(anyhow!("Given invalid source file path"))?;
+
+        let root_dir = src_dir.to_path_buf();
+
+        // we have to use canoncalized path
+        // (or else relative paths are interpreted as relative paths from the root directory)
+
+        let src_dir = src_dir
+            .canonicalize()
+            .context("Unable to canonicalize source directory path")?;
+
+        let site_dir = site_dir
+            .canonicalize()
+            .context("Unable to canonicalize site directory path")?;
 
         let book_ron = BookRon {
             src_dir: src_dir.to_path_buf(),
@@ -74,16 +91,17 @@ impl BuildContext {
             ..Default::default()
         };
 
+        // dummy
         let toc = Toc {
-            path: src.parent().unwrap().join("_dummy_toc_.ron"),
+            path: src_file.parent().unwrap().join("_dummy_toc_.ron"),
             items: vec![TocItem {
                 name: "dummy_name".to_string(),
-                content: TocItemContent::File(src.to_path_buf()),
+                content: TocItemContent::File(src_file.to_path_buf()),
             }],
         };
 
         let dummy_book = crate::book::BookStructure {
-            root: src.to_path_buf(),
+            root: root_dir,
             book_ron,
             toc,
         };
@@ -192,7 +210,8 @@ impl BuiltinBookBuilder {
         }
 
         let mut buf = String::with_capacity(5 * 1024);
-        self.run_asciidoctor_to_buf(src_file, &dst_file, &mut buf, bcx)?;
+        let dst_name = format!("{}", dst_file.display());
+        self.run_asciidoctor_buf(src_file, &dst_name, &mut buf, bcx)?;
 
         fs::write(&dst_file, &buf).with_context(|| {
             format!(
@@ -206,80 +225,114 @@ impl BuiltinBookBuilder {
 }
 
 impl BuiltinBookBuilder {
-    /// The meat of the builder; it actually converts an `.adoc` file using `asciidoctor` in PATH
-    /// and outputs to given [`String`] buffer
-    ///
-    /// * `src`: source file path
-    /// * `dst`: destination path, metadata, not actually used for conversion
-    /// * `out`: actuall handle to destination
-    /// * `bcx`: command line arguments and source/site directory paths
-    pub fn run_asciidoctor_to_buf(
-        &mut self,
-        src: &Path,
-        dst: &Path,
-        out: &mut String,
-        bcx: &mut BuildContext,
-    ) -> Result<()> {
-        trace!(
-            "Converting adoc: `{}` -> `{}`",
-            src.display(),
-            dst.display()
+    /// Sets up `asciidoctor` command
+    pub fn asciidoctor(&mut self, src_file: &Path, bcx: &mut BuildContext) -> Result<Command> {
+        ensure!(
+            src_file.exists(),
+            "Given non-existing file as conversion source"
         );
 
-        let mut cmd = {
-            let mut cmd = Command::new("asciidoctor");
+        let src_file = if src_file.is_absolute() {
+            src_file.to_path_buf()
+        } else {
+            src_file
+                .canonicalize()
+                .with_context(|| "Unable to canonicallize source file path")?
+        };
 
+        let mut cmd = Command::new("asciidoctor");
+
+        // output to stdout
+        cmd.arg(&src_file).args(&["-o", "-"]);
+
+        // prefer verbose output
+        cmd.arg("--trace").arg("--verbose");
+
+        // setup directory settings (base (source)/destination directory)
+        {
             let src_dir = bcx.book.src_dir_path();
-            let src_dir_str = format!("{}", src_dir.display());
             let dst_dir = bcx.book.site_dir_path();
+
+            let src_dir_str = format!("{}", src_dir.display());
             let dst_dir_str = format!("{}", dst_dir.display());
 
-            // output to stdout
-            cmd.arg(src).args(&["-o", "-"]);
-
-            // setup directory settings (base (source)/destination directory)
             cmd.current_dir(&src_dir)
                 .args(&["-B", &src_dir_str])
                 .args(&["-D", &dst_dir_str]);
+        }
 
-            cmd.arg("--trace").arg("--verbose");
+        // apply user options (often ones defined in `book.ron`)
+        bcx.apply_adoc_opts(&mut cmd);
 
-            // use "embedded" document without frame
-            // REMARK: it doesn't contain revdate, author name etc.
-            // TODO: collect AsciiDoc attributes and create header manually
-            // (maybe using a templating engine)
-            // cmd.arg("--no-header-footer");
-            // cmd.args(&["-a", "showtitle"]);
+        Ok(cmd)
+    }
 
-            // apply options set by user (`book.ron`)
-            bcx.apply_adoc_opts(&mut cmd);
+    /// Runs `asciidoctor` and returns the output
+    ///
+    /// * `src`: source file path
+    /// * `dummy_dst_name`: only for debug log
+    /// * `out`: actuall handle to destination
+    /// * `bcx`: command line arguments and source/site directory paths
+    pub fn run_asciidoctor(
+        &mut self,
+        src_file: &Path,
+        dummy_dst_name: &str,
+        bcx: &mut BuildContext,
+    ) -> Result<std::process::Output> {
+        trace!(
+            "Converting adoc: `{}` -> `{}`",
+            src_file.display(),
+            dummy_dst_name,
+        );
 
-            cmd
-        };
+        let mut cmd = self
+            .asciidoctor(src_file, bcx)
+            .context("when setting up `asciidoctor` options")?;
 
         let output = cmd.output().with_context(|| {
             format!(
-                "Error while running `asciidoctor`:\n  src: {}\n  dst: {}",
-                src.display(),
-                dst.display()
+                "when running `asciidoctor`:\n  src: {}\n  dst: {}\n  cmd: {:?}",
+                src_file.display(),
+                dummy_dst_name,
+                cmd
             )
         })?;
 
-        // ensure the conversion succeeded or else report is as an error
+        Ok(output)
+    }
+
+    /// Runs `asciidoctor` and write the output to buffer if it's suceceded
+    pub fn run_asciidoctor_buf(
+        &mut self,
+        src_file: &Path,
+        dummy_dst_name: &str,
+        out: &mut String,
+        bcx: &mut BuildContext,
+    ) -> Result<()> {
+        let output = self.run_asciidoctor(src_file, dummy_dst_name, bcx)?;
+
+        // ensure the conversion succeeded or else report it as an error
         ensure!(
             output.status.success(),
             BuildError::FailedToConvert(
-                src.to_path_buf(),
+                src_file.to_path_buf(),
                 String::from_utf8(output.stderr)
-                    .unwrap_or("<undecodable UTF8 output by asciidoctor?".to_string())
+                    .unwrap_or("<non-UTF8 stderr by `asciidoctor`>".to_string())
             )
         );
 
-        // TODO: templating
-
+        // finally output to the buffer
         let text = std::str::from_utf8(&output.stdout)
-            .with_context(|| "Unable to decode asciidoctor output to UTF8")?;
+            .with_context(|| "Unable to decode stdout of `asciidoctor` as UTF8")?;
         out.push_str(text);
+
+        // stderr
+        if !output.stderr.is_empty() {
+            eprintln!("stderr:");
+            let err = String::from_utf8(output.stderr)
+                .unwrap_or("<non-UTF8 stderr by `asciidoctor`>".to_string());
+            eprintln!("{}", &err);
+        }
 
         Ok(())
     }

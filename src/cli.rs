@@ -6,7 +6,7 @@ use {
     anyhow::*,
     clap::Clap,
     colored::*,
-    std::{fs, io::prelude::*, path::PathBuf},
+    std::{fs, path::PathBuf},
 };
 
 use crate::book::BookStructure;
@@ -37,10 +37,13 @@ pub enum SubCommand {
     #[clap(name = "build", alias = "b")]
     /// Builds an `adbook` project
     Build(Build),
+    /// Converts an AsciiDoc file
+    #[clap(name = "convert", alias = "c")]
+    Convert(Convert),
+    /// Prints one of the preset files: `article.adoc`, `book.ron` or `toc.ron`
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
     // TODO: clean
-    // TODO: convert
 }
 
 impl SubCommand {
@@ -49,6 +52,7 @@ impl SubCommand {
             SubCommand::Build(build) => build.run(),
             SubCommand::Init(new) => new.run(),
             SubCommand::Preset(preset) => preset.run(),
+            SubCommand::Convert(convert) => convert.run(),
         }
     }
 }
@@ -144,7 +148,7 @@ impl Init {
     }
 }
 
-/// `adbook build`
+/// `adbook preset`
 #[derive(Clap, Debug)]
 pub struct Preset {
     file: Option<String>,
@@ -171,6 +175,28 @@ impl Preset {
                 eprintln!("specify one of `book`, `toc` or `article");
             }
         }
+
+        Ok(())
+    }
+}
+
+/// `adbook convert`
+#[derive(Clap, Debug)]
+pub struct Convert {
+    src_file: PathBuf,
+    // hbs: Option<String>,
+}
+
+impl Convert {
+    pub fn run(&self) -> Result<()> {
+        ensure!(self.src_file.is_file(), "Not given path to file");
+
+        let site_dir = self.src_file.parent().unwrap();
+        let dst_name = "<stdout>";
+        let opts = vec![("--embedded".to_string(), vec![])];
+
+        let text = crate::builder::convert_adoc(&self.src_file, site_dir, dst_name, opts)?;
+        println!("{}", text);
 
         Ok(())
     }
