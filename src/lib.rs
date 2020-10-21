@@ -5,29 +5,6 @@ The name came from [mdbook], which was inspired by [GitBook].
 [mdbook]: https://rust-lang.github.io/mdBook/
 [GitBook]: https://www.gitbook.com/
 
-# Installation
-
-## adbook
-
-Install `adbook `in `$HOME/.cargo/bin` (on macOS or Linux):
-
-```sh
-$ cargo install adbook
-```
-
-To get started, create a new adbook project with `cargo new path/to/the/new/book/directory`.
-
-> I'm 0% sure about Windows though..
-
-## Asciidoctor
-
-You'll need:
-
-* [asciidoctor](https://asciidoctor.org)
-* [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)
-
-> I recommend using `rvm` over `gem` because it's faster (at least on macOS).
-
 # File structure in adbook projects
 
 adbook project has such a file structure:

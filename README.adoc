@@ -1,3 +1,0 @@
-= adbook
-
-adbook is a utility to create online books in Asciidoc.
