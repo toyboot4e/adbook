@@ -6,6 +6,7 @@ use {
     std::{fs, path::Path},
 };
 
+/// Prints printables as errors with a header
 pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
     if errors.is_empty() {
         return;
@@ -29,6 +30,7 @@ pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
     }
 }
 
+/// Copies items in one directory to another recursively
 pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
     log::trace!(
         "Recursive copy: `{}` -> `{}`",
