@@ -12,6 +12,9 @@ use {
 
 use crate::book::config::CmdOptions;
 
+// TODO:
+// pub type Result<T> = std::result::Result<T, AdocError>;
+
 /// Structure for error printing
 ///
 /// TODO: refactor and prefer it to anyhow::Error
@@ -21,12 +24,15 @@ pub enum AdocError {
     FailedToConvert(PathBuf, String),
 }
 
-/// Context for running `asciidoctor`
+/// Context for running `asciidoctor`, actually just options
 #[derive(Debug)]
 pub struct AdocContext {
     pub errors: Vec<Error>,
+    /// `-B` option (base directory)
     pub src_dir: PathBuf,
-    pub site_dir: PathBuf,
+    /// `-D` option (destination directory)
+    pub dst_dir: PathBuf,
+    /// Other options
     pub opts: CmdOptions,
 }
 
@@ -38,15 +44,25 @@ impl AdocContext {
         Ok(Self {
             errors: Vec::with_capacity(10),
             src_dir,
-            site_dir,
+            dst_dir: site_dir,
             opts: opts.clone(),
         })
     }
 
-    /// Applies `asciidoctor` options listed in `book.ron` to [`std::process::Command`]
-    pub fn apply_adoc_opts(&self, cmd: &mut Command) {
-        let src_dir_str = format!("{}", self.src_dir.display());
+    /// Applies `asciidoctor` options
+    pub fn apply_options(&self, cmd: &mut Command) {
+        // setup directory settings (base/destination directory)
+        let src_dir = self.src_dir.clone();
+        let dst_dir = self.dst_dir.clone();
 
+        let src_dir_str = format!("{}", src_dir.display());
+        let dst_dir_str = format!("{}", dst_dir.display());
+
+        cmd.current_dir(&src_dir)
+            .args(&["-B", &src_dir_str])
+            .args(&["-D", &dst_dir_str]);
+
+        // setup user options
         for (opt, args) in &self.opts {
             if args.is_empty() {
                 cmd.arg(opt);
@@ -80,40 +96,22 @@ pub fn asciidoctor(src_file: &Path, acx: &mut AdocContext) -> Result<Command> {
 
     let mut cmd = Command::new("asciidoctor");
 
-    // asciidoctor-diagram
-    cmd.args(&["-r", "asciidoctor-diagram"]);
-
     // output to stdout
     cmd.arg(&src_file).args(&["-o", "-"]);
+
+    // require asciidoctor-diagram
+    cmd.args(&["-r", "asciidoctor-diagram"]);
 
     // prefer verbose output
     cmd.arg("--trace").arg("--verbose");
 
-    // setup directory settings (base (source)/destination directory)
-    {
-        let src_dir = acx.src_dir.clone();
-        let dst_dir = acx.site_dir.clone();
-
-        let src_dir_str = format!("{}", src_dir.display());
-        let dst_dir_str = format!("{}", dst_dir.display());
-
-        cmd.current_dir(&src_dir)
-            .args(&["-B", &src_dir_str])
-            .args(&["-D", &dst_dir_str]);
-    }
-
-    // apply user options (often ones defined in `book.ron`)
-    acx.apply_adoc_opts(&mut cmd);
+    // apply directory settings and user options (often ones defined in `book.ron`)
+    acx.apply_options(&mut cmd);
 
     Ok(cmd)
 }
 
 /// Runs `asciidoctor` and returns the output
-///
-/// * `src`: source file path
-/// * `dummy_dst_name`: only for debug log
-/// * `out`: actuall handle to destination
-/// * `acx`: command line arguments and source/site directory paths
 pub fn run_asciidoctor(
     src_file: &Path,
     dummy_dst_name: &str,

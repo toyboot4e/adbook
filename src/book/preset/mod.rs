@@ -1,4 +1,4 @@
-//! Preset files embedded to `adbook` binary
+//! Preset template files embedded in `adbook` binary
 //!
 //! # Example
 //!

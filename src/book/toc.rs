@@ -1,4 +1,6 @@
-//! Table of content
+//! Table of contents, list of items in a directory
+//!
+//! It's recursive and makes up a book file structure.
 
 use {
     std::{
@@ -28,7 +30,7 @@ pub enum TocLoadError {
     FoundErrorsInSubToc(Box<SubTocLoadErrors>),
 }
 
-/// Errors when loading a sub `toc.ron`
+/// Errors when loading a sub `toc.ron`, a type just for printing
 #[derive(Debug)]
 pub struct SubTocLoadErrors {
     errors: Vec<TocLoadError>,
@@ -43,7 +45,7 @@ impl fmt::Display for SubTocLoadErrors {
     }
 }
 
-/// Got from [`TocRon`], which is deserialiezd from `toc.ron`
+/// List of items in a directory. It's got from [`TocRon`], which is deserialiezd from `toc.ron`
 #[derive(Debug, Clone)]
 pub struct Toc {
     /// Absolute path to the [`toc.ron`]
@@ -51,7 +53,7 @@ pub struct Toc {
     pub items: Vec<TocItem>,
 }
 
-/// Item in `toc.ron`: (File | SubToc) with name
+/// Item in `toc.ron`: `("name", "path")` where path is File | SubToc
 #[derive(Debug, Clone)]
 pub struct TocItem {
     pub name: String,
@@ -68,11 +70,6 @@ pub enum TocItemContent {
 
 impl Toc {
     /// Loads `toc.ron` recursively
-    ///
-    /// # Warning
-    ///
-    /// `adbook` can cause stack overflow if there is path definition (e.g. toc item with path
-    /// "toc.ron").
     pub fn from_toc_ron_recursive(
         toc_ron: &TocRon,
         toc_ron_dir: &Path,

@@ -1,10 +1,47 @@
 /*! Book data structure
 
-The book structure is actually built into a site (destination) directory with
-[`crate::builder`].
+It's based on two kinds of files: `book.ron` and `toc.ron` (toc standing for table of contents).
+Those files are written in the human-friendly [Ron] format.
+
+[Ron]: https://github.com/ron-rs/ron
+
+# `book.ron`
+
+An adbook project has such a directory structure:
+
+```sh
+.
+├── book.ron  # configuration file in root
+├── site      # `.html` files
+└── src       # source files
+```
+
+`book.ron` maps to [`BookRon`]. It's located at the root directory and provides some configuration
+such as book name.
+
+[`BookRon`]: crate::book::config::BookRon
+
+# `toc.ron`
+
+When you run `adbook build`, it will look into `src/toc.ron` and searches files or sub directroes in
+it, recursively:
+
+```sh
+└── src
+    ├── a.adoc
+    ├── sub_directory
+    │   ├── b.adoc
+    │   └── toc.ron  # lists `b.adoc`
+    └── toc.ron      # lists `a.adoc` and `sub_directory`
+```
+
+`toc.ron` maps to [`TocRon`]. It's something like `SUMMARY.md` in mdbook or `mod.rs` in Rust.
+
+[`TocRon`]: crate::book::config::TocRon
 !*/
 
 pub mod config;
+pub mod preset;
 pub mod toc;
 pub mod walk;
 

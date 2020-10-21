@@ -4,6 +4,8 @@
 //!
 //! # Example
 //!
+//! `main.rs`:
+//!
 //! ```no_run
 //! use {adbook::cli::Cli, anyhow::*, clap::Clap};
 //!
@@ -112,7 +114,7 @@ impl Init {
         // book.ron (ensured that it doesn't exist)
         {
             let book = dir.join("book.ron");
-            fs::write(&book, crate::preset::BOOK_RON)?;
+            fs::write(&book, crate::book::preset::BOOK_RON)?;
         }
 
         // `.gitigore`, `src/toc.ron`, `src/1.adoc`, `src/img`
@@ -132,14 +134,14 @@ impl Init {
         {
             let toc = src.join("toc.ron");
             if !toc.exists() {
-                fs::write(toc, crate::preset::TOC_RON)?;
+                fs::write(toc, crate::book::preset::TOC_RON)?;
             }
         }
 
         {
             let adoc = src.join("1.adoc");
             if !adoc.exists() {
-                fs::write(adoc, crate::preset::ARTICLE_ADOC)?;
+                fs::write(adoc, crate::book::preset::ARTICLE_ADOC)?;
             }
         }
 
@@ -171,15 +173,15 @@ impl Preset {
 
         match file {
             "b" | "book" | "book.ron" => {
-                let s = std::str::from_utf8(crate::preset::BOOK_RON)?;
+                let s = std::str::from_utf8(crate::book::preset::BOOK_RON)?;
                 println!("{}", s);
             }
             "t" | "toc" | "toc.ron" => {
-                let s = std::str::from_utf8(crate::preset::TOC_RON)?;
+                let s = std::str::from_utf8(crate::book::preset::TOC_RON)?;
                 println!("{}", s);
             }
             "a" | "article" | "article.adoc" => {
-                let s = std::str::from_utf8(crate::preset::ARTICLE_ADOC)?;
+                let s = std::str::from_utf8(crate::book::preset::ARTICLE_ADOC)?;
                 println!("{}", s);
             }
             _ => {
@@ -209,14 +211,14 @@ impl Convert {
         let opts = vec![];
 
         let text = match self.hbs.as_ref() {
-            Some(hbs) => crate::convert::convert_adoc_with_hbs(
+            Some(hbs) => crate::build::convert::convert_adoc_with_hbs(
                 &self.src_file,
                 site_dir,
                 dst_name,
                 &opts,
                 hbs,
             )?,
-            None => crate::convert::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?,
+            None => crate::build::convert::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?,
         };
 
         println!("{}", text);

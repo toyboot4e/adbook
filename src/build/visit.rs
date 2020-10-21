@@ -1,4 +1,4 @@
-//! [`BookVisitor`] implementation
+//! Implementation of [`crate::book::walk::BookVisitor`]
 
 use {
     anyhow::{Context, Result},
@@ -10,7 +10,7 @@ use crate::{
         config::CmdOptions,
         walk::{BookVisitContext, BookVisitor},
     },
-    convert::adoc::{self, AdocContext},
+    build::convert::adoc::{self, AdocContext},
 };
 
 /// An `adbook` builder based on `asciidoctor`

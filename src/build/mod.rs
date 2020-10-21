@@ -1,5 +1,6 @@
 //! Book builder
 
+pub mod convert;
 pub mod visit;
 
 use {
@@ -16,12 +17,14 @@ use crate::{
 };
 
 /// Builds an `adbook` structure into a site directory
+///
+/// Actually, into a temporary directory and then a site directory.
 pub fn build_book(book: &BookStructure) -> Result<()> {
     let mut builder = AdocBookVisitor::new(book.book_ron.adoc_opts.clone());
     self::build_book_impl(&mut builder, book)
 }
 
-/// Runs [`BookVisitor`] with guards for temporary directory
+/// book -> tmp -> site
 fn build_book_impl(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()> {
     // create site (destination) directory if there's not
     {

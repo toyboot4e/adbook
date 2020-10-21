@@ -1,4 +1,4 @@
-//! Converts AsciiDoc files using handlebars
+//! Converts AsciiDoc files using `asciidoctor` and Handlebars
 
 pub mod adoc;
 pub mod hbs;
@@ -13,7 +13,10 @@ use crate::book::config::CmdOptions;
 
 use self::adoc::AdocContext;
 
-/// Converts AsciiDoc file to html just by running `asciidoctor`
+/// Converts an AsciiDoc file to an html string just by running `asciidoctor`
+///
+/// * `dummy_dst_name`: used for debug log
+/// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc(
     src_file: &Path,
     site_dir: &Path,
@@ -41,12 +44,9 @@ pub fn convert_adoc(
     Ok(buf)
 }
 
-/// Converts an AsciiDoc file to html using a handlebars template
+/// Converts an AsciiDoc file to an html string using a Handlebars template
 ///
-/// * `src`: source file path.
-/// * `dst`: destination file path. it may be virtual but it has to be supplied because it's used
-/// for specifying output file path
-/// * `hbs`: handlebars file
+/// * `dummy_dst_name`: used for debug log
 /// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc_with_hbs(
     src_file: &Path,

@@ -1,4 +1,4 @@
-//! Utilities
+//! Internal utilities
 
 use {
     anyhow::{Context, Result},

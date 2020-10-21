@@ -1,10 +1,4 @@
-/*! Configuration types deserialized from `.ron` files
-
-* `book.ron`: A root file of an adbook project. Corresponds to `lib.rs` in Rust or `book.toml` in
-mdbook.
-* `toc.ron`: A file that lists child items in a source directory. Corresponds to `mod.rs` in Rust or
-`SUMMARY.md` in mdbook.
-!*/
+//! Configuration types deserialized from `.ron` files
 
 use {
     serde::{Deserialize, Serialize},
@@ -12,6 +6,8 @@ use {
 };
 
 /// Arguments to a command
+///
+/// `[("--one-option", ["a", "b"]), ("--another", []), ..]`.
 pub type CmdOptions = Vec<(String, Vec<String>)>;
 
 /// Deserialized from `book.ron` in the root of an `adbook` project
