@@ -30,7 +30,7 @@ use crate::book::BookStructure;
 )]
 pub struct Cli {
     #[clap(subcommand)]
-    cmd: SubCommand,
+    pub cmd: SubCommand,
 }
 
 impl Cli {
@@ -71,7 +71,7 @@ impl SubCommand {
 /// `adbook build`
 #[derive(Clap, Debug)]
 pub struct Build {
-    dir: Option<String>,
+    pub dir: Option<String>,
 }
 
 impl Build {
@@ -91,7 +91,7 @@ impl Build {
 /// `adbook init`
 #[derive(Clap, Debug)]
 pub struct Init {
-    dir: Option<String>,
+    pub dir: Option<String>,
 }
 
 impl Init {
@@ -162,7 +162,7 @@ impl Init {
 /// `adbook preset`
 #[derive(Clap, Debug)]
 pub struct Preset {
-    file: Option<String>,
+    pub file: Option<String>,
 }
 
 impl Preset {
@@ -194,8 +194,10 @@ impl Preset {
 /// `adbook convert`
 #[derive(Clap, Debug)]
 pub struct Convert {
-    src_file: PathBuf,
-    // hbs: Option<String>,
+    pub src_file: PathBuf,
+    /// Handlebars template file
+    #[clap(long, short)]
+    pub hbs: Option<PathBuf>,
 }
 
 impl Convert {
@@ -206,7 +208,17 @@ impl Convert {
         let dst_name = "<stdout>";
         let opts = vec![];
 
-        let text = crate::convert::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?;
+        let text = match self.hbs.as_ref() {
+            Some(hbs) => crate::convert::convert_adoc_with_hbs(
+                &self.src_file,
+                site_dir,
+                dst_name,
+                &opts,
+                hbs,
+            )?,
+            None => crate::convert::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?,
+        };
+
         println!("{}", text);
 
         Ok(())
