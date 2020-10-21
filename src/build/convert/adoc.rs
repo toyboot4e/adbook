@@ -50,6 +50,10 @@ impl AdocContext {
     }
 
     /// Applies `asciidoctor` options
+    ///
+    /// Place holder strings:
+    ///
+    /// * `${src_dir}`: replaced to the source directory
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings (base/destination directory)
         let src_dir = self.src_dir.clone();

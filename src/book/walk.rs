@@ -11,6 +11,7 @@ use crate::book::toc::{Toc, TocItemContent};
 pub struct BookVisitContext {
     pub errors: Vec<anyhow::Error>,
     pub src_dir: PathBuf,
+    /// Context to mirror source files to destination
     pub dst_dir: PathBuf,
 }
 
