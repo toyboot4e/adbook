@@ -22,8 +22,6 @@ pub enum AdocError {
 }
 
 /// Context for running `asciidoctor`
-///
-/// TODO: separate ArticleBuildContext and BookBuildContext
 #[derive(Debug)]
 pub struct AdocContext {
     pub errors: Vec<Error>,

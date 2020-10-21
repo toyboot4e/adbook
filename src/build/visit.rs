@@ -1,4 +1,4 @@
-//! `asciidoctor` book converter
+//! [`BookVisitor`] implementation
 
 use {
     anyhow::{Context, Result},
@@ -6,14 +6,14 @@ use {
 };
 
 use crate::{
-    book::config::CmdOptions,
-    build::walk::{BookVisitContext, BookVisitor},
+    book::{
+        config::CmdOptions,
+        walk::{BookVisitContext, BookVisitor},
+    },
     convert::adoc::{self, AdocContext},
 };
 
 /// An `adbook` builder based on `asciidoctor`
-///
-/// * TODO: separate visitor
 pub struct AdocBookVisitor {
     buf: String,
     opts: CmdOptions,

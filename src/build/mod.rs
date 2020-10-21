@@ -1,7 +1,6 @@
 //! Book builder
 
 pub mod visit;
-pub mod walk;
 
 use {
     anyhow::{Context, Error, Result},
@@ -9,11 +8,14 @@ use {
 };
 
 use crate::{
-    book::BookStructure,
-    build::{visit::AdocBookVisitor, walk::BookVisitor},
+    book::{
+        walk::{walk_book, BookVisitor},
+        BookStructure,
+    },
+    build::visit::AdocBookVisitor,
 };
 
-/// Builds an `adbook` structure into site directory
+/// Builds an `adbook` structure into a site directory
 pub fn build_book(book: &BookStructure) -> Result<()> {
     let mut builder = AdocBookVisitor::new(book.book_ron.adoc_opts.clone());
     self::build_book_impl(&mut builder, book)
@@ -39,7 +41,7 @@ fn build_book_impl(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()>
     }
 
     // now let's build the project!
-    walk::walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir)?;
+    walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir)?;
 
     info!("===> Copying output files to site directory");
     {

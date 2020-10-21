@@ -5,6 +5,8 @@ The book structure is actually built into a site (destination) directory with
 !*/
 
 pub mod config;
+pub mod toc;
+pub mod walk;
 
 use {
     anyhow::{Context, Result},
@@ -15,7 +17,10 @@ use {
     thiserror::Error,
 };
 
-use self::config::{BookRon, Toc, TocRon};
+use self::{
+    config::{BookRon, TocRon},
+    toc::Toc,
+};
 
 /// Error while loading `book.ron`
 #[derive(Error, Debug)]

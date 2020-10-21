@@ -1,11 +1,11 @@
-//! Book walker
+//! [`BookVisitor`] and a driving procedure of it
 
 use {
     anyhow::Result,
     std::path::{Path, PathBuf},
 };
 
-use crate::book::config::{Toc, TocItemContent};
+use crate::book::toc::{Toc, TocItemContent};
 
 /// Supplied to [`BookVisitor`]
 pub struct BookVisitContext {
@@ -19,13 +19,14 @@ pub trait BookVisitor {
     fn visit_file(&mut self, file: &Path, vcx: &mut BookVisitContext) -> Result<()>;
 }
 
-/// Walks a book structure and converts each file using [`BookVisitor`]
+/// Walks a root [`Toc`] and converts each file using [`BookVisitor`] into a destination directory
 pub fn walk_book(
     v: &mut impl BookVisitor,
     root_toc: &Toc,
     src_dir: &Path,
     dst_dir: &Path,
 ) -> Result<()> {
+    // visit context
     let mut vcx = BookVisitContext {
         errors: Vec::with_capacity(10),
         src_dir: src_dir.to_path_buf(),
@@ -40,9 +41,9 @@ pub fn walk_book(
     Ok(())
 }
 
-/// Depth-first walk
+/// [Depth-first] walk
 ///
-/// depth-first serach: https://en.wikipedia.org/wiki/Depth-first_search
+/// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
 fn walk_toc(v: &mut impl BookVisitor, toc: &Toc, vcx: &mut BookVisitContext) -> Result<()> {
     trace!("walk toc: {}", toc.path.display());
 
