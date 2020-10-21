@@ -105,7 +105,7 @@ fn run_builder(builder: &mut impl BookBuilder, book: &BookStructure) -> Result<(
     // now let's build the project!
     builder.build_book_to_tmp_dir(book, &out_dir)?;
 
-    trace!("==> Copying output files to site directory");
+    info!("===> Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
         let res = self::copy_outputs(book, &out_dir, &mut errors);
@@ -113,8 +113,8 @@ fn run_builder(builder: &mut impl BookBuilder, book: &BookStructure) -> Result<(
         res?;
     }
 
-    trace!(
-        "==> Removing the temporary output directory: {}",
+    info!(
+        "===> Removing the temporary output directory: {}",
         out_dir.display()
     );
 

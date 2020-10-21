@@ -1,0 +1,33 @@
+(
+    authors: ["author"],
+    title: "title",
+    src_dir: "src",
+    site_dir: "site",
+
+    includes: [
+        "img",
+    ],
+
+    // options for `asciidoctor`
+    adoc_opts: [
+        ("-a", [
+            "linkcss",
+            //
+            "imagesdir@=/img",
+            "imagesoutdir@=${{src_dir}}/img",
+            //
+            "hardbreaks",
+            "sectnums",
+            "sectnumlevels@=2",
+            //
+            "experimental",
+            "stem@=latexmath",
+            "icons@=font",
+        ]),
+
+        // add extensions
+        ("-r", [
+            "asciidoctor-diagram",
+        ]),
+    ]
+)

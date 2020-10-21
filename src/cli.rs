@@ -37,6 +37,8 @@ pub enum SubCommand {
     #[clap(name = "build", alias = "b")]
     /// Builds an `adbook` project
     Build(Build),
+    #[clap(name = "preset", alias = "p")]
+    Preset(Preset),
     // TODO: clean
     // TODO: convert
 }
@@ -46,6 +48,7 @@ impl SubCommand {
         match self {
             SubCommand::Build(build) => build.run(),
             SubCommand::Init(new) => new.run(),
+            SubCommand::Preset(preset) => preset.run(),
         }
     }
 }
@@ -60,10 +63,10 @@ impl Build {
     pub fn run(&self) -> Result<()> {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
 
-        trace!("===> Loading book structure");
+        info!("===> Loading book structure");
         let book = BookStructure::from_dir(&dir)?;
 
-        trace!("===> Building the book");
+        info!("===> Building the book");
         crate::builder::build_book(&book)?;
 
         Ok(())
@@ -91,86 +94,83 @@ impl Init {
             }
         }
 
-        // create `.gitigore`, `src/toc.ron`, `src/1.adoc`, `src/img`
-        let ignore = dir.join(".gitignore");
-        if !ignore.exists() {
-            let mut f = fs::File::create(ignore)?;
-            writeln!(f, ".DS_Store")?;
+        // book.ron (ensured that it doesn't exist)
+        {
+            let book = dir.join("book.ron");
+            fs::write(&book, crate::preset::BOOK_RON)?;
         }
 
-        let book = dir.join("book.ron");
-        let mut book = fs::File::create(&book)?;
-        write!(
-            book,
-            r#"(
-    authors: ["author"],
-    title: "title",
-    src_dir: "src",
-    site_dir: "site",
+        // `.gitigore`, `src/toc.ron`, `src/1.adoc`, `src/img`
 
-    includes: [
-        "img",
-    ],
-
-    // options for `asciidoctor`
-    adoc_opts: [
-        ("-a", [
-            "linkcss",
-            //
-            "imagesdir@=/img",
-            "imagesoutdir@=${{src_dir}}/img",
-            //
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            //
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
-        ]),
-
-        // add extensions
-        ("-r", [
-            "asciidoctor-diagram",
-        ]),
-    ]
-)
-"#
-        )?;
+        {
+            let ignore = dir.join(".gitignore");
+            if !ignore.exists() {
+                fs::write(ignore, ".DS_Store")?;
+            }
+        }
 
         let src = dir.join("src");
         if !src.exists() {
             fs::create_dir(&src)?;
         }
 
-        let toc = src.join("toc.ron");
-        if !toc.exists() {
-            let mut f = fs::File::create(&toc)?;
-            write!(
-                f,
-                r#"(
-    items: [
-        ("1", "1.adoc"),
-    ]
-)"#
-            )?;
+        {
+            let toc = src.join("toc.ron");
+            if !toc.exists() {
+                fs::write(toc, crate::preset::TOC_RON)?;
+            }
         }
 
-        let adoc = src.join("1.adoc");
-        if !adoc.exists() {
-            let mut f = fs::File::create(&adoc)?;
-            writeln!(f, "= Helllllooo\n")?;
+        {
+            let adoc = src.join("1.adoc");
+            if !adoc.exists() {
+                fs::write(adoc, crate::preset::ARTICLE_ADOC)?;
+            }
         }
 
-        let img = src.join("img");
-        if !img.exists() {
-            fs::create_dir(&img)?;
+        {
+            let img = src.join("img");
+            if !img.exists() {
+                fs::create_dir(&img)?;
+            }
         }
 
         println!(
             "Initialized new adbook project at {}",
             format!("{}", dir.display()).green()
         );
+
+        Ok(())
+    }
+}
+
+/// `adbook build`
+#[derive(Clap, Debug)]
+pub struct Preset {
+    file: Option<String>,
+}
+
+impl Preset {
+    pub fn run(&self) -> Result<()> {
+        let file = self.file.as_ref().map(|s| s.as_str()).unwrap_or("");
+
+        match file {
+            "b" | "book" | "book.ron" => {
+                let s = std::str::from_utf8(crate::preset::BOOK_RON)?;
+                println!("{}", s);
+            }
+            "t" | "toc" | "toc.ron" => {
+                let s = std::str::from_utf8(crate::preset::TOC_RON)?;
+                println!("{}", s);
+            }
+            "a" | "article" | "article.adoc" => {
+                let s = std::str::from_utf8(crate::preset::ARTICLE_ADOC)?;
+                println!("{}", s);
+            }
+            _ => {
+                eprintln!("specify one of `book`, `toc` or `article");
+            }
+        }
 
         Ok(())
     }
