@@ -7,30 +7,28 @@ use {
 
 use crate::{
     book::config::CmdOptions,
-    build::{
-        adoc::{self, AdocContext},
-        walk::{BookVisitContext, BookVisitor},
-    },
+    build::walk::{BookVisitContext, BookVisitor},
+    convert::adoc::{self, AdocContext},
 };
 
 /// An `adbook` builder based on `asciidoctor`
 ///
 /// * TODO: separate visitor
-pub struct AdocVisitor {
+pub struct AdocBookVisitor {
     buf: String,
     opts: CmdOptions,
 }
 
-impl AdocVisitor {
+impl AdocBookVisitor {
     pub fn new(opts: CmdOptions) -> Self {
-        AdocVisitor {
+        AdocBookVisitor {
             opts,
             buf: String::with_capacity(1024 * 5),
         }
     }
 }
 
-impl BookVisitor for AdocVisitor {
+impl BookVisitor for AdocBookVisitor {
     /// Gets destination path and kicks `asciidoctor` runner
     fn visit_file(&mut self, file: &Path, vcx: &mut BookVisitContext) -> Result<()> {
         match file.extension().and_then(|o| o.to_str()) {

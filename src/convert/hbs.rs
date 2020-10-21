@@ -26,7 +26,7 @@ mod test {
         println!("test: {} => {}", src_file.display(), dst_file.display());
         let opts = vec![("--embedded".to_string(), vec![])];
         let text =
-            crate::build::convert_adoc_with_hbs(&src_file, &site_dir, &dst_name, &hbs, opts)?;
+            crate::convert::convert_adoc_with_hbs(&src_file, &site_dir, &dst_name, &hbs, opts)?;
 
         // output to stdout
         let out = io::stdout();
