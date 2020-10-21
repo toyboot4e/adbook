@@ -82,7 +82,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         info!("===> Building the book");
-        crate::builder::build_book(&book)?;
+        crate::build::build_book(&book)?;
 
         Ok(())
     }
@@ -206,7 +206,7 @@ impl Convert {
         let dst_name = "<stdout>";
         let opts = vec![("--embedded".to_string(), vec![])];
 
-        let text = crate::builder::convert_adoc(&self.src_file, site_dir, dst_name, opts)?;
+        let text = crate::build::convert_adoc(&self.src_file, site_dir, dst_name, opts)?;
         println!("{}", text);
 
         Ok(())

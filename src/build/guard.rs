@@ -1,3 +1,5 @@
+//! `adbook` building framework
+
 use {
     anyhow::{Context, Error, Result},
     std::{fs, path::Path},
@@ -5,7 +7,7 @@ use {
 
 use crate::book::BookStructure;
 
-/// adbook builder run via [`run_builder`]
+/// adbook builder
 pub trait BookBuilder {
     /// Walk through the [`BookStructure`] and build it into the temporary directory
     ///

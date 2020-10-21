@@ -46,7 +46,7 @@ extern crate log;
 extern crate anyhow;
 
 pub mod book;
-pub mod builder;
+pub mod build;
 pub mod cli;
 pub mod preset;
 pub mod utils;

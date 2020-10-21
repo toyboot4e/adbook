@@ -1,11 +1,12 @@
 //! Book builder
 
 pub mod adoc;
-pub mod build;
+pub mod guard;
 pub mod hbs;
+pub mod visit;
 
 use {
-    anyhow::{Context, Error, Result},
+    anyhow::{Context, Result},
     handlebars::Handlebars,
     serde::Serialize,
     std::{fs, path::Path},
@@ -13,12 +14,12 @@ use {
 
 use crate::book::{config::CmdOptions, BookStructure};
 
-use self::adoc::{AdocBuilder, BuildContext};
+use self::{adoc::BuildContext, visit::AdocBuilder};
 
 /// Builds an `adbook` project with a configuration
 pub fn build_book(book: &BookStructure) -> Result<()> {
     let mut builder = AdocBuilder::new();
-    self::build::run_builder(&mut builder, book)
+    self::guard::run_builder(&mut builder, book)
 }
 
 /// Converts AsciiDoc file to html just by running `asciidoctor`
