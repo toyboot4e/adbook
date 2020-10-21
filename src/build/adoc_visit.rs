@@ -72,6 +72,7 @@ impl BookVisitor for AdocVisitor {
 
         let dst_name = format!("{}", dst_file.display());
         let mut acx = AdocContext::new(&vcx.src_dir, &vcx.dst_dir, &self.opts)?;
+        self.buf.clear();
         adoc::run_asciidoctor_buf(file, &dst_name, &mut self.buf, &mut acx)?;
 
         fs::write(&dst_file, &self.buf).with_context(|| {

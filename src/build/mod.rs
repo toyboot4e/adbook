@@ -19,8 +19,7 @@ use self::{adoc::AdocContext, adoc_visit::AdocVisitor};
 
 /// Builds an `adbook` project with a configuration
 pub fn build_book(book: &BookStructure) -> Result<()> {
-    let opts = vec![("--embedded".to_string(), vec![])];
-    let mut builder = AdocVisitor::new(opts);
+    let mut builder = AdocVisitor::new(book.book_ron.adoc_opts.clone());
     self::walk::build_book(&mut builder, book)
 }
 

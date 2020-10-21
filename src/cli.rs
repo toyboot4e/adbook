@@ -204,7 +204,7 @@ impl Convert {
 
         let site_dir = self.src_file.parent().unwrap();
         let dst_name = "<stdout>";
-        let opts = vec![("--embedded".to_string(), vec![])];
+        let opts = vec![];
 
         let text = crate::build::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?;
         println!("{}", text);
