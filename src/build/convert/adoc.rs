@@ -1,4 +1,4 @@
-//! `asciidoctor` runner
+//! `asciidoctor` runner and metadata extracter
 
 use {
     anyhow::{Context, Error, Result},
@@ -12,13 +12,16 @@ use {
 
 use crate::book::config::CmdOptions;
 
+// --------------------------------------------------------------------------------
+// `asciidoctor` runner
+
 // TODO:
 // pub type Result<T> = std::result::Result<T, AdocError>;
 
 /// Structure for error printing
 ///
 /// TODO: refactor and prefer it to anyhow::Error
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Clone)]
 pub enum AdocError {
     #[error("Failed to convert file: {0}\n{1}")]
     FailedToConvert(PathBuf, String),
@@ -178,4 +181,145 @@ pub fn run_asciidoctor_buf(
     }
 
     Ok(())
+}
+
+// --------------------------------------------------------------------------------
+// Metadata extracter
+
+/// Attribute of an Asciidoctor document
+///
+/// Different from Asciidoctor, document attributes specified with command line arguments are always
+/// overwritable by default.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AdocAttr {
+    /// :!<attribute>:
+    Deny(String),
+    /// :<attribute>: value
+    Allow(String, String),
+}
+
+impl AdocAttr {
+    pub fn deny(name: impl Into<String>) -> Self {
+        AdocAttr::Deny(name.into())
+    }
+
+    pub fn allow(name: impl Into<String>, value: impl Into<String>) -> Self {
+        AdocAttr::Allow(name.into(), value.into())
+    }
+
+    pub fn name(&self) -> &str {
+        match self {
+            AdocAttr::Deny(name) => name,
+            AdocAttr::Allow(name, _value) => name,
+        }
+    }
+}
+
+/// Asciidoctor metadata (basically document attributes)
+///
+/// Because `asciidoctor --embedded` does not output document header (and the document title), we
+/// have to extract document attributes manually.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AdocMetadata {
+    pub title: Option<String>,
+    attrs: Vec<AdocAttr>,
+    base: Option<Box<Self>>,
+}
+
+impl AdocMetadata {
+    /// Tries to find an attribute with name. Duplicates are not conisdered
+    pub fn find_attr(&self, name: &str) -> Option<&AdocAttr> {
+        if let Some(attr) = self.attrs.iter().find(|a| a.name() == name) {
+            return Some(attr);
+        }
+
+        if let Some(ref base) = self.base {
+            return base.find_attr(name);
+        }
+
+        None
+    }
+}
+
+impl AdocMetadata {
+    pub fn extract(text: &str) -> Self {
+        let mut lines = text.lines();
+
+        // = Title
+        let title = match lines.next() {
+            Some(ln) if ln.starts_with("= ") => Some(ln[2..].trim().to_string()),
+            _ => None,
+        };
+
+        // :attribute: value
+        let mut attrs = Vec::with_capacity(10);
+        while let Some(line) = lines.next() {
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            // locate two colons (`:`)
+            let mut colons = line.bytes().enumerate().filter(|(_i, c)| *c == b':');
+
+            // first `:`
+            match colons.next() {
+                Some(_) => {}
+                None => continue,
+            }
+
+            // second `:`
+            let pos = match colons.next() {
+                Some((i, _c)) => i,
+                None => continue,
+            };
+
+            // :attribute: value
+            let name = &line[1..pos].trim();
+            let value = &line[pos + 1..].trim();
+
+            // :!attribute:
+            if name.starts_with('!') {
+                attrs.push(AdocAttr::Deny(name[1..].to_string()));
+            } else {
+                attrs.push(AdocAttr::Allow(name.to_string(), value.to_string()));
+            }
+        }
+
+        Self {
+            title,
+            attrs,
+            base: None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{AdocAttr, AdocMetadata};
+
+    #[test]
+    fn simple_metadata() {
+        let article = r###"= Title here!
+:revdate: Oct 23, 2020
+:author: someone
+:!sectnums: these text are omitted
+
+First paragraph!
+"###;
+
+        let metadata = AdocMetadata::extract(article);
+
+        assert_eq!(
+            metadata,
+            AdocMetadata {
+                title: Some("Title here!".to_string()),
+                attrs: vec![
+                    AdocAttr::allow("revdate", "Oct 23, 2020"),
+                    AdocAttr::allow("author", "someone"),
+                    AdocAttr::deny("sectnums"),
+                ],
+                base: None,
+            }
+        );
+    }
 }
