@@ -328,5 +328,10 @@ First paragraph!
                 base: None,
             }
         );
+
+        assert_eq!(
+            metadata.find_attr("author"),
+            Some(&AdocAttr::allow("author", "someone"))
+        );
     }
 }

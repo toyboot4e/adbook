@@ -11,9 +11,13 @@ use {
 
 use crate::build::convert::adoc::AdocMetadata;
 
-/// Data supplied to Handlebars templates
+/// Variables supplied to Handlebars templates
 #[derive(Default, Serialize)]
 pub struct HbsData<'a> {
+    // html data
+    h_title: String,
+    h_author: String,
+    // Asciidoctor attributes
     a_title: Option<String>,
     a_article: &'a str,
     a_revdate: Option<String>,
@@ -38,11 +42,14 @@ pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path) -> Result<(String)> {
 
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
-                .find_attr("revdate")
+                .find_attr(name)
                 .and_then(|a| a.value().map(|s| s.to_string()))
         }
 
         HbsData {
+            // TODO: supply html title via `book.ron` using placeholder sutring
+            h_title: metadata.title.clone().unwrap_or("".into()),
+            h_author: attr("author", &metadata).unwrap_or("".into()),
             a_title: metadata.title.clone(),
             a_article: html,
             a_revdate: attr("revdate", &metadata),
