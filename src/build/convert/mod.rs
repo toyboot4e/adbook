@@ -1,6 +1,6 @@
 //! Converts AsciiDoc files using `asciidoctor` and Handlebars
 
-pub mod adoc;
+mod adoc;
 pub mod hbs;
 
 use {
@@ -11,7 +11,7 @@ use {
 
 use crate::book::config::CmdOptions;
 
-use self::adoc::AdocContext;
+use self::adoc::AdocRunContext;
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///
@@ -19,10 +19,28 @@ use self::adoc::AdocContext;
 /// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc(
     src_file: &Path,
+    src_dir: &Path,
     site_dir: &Path,
     dummy_dst_name: &str,
     opts: &CmdOptions,
 ) -> Result<String> {
+    let mut buf = String::with_capacity(5 * 1024);
+    self::convert_adoc_buf(&mut buf, src_file, src_dir, site_dir, dummy_dst_name, opts)?;
+    Ok(buf)
+}
+
+/// Converts an AsciiDoc file to an html string just by running `asciidoctor`
+///
+/// * `dummy_dst_name`: used for debug log
+/// * `opts`: options provided with `asciidoctor`
+pub fn convert_adoc_buf(
+    buf: &mut String,
+    src_file: &Path,
+    src_dir: &Path,
+    site_dir: &Path,
+    dummy_dst_name: &str,
+    opts: &CmdOptions,
+) -> Result<()> {
     ensure!(
         src_file.is_file(),
         "Given invalid source file path: {}",
@@ -30,18 +48,22 @@ pub fn convert_adoc(
     );
 
     ensure!(
-        site_dir.exists(),
-        "Given non-existing site directory path: {}",
+        src_dir.is_dir(),
+        "Given non-directory site directory path: {}",
+        site_dir.display()
+    );
+
+    ensure!(
+        site_dir.is_dir(),
+        "Given non-directory site directory path: {}",
         site_dir.display()
     );
 
     // setup dummy context & builder for an article
-    let src_dir = src_file.parent().unwrap();
-    let mut acx = AdocContext::new(src_dir, site_dir, opts)?;
-    let mut buf = String::with_capacity(5 * 1024);
-    adoc::run_asciidoctor_buf(src_file, dummy_dst_name, &mut buf, &mut acx)?;
+    let mut rcx = AdocRunContext::new(src_dir, site_dir, opts)?;
+    adoc::run_asciidoctor_buf(src_file, dummy_dst_name, buf, &mut rcx)?;
 
-    Ok(buf)
+    Ok(())
 }
 
 /// Converts an AsciiDoc file to an html string using a Handlebars template
@@ -50,27 +72,28 @@ pub fn convert_adoc(
 /// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc_with_hbs(
     src_file: &Path,
+    src_dir: &Path,
     site_dir: &Path,
     dummy_dst_name: &str,
     opts: &CmdOptions,
     hbs_file: &Path,
 ) -> Result<String> {
-    let hbs_template = fs::read_to_string(hbs_file)?;
-
+    // get "embedded" version of `asciidoctor` output
     let mut opts = opts.clone();
     opts.push(("--embedded".to_string(), vec![]));
-    let text = self::convert_adoc(src_file, site_dir, dummy_dst_name, &opts)?;
 
-    // FIXME: stub handlebars runner
-    let mut hbs = Handlebars::new();
-    hbs.set_strict_mode(true);
-    hbs.register_template_string("article", &hbs_template)?;
+    let src_str = fs::read_to_string(src_file)?;
+    // TODO: use `&str`
+    let html = self::convert_adoc(src_file, src_dir, site_dir, dummy_dst_name, &opts)?;
 
-    let hbs_data = hbs::HbsTemplate { article: &text };
+    // render handlebars template
+    let output = hbs::render_hbs(&html, &src_str, hbs_file).with_context(|| {
+        format!(
+            "Unable to render handlebars template\n     hbs: {}\n    adoc: {}",
+            hbs_file.display(),
+            src_file.display(),
+        )
+    })?;
 
-    let final_output = hbs
-        .render("article", &hbs_data)
-        .with_context(|| "Unable to render handlebars template")?;
-
-    Ok(final_output)
+    Ok(output)
 }

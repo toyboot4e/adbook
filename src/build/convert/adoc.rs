@@ -29,7 +29,7 @@ pub enum AdocError {
 
 /// Context for running `asciidoctor`, actually just options
 #[derive(Debug)]
-pub struct AdocContext {
+pub struct AdocRunContext {
     pub errors: Vec<Error>,
     /// `-B` option (base directory)
     pub src_dir: PathBuf,
@@ -39,12 +39,12 @@ pub struct AdocContext {
     pub opts: CmdOptions,
 }
 
-impl AdocContext {
+impl AdocRunContext {
     pub fn new(src_dir: &Path, site_dir: &Path, opts: &CmdOptions) -> io::Result<Self> {
         let src_dir = src_dir.canonicalize()?;
         let site_dir = site_dir.canonicalize()?;
 
-        Ok(Self {
+        Ok(AdocRunContext {
             errors: Vec::with_capacity(10),
             src_dir,
             dst_dir: site_dir,
@@ -87,7 +87,7 @@ impl AdocContext {
 }
 
 /// Sets up `asciidoctor` command
-pub fn asciidoctor(src_file: &Path, acx: &mut AdocContext) -> Result<Command> {
+pub fn asciidoctor(src_file: &Path, rcx: &mut AdocRunContext) -> Result<Command> {
     ensure!(
         src_file.exists(),
         "Given non-existing file as conversion source"
@@ -113,7 +113,7 @@ pub fn asciidoctor(src_file: &Path, acx: &mut AdocContext) -> Result<Command> {
     cmd.arg("--trace").arg("--verbose");
 
     // apply directory settings and user options (often ones defined in `book.ron`)
-    acx.apply_options(&mut cmd);
+    rcx.apply_options(&mut cmd);
 
     Ok(cmd)
 }
@@ -122,7 +122,7 @@ pub fn asciidoctor(src_file: &Path, acx: &mut AdocContext) -> Result<Command> {
 pub fn run_asciidoctor(
     src_file: &Path,
     dummy_dst_name: &str,
-    acx: &mut AdocContext,
+    rcx: &mut AdocRunContext,
 ) -> Result<std::process::Output> {
     trace!(
         "Converting adoc: `{}` -> `{}`",
@@ -131,7 +131,7 @@ pub fn run_asciidoctor(
     );
 
     let mut cmd =
-        self::asciidoctor(src_file, acx).context("when setting up `asciidoctor` options")?;
+        self::asciidoctor(src_file, rcx).context("when setting up `asciidoctor` options")?;
 
     let output = cmd.output().with_context(|| {
         format!(
@@ -150,9 +150,9 @@ pub fn run_asciidoctor_buf(
     src_file: &Path,
     dummy_dst_name: &str,
     out: &mut String,
-    acx: &mut AdocContext,
+    rcx: &mut AdocRunContext,
 ) -> Result<()> {
-    let output = self::run_asciidoctor(src_file, dummy_dst_name, acx)?;
+    let output = self::run_asciidoctor(src_file, dummy_dst_name, rcx)?;
 
     // ensure the conversion succeeded or else report it as an error
     ensure!(
@@ -211,6 +211,13 @@ impl AdocAttr {
         match self {
             AdocAttr::Deny(name) => name,
             AdocAttr::Allow(name, _value) => name,
+        }
+    }
+
+    pub fn value(&self) -> Option<&str> {
+        match self {
+            AdocAttr::Deny(_name) => None,
+            AdocAttr::Allow(_name, value) => Some(value),
         }
     }
 }

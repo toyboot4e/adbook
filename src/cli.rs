@@ -206,6 +206,7 @@ impl Convert {
     pub fn run(&self) -> Result<()> {
         ensure!(self.src_file.is_file(), "Not given path to file");
 
+        let src_dir = self.src_file.parent().unwrap();
         let site_dir = self.src_file.parent().unwrap();
         let dst_name = "<stdout>";
         let opts = vec![];
@@ -213,12 +214,19 @@ impl Convert {
         let text = match self.hbs.as_ref() {
             Some(hbs) => crate::build::convert::convert_adoc_with_hbs(
                 &self.src_file,
+                src_dir,
                 site_dir,
                 dst_name,
                 &opts,
                 hbs,
             )?,
-            None => crate::build::convert::convert_adoc(&self.src_file, site_dir, dst_name, &opts)?,
+            None => crate::build::convert::convert_adoc(
+                &self.src_file,
+                src_dir,
+                site_dir,
+                dst_name,
+                &opts,
+            )?,
         };
 
         println!("{}", text);
