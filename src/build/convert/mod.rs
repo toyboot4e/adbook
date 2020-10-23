@@ -5,7 +5,6 @@ pub mod hbs;
 
 use {
     anyhow::{Context, Result},
-    handlebars::Handlebars,
     std::{fs, path::Path},
 };
 
@@ -81,13 +80,12 @@ pub fn convert_adoc_with_hbs(
     // get "embedded" version of `asciidoctor` output
     let mut opts = opts.clone();
     opts.push(("--embedded".to_string(), vec![]));
-
-    let src_str = fs::read_to_string(src_file)?;
-    // TODO: use `&str`
     let html = self::convert_adoc(src_file, src_dir, site_dir, dummy_dst_name, &opts)?;
 
     // render handlebars template
-    let output = hbs::render_hbs(&html, &src_str, hbs_file).with_context(|| {
+    // TODO: avoid duplicate file reading
+    let src_str = fs::read_to_string(src_file)?;
+    let output = hbs::render_hbs(&html, &src_str, hbs_file, &opts).with_context(|| {
         format!(
             "Unable to render handlebars template\n     hbs: {}\n    adoc: {}",
             hbs_file.display(),

@@ -199,14 +199,6 @@ pub enum AdocAttr {
 }
 
 impl AdocAttr {
-    pub fn deny(name: impl Into<String>) -> Self {
-        AdocAttr::Deny(name.into())
-    }
-
-    pub fn allow(name: impl Into<String>, value: impl Into<String>) -> Self {
-        AdocAttr::Allow(name.into(), value.into())
-    }
-
     pub fn name(&self) -> &str {
         match self {
             AdocAttr::Deny(name) => name,
@@ -222,6 +214,28 @@ impl AdocAttr {
     }
 }
 
+/// Constructors
+impl AdocAttr {
+    /// "name" -> Deny("name")
+    pub fn deny(name: impl Into<String>) -> Self {
+        AdocAttr::Deny(name.into())
+    }
+
+    /// "name", "value"
+    pub fn allow(name: impl Into<String>, value: impl Into<String>) -> Self {
+        AdocAttr::Allow(name.into(), value.into())
+    }
+
+    /// "name" -> Allow("attr") | Deny("attr")
+    pub fn from_name(name: &str) -> Self {
+        if name.starts_with('!') {
+            Self::deny(&name[1..])
+        } else {
+            Self::allow(name, "")
+        }
+    }
+}
+
 /// Asciidoctor metadata (basically document attributes)
 ///
 /// Because `asciidoctor --embedded` does not output document header (and the document title), we
@@ -230,16 +244,19 @@ impl AdocAttr {
 pub struct AdocMetadata {
     pub title: Option<String>,
     attrs: Vec<AdocAttr>,
+    // TODO: supply base attribute set from `book.ron`
     base: Option<Box<Self>>,
 }
 
 impl AdocMetadata {
     /// Tries to find an attribute with name. Duplicates are not conisdered
     pub fn find_attr(&self, name: &str) -> Option<&AdocAttr> {
+        // from self
         if let Some(attr) = self.attrs.iter().find(|a| a.name() == name) {
             return Some(attr);
         }
 
+        // from base
         if let Some(ref base) = self.base {
             return base.find_attr(name);
         }
@@ -248,7 +265,25 @@ impl AdocMetadata {
     }
 }
 
+/// Parsers
 impl AdocMetadata {
+    /// Sets the fallback [`AdocMetadata`]
+    pub fn derive(&mut self, base: Self) {
+        self.base = Some(Box::new(base));
+    }
+
+    /// Extracts metadata from AsciiDoc string and sets up fallback attributes from `asciidoctor`
+    /// command line options
+    pub fn extract_with_base(text: &str, cli_opts: &CmdOptions) -> Self {
+        let mut meta = Self::extract(text);
+
+        let base = Self::from_cmd_opts(cli_opts);
+        meta.derive(base);
+
+        meta
+    }
+
+    /// Extracts metadata from AsciiDoc string
     pub fn extract(text: &str) -> Self {
         let mut lines = text.lines();
 
@@ -284,16 +319,69 @@ impl AdocMetadata {
             let name = &line[1..pos].trim();
             let value = &line[pos + 1..].trim();
 
-            // :!attribute:
             if name.starts_with('!') {
-                attrs.push(AdocAttr::Deny(name[1..].to_string()));
+                // :!attribute:
+                attrs.push(AdocAttr::deny(&name[1..]));
             } else {
-                attrs.push(AdocAttr::Allow(name.to_string(), value.to_string()));
+                // :attribute:
+                attrs.push(AdocAttr::allow(*name, *value));
             }
         }
 
         Self {
             title,
+            attrs,
+            base: None,
+        }
+    }
+
+    /// Extracts `asciidoctor` options that matches to `-a attr=value`
+    pub fn from_cmd_opts(opts: &CmdOptions) -> Self {
+        let attr_opts = match opts.iter().find(|(opt_name, _attr_opts)| opt_name == "-a") {
+            Some((_opt_name, opts)) => opts,
+            None => {
+                return Self {
+                    title: None,
+                    attrs: vec![],
+                    base: None,
+                }
+            }
+        };
+
+        let mut attrs = Vec::with_capacity(10);
+
+        for opt in attr_opts.iter() {
+            let eq_pos = opt
+                .bytes()
+                .enumerate()
+                .find(|(_i, c)| *c == b'=')
+                .map(|(i, _c)| i)
+                .unwrap_or(0);
+
+            // attr | !attr
+            if eq_pos == 0 {
+                attrs.push(AdocAttr::from_name(opt));
+                continue;
+            }
+
+            // name=value | name@=value | name=value@
+            // we'll just ignore `@` symbols; different from the original Asciidoctor, attributes
+            // are always overridable by documents
+            let mut name = &opt[0..eq_pos];
+            if name.ends_with('@') {
+                name = &name[0..name.len() - 1];
+            }
+
+            let mut value = &opt[eq_pos + 1..];
+            if value.ends_with('@') {
+                value = &value[0..value.len() - 1];
+            }
+
+            attrs.push(AdocAttr::allow(name, value));
+        }
+
+        Self {
+            title: None,
             attrs,
             base: None,
         }
@@ -304,9 +392,7 @@ impl AdocMetadata {
 mod test {
     use super::{AdocAttr, AdocMetadata};
 
-    #[test]
-    fn simple_metadata() {
-        let article = r###"= Title here!
+    const ARTICLE: &str = r###"= Title here!
 :revdate: Oct 23, 2020
 :author: someone
 :!sectnums: these text are omitted
@@ -314,7 +400,9 @@ mod test {
 First paragraph!
 "###;
 
-        let metadata = AdocMetadata::extract(article);
+    #[test]
+    fn simple_metadata() {
+        let metadata = AdocMetadata::extract(ARTICLE);
 
         assert_eq!(
             metadata,
@@ -332,6 +420,28 @@ First paragraph!
         assert_eq!(
             metadata.find_attr("author"),
             Some(&AdocAttr::allow("author", "someone"))
+        );
+    }
+
+    #[test]
+    fn base_test() {
+        let mail = "someone@mail.domain";
+
+        let cmd_opts = vec![(
+            "-a".to_string(),
+            vec!["sectnums".to_string(), format!("email={}", mail)],
+        )];
+
+        let deriving = AdocMetadata::extract_with_base(ARTICLE, &cmd_opts);
+
+        assert_eq!(
+            deriving.find_attr("sectnums"),
+            Some(&AdocAttr::deny("sectnums"))
+        );
+
+        assert_eq!(
+            deriving.find_attr("email"),
+            Some(&AdocAttr::allow("email", mail))
         );
     }
 }

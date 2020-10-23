@@ -9,7 +9,7 @@ use {
     std::path::Path,
 };
 
-use crate::build::convert::adoc::AdocMetadata;
+use crate::{book::config::CmdOptions, build::convert::adoc::AdocMetadata};
 
 /// Variables supplied to Handlebars templates
 #[derive(Default, Serialize)]
@@ -27,7 +27,7 @@ pub struct HbsData<'a> {
 
 /// * TODO: retained mode
 /// * TODO: return both output and error
-pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path) -> Result<(String)> {
+pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path, opts: &CmdOptions) -> Result<String> {
     let key = "adbook_template";
 
     let hbs = {
@@ -38,7 +38,7 @@ pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path) -> Result<(String)> {
     };
 
     let hbs_data = {
-        let metadata = AdocMetadata::extract(adoc);
+        let metadata = AdocMetadata::extract_with_base(adoc, opts);
 
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
