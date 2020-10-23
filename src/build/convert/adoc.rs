@@ -1,4 +1,9 @@
 //! `asciidoctor` runner and metadata extracter
+//!
+//! `asciidoctor` options are supplied with placeholder strings:
+//!
+//! * `{src_dir}`
+//! * `{dst_dir}`
 
 use {
     anyhow::{Context, Error, Result},
@@ -52,12 +57,17 @@ impl AdocRunContext {
         })
     }
 
+    fn setup_placeholder_strings(&self, arg: &str) -> String {
+        let src_dir_str = format!("{}", self.src_dir.display());
+        let dst_dir_str = format!("{}", self.dst_dir.display());
+
+        let arg = arg.replace(r#"{src_dir}"#, &src_dir_str);
+        let arg = arg.replace(r#"{dst_dir}"#, &dst_dir_str);
+
+        arg
+    }
+
     /// Applies `asciidoctor` options
-    ///
-    /// # Place holder strings
-    ///
-    /// * `{src_dir}`: replaced to source directory
-    /// * `{dst_dir}`: replaced to destination directory
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings (base/destination directory)
         let src_dir_str = format!("{}", self.src_dir.display());
@@ -78,10 +88,7 @@ impl AdocRunContext {
             // case 2. (option with argument) specified n times
             // like, -a linkcss -a sectnums ..
             for arg in args {
-                // setup placeholder string
-                let arg = arg.replace(r#"{src_dir}"#, &src_dir_str);
-                let arg = arg.replace(r#"{dst_dir}"#, &dst_dir_str);
-
+                let arg = self.setup_placeholder_strings(arg);
                 cmd.args(&[opt, &arg]);
             }
         }
@@ -285,6 +292,7 @@ impl AdocMetadata {
         meta
     }
 
+    /// "Whitespace" line or comment lines are skipped when extracting header and attributes
     fn is_line_to_skip(ln: &str) -> bool {
         let ln = ln.trim();
         ln.is_empty() || ln.starts_with("//")
@@ -292,7 +300,6 @@ impl AdocMetadata {
 
     /// Extracts metadata from AsciiDoc string
     pub fn extract(text: &str) -> Self {
-        // always skip "whitespace" lines
         let mut lines = text.lines().filter(|ln| !Self::is_line_to_skip(ln));
 
         // = Title
