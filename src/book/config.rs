@@ -8,6 +8,8 @@ use {
 /// Arguments to a command
 ///
 /// `[("--one-option", ["a", "b"]), ("--another", []), ..]`.
+///
+/// Placeholder strings are inserted when they're interpreted (`crate::build::convert::adoc`).
 pub type CmdOptions = Vec<(String, Vec<String>)>;
 
 /// Deserialized from `book.ron` in the root of an `adbook` project

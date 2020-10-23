@@ -54,33 +54,38 @@ impl AdocRunContext {
 
     /// Applies `asciidoctor` options
     ///
-    /// Place holder strings:
+    /// # Place holder strings
     ///
-    /// * `${src_dir}`: replaced to the source directory
+    /// * `${src_dir}`: replaced to source directory
+    /// * `${dst_dir}`: replaced to destination directory
+    ///
+    /// The `${name}` syntax came from bash because [`CmdOptions`] is based on `asciidoctor` call
+    /// from shell.
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings (base/destination directory)
-        let src_dir = self.src_dir.clone();
-        let dst_dir = self.dst_dir.clone();
+        let src_dir_str = format!("{}", self.src_dir.display());
+        let dst_dir_str = format!("{}", self.dst_dir.display());
 
-        let src_dir_str = format!("{}", src_dir.display());
-        let dst_dir_str = format!("{}", dst_dir.display());
-
-        cmd.current_dir(&src_dir)
+        cmd.current_dir(&self.src_dir)
             .args(&["-B", &src_dir_str])
             .args(&["-D", &dst_dir_str]);
 
         // setup user options
         for (opt, args) in &self.opts {
+            // case 1. option without argument
             if args.is_empty() {
                 cmd.arg(opt);
-            } else {
-                // translated as (opt, arg)+
-                for arg in args {
-                    // setup placeholder string
-                    let arg = arg.replace(r#"${src_dir}"#, &src_dir_str);
+                continue;
+            }
 
-                    cmd.args(&[opt, &arg]);
-                }
+            // case 2. (option with argument) specified n times
+            // like, -a linkcss -a sectnums ..
+            for arg in args {
+                // setup placeholder string
+                let arg = arg.replace(r#"${src_dir}"#, &src_dir_str);
+                let arg = arg.replace(r#"${dst_dir}"#, &dst_dir_str);
+
+                cmd.args(&[opt, &arg]);
             }
         }
     }
@@ -285,7 +290,8 @@ impl AdocMetadata {
 
     /// Extracts metadata from AsciiDoc string
     pub fn extract(text: &str) -> Self {
-        let mut lines = text.lines();
+        // always skip "whitespace" lines
+        let mut lines = text.lines().filter(|l| !l.trim().is_empty());
 
         // = Title
         let title = match lines.next() {
@@ -296,10 +302,6 @@ impl AdocMetadata {
         // :attribute: value
         let mut attrs = Vec::with_capacity(10);
         while let Some(line) = lines.next() {
-            if line.trim().is_empty() {
-                continue;
-            }
-
             // locate two colons (`:`)
             let mut colons = line.bytes().enumerate().filter(|(_i, c)| *c == b':');
 
