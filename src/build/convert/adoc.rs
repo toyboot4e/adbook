@@ -285,10 +285,15 @@ impl AdocMetadata {
         meta
     }
 
+    fn is_line_to_skip(ln: &str) -> bool {
+        let ln = ln.trim();
+        ln.is_empty() || ln.starts_with("//")
+    }
+
     /// Extracts metadata from AsciiDoc string
     pub fn extract(text: &str) -> Self {
         // always skip "whitespace" lines
-        let mut lines = text.lines().filter(|l| !l.trim().is_empty());
+        let mut lines = text.lines().filter(|ln| !Self::is_line_to_skip(ln));
 
         // = Title
         let title = match lines.next() {
@@ -391,8 +396,14 @@ impl AdocMetadata {
 mod test {
     use super::{AdocAttr, AdocMetadata};
 
-    const ARTICLE: &str = r###"= Title here!
+    const ARTICLE: &str = r###"
+// ^ blank line
+
+= Title here!
+
 :revdate: Oct 23, 2020
+// whitespace again
+
 :author: someone
 :!sectnums: these text are omitted
 
