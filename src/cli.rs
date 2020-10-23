@@ -36,7 +36,7 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         self.cmd.run()
     }
 }
@@ -60,7 +60,7 @@ pub enum SubCommand {
 }
 
 impl SubCommand {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         match self {
             SubCommand::Build(build) => build.run(),
             SubCommand::Init(new) => new.run(),
@@ -77,7 +77,7 @@ pub struct Build {
 }
 
 impl Build {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
 
         info!("===> Loading book structure");
@@ -97,7 +97,7 @@ pub struct Init {
 }
 
 impl Init {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
         let dir = PathBuf::from(&dir);
 
@@ -168,7 +168,7 @@ pub struct Preset {
 }
 
 impl Preset {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         let file = self.file.as_ref().map(|s| s.as_str()).unwrap_or("");
 
         match file {
@@ -197,37 +197,31 @@ impl Preset {
 #[derive(Clap, Debug)]
 pub struct Convert {
     pub src_file: PathBuf,
-    /// Handlebars template file
+    /// Handlebars template file path **relative to the source file**
     #[clap(long, short)]
     pub hbs: Option<PathBuf>,
 }
 
 impl Convert {
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         ensure!(self.src_file.is_file(), "Not given path to file");
 
         let src_dir = self.src_file.parent().unwrap();
         let site_dir = self.src_file.parent().unwrap();
         let dst_name = "<stdout>";
-        let opts = vec![];
 
-        let text = match self.hbs.as_ref() {
-            Some(hbs) => crate::build::convert::convert_adoc_with_hbs(
-                &self.src_file,
-                src_dir,
-                site_dir,
-                dst_name,
-                &opts,
-                hbs,
-            )?,
-            None => crate::build::convert::convert_adoc(
-                &self.src_file,
-                src_dir,
-                site_dir,
-                dst_name,
-                &opts,
-            )?,
-        };
+        let mut opts = vec![];
+        if let Some(hbs) = self.hbs.take() {
+            opts.push(("-a".to_string(), vec![format!("hbs={}", hbs.display())]));
+        }
+
+        let text = crate::build::convert::convert_adoc(
+            &self.src_file,
+            src_dir,
+            site_dir,
+            dst_name,
+            &opts,
+        )?;
 
         println!("{}", text);
 

@@ -1,6 +1,8 @@
 //! `asciidoctor` runner and metadata extracter
 //!
-//! `asciidoctor` options are supplied with placeholder strings:
+//! # Placeholder strings for `asciidoctor` options
+//!
+//! `asciidoctor` options are supplied with the following placeholder strings:
 //!
 //! * `{src_dir}`
 //! * `{dst_dir}`

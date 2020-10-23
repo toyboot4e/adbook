@@ -23,11 +23,12 @@ pub struct HbsData<'a> {
     a_revdate: Option<String>,
     a_author: Option<String>,
     a_email: Option<String>,
+    a_stylesheet: Option<String>,
 }
 
 /// * TODO: retained mode
 /// * TODO: return both output and error
-pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path, opts: &CmdOptions) -> Result<String> {
+pub fn render_hbs(html: &str, metadata: AdocMetadata, hbs_file: &Path) -> Result<String> {
     let key = "adbook_template";
 
     let hbs = {
@@ -38,13 +39,19 @@ pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path, opts: &CmdOptions) ->
     };
 
     let hbs_data = {
-        let metadata = AdocMetadata::extract_with_base(adoc, opts);
-
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
                 .find_attr(name)
                 .and_then(|a| a.value().map(|s| s.to_string()))
         }
+
+        let css = attr("stylesheet", &metadata).map(|rel| {
+            if let Some(base) = attr("stylesdir", &metadata) {
+                format!("{}/{}", base, rel)
+            } else {
+                rel
+            }
+        });
 
         HbsData {
             // TODO: supply html title via `book.ron` using placeholder sutring
@@ -55,6 +62,7 @@ pub fn render_hbs(html: &str, adoc: &str, hbs_file: &Path, opts: &CmdOptions) ->
             a_revdate: attr("revdate", &metadata),
             a_author: attr("author", &metadata),
             a_email: attr("email", &metadata),
+            a_stylesheet: css,
         }
     };
 

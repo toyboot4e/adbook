@@ -66,7 +66,6 @@ impl BookVisitor for AdocBookVisitor {
         }
 
         let dummy_dst_name = format!("{}", dst_file.display());
-        self.buf.clear();
         crate::build::convert::convert_adoc_buf(
             &mut self.buf,
             src_file,
@@ -75,9 +74,6 @@ impl BookVisitor for AdocBookVisitor {
             &dummy_dst_name,
             &self.opts,
         )?;
-        // let mut acx = AdocContext::new(&vcx.src_dir, &vcx.dst_dir, &self.opts)?;
-        // self.buf.clear();
-        // adoc::run_asciidoctor_buf(src_file, &dummy_dst_name, &mut self.buf, &mut acx)?
 
         fs::write(&dst_file, &self.buf).with_context(|| {
             format!(
