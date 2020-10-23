@@ -56,11 +56,8 @@ impl AdocRunContext {
     ///
     /// # Place holder strings
     ///
-    /// * `${src_dir}`: replaced to source directory
-    /// * `${dst_dir}`: replaced to destination directory
-    ///
-    /// The `${name}` syntax came from bash because [`CmdOptions`] is based on `asciidoctor` call
-    /// from shell.
+    /// * `{src_dir}`: replaced to source directory
+    /// * `{dst_dir}`: replaced to destination directory
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings (base/destination directory)
         let src_dir_str = format!("{}", self.src_dir.display());
@@ -82,8 +79,8 @@ impl AdocRunContext {
             // like, -a linkcss -a sectnums ..
             for arg in args {
                 // setup placeholder string
-                let arg = arg.replace(r#"${src_dir}"#, &src_dir_str);
-                let arg = arg.replace(r#"${dst_dir}"#, &dst_dir_str);
+                let arg = arg.replace(r#"{src_dir}"#, &src_dir_str);
+                let arg = arg.replace(r#"{dst_dir}"#, &dst_dir_str);
 
                 cmd.args(&[opt, &arg]);
             }

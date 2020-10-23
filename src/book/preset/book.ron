@@ -13,7 +13,7 @@
         ("-a", [
             "linkcss",
             "imagesdir@=/img",
-            "imagesoutdir@=${src_dir}/img",
+            "imagesoutdir@={src_dir}/img",
             //
             "!last-update-label",
             "hardbreaks",
