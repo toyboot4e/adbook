@@ -10,7 +10,7 @@ fn main() -> Result<()> {
     Cli::parse().run()
 }
 
-/// Sets up [`fern`]. Handlebars debug/trace logs are ignored (that's why `fern` is used!)
+/// Sets up [`fern`]. We'll ignore logs from some crates
 fn configure_log() -> Result<()> {
     let colors = ColoredLevelConfig::new()
         .error(Color::Red)
@@ -29,8 +29,10 @@ fn configure_log() -> Result<()> {
                 message
             ))
         })
-        // .level(log::LevelFilter::Debug)
         .level_for("handlebars", log::LevelFilter::Info)
+        .level_for("async_std", log::LevelFilter::Debug)
+        .level_for("async_io", log::LevelFilter::Debug)
+        .level_for("polling", log::LevelFilter::Debug)
         .chain(std::io::stdout())
         // .chain(fern::log_file("output.log")?)
         .apply()?;
