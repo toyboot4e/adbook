@@ -1,3 +1,10 @@
+//! `adbook`
+//!
+//! # TODOs
+//!
+//! * refactor book loading
+//! * setup convert sub command: consider if the file is in site directory or not
+
 use {
     adbook::cli::Cli,
     anyhow::*,
@@ -6,7 +13,7 @@ use {
 };
 
 fn main() -> Result<()> {
-    self::configure_log()?;
+    self::configure_log().context("Unable to condifure `adbook` logging system (`fern`)")?;
     Cli::parse().run()
 }
 

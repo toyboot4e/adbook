@@ -36,7 +36,7 @@ pub fn pull_files_rec(toc: &Toc, xs: &mut Vec<PathBuf>) {
     }
 }
 
-/// Walks a root [`Toc`] and converts file one by one
+/// Walks a root [`Toc`] and converts files one by one
 pub fn walk_book(v: &mut impl BookVisitor, root_toc: &Toc, src_dir: &Path, dst_dir: &Path) {
     let mut files = Vec::with_capacity(80);
     self::pull_files_rec(root_toc, &mut files);

@@ -105,3 +105,27 @@ fn copy_items_rec_impl(src_dir: &Path, dst_dir: &Path) -> Result<()> {
 
     Ok(())
 }
+
+pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool) -> Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if is_path_to_keep(&path) {
+            continue;
+        }
+
+        if path.is_file() {
+            fs::remove_file(&path)?;
+        } else if path.is_dir() {
+            fs::remove_dir_all(&path)?;
+        } else {
+            debug!(
+                "clear: skipping unexpected kind of item: {}",
+                path.display()
+            );
+        }
+    }
+
+    Ok(())
+}

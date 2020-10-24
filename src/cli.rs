@@ -20,7 +20,10 @@ use {
     clap::Clap,
     colored::*,
     futures::executor::block_on,
-    std::{fs, path::PathBuf},
+    std::{
+        fs,
+        path::{Path, PathBuf},
+    },
 };
 
 use crate::book::BookStructure;
@@ -52,12 +55,13 @@ pub enum SubCommand {
     /// Builds an `adbook` project
     Build(Build),
     /// Converts an AsciiDoc file
-    #[clap(name = "convert", alias = "c")]
+    #[clap(name = "convert", alias = "c", alias = "co")]
     Convert(Convert),
     /// Prints one of the preset files: `article.adoc`, `book.ron` or `toc.ron`
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
-    // TODO: clean
+    /// Clears site directory contents
+    Clean(Clean),
 }
 
 impl SubCommand {
@@ -67,6 +71,7 @@ impl SubCommand {
             SubCommand::Init(new) => new.run(),
             SubCommand::Preset(preset) => preset.run(),
             SubCommand::Convert(convert) => convert.run(),
+            SubCommand::Clean(clean) => clean.run(),
         }
     }
 }
@@ -205,7 +210,7 @@ pub struct Convert {
 
 impl Convert {
     pub fn run(&mut self) -> Result<()> {
-        ensure!(self.src_file.is_file(), "Not given path to file");
+        ensure!(self.src_file.is_file(), "Not given a path to a file");
 
         let src_dir = self.src_file.parent().unwrap();
         let site_dir = self.src_file.parent().unwrap();
@@ -225,6 +230,37 @@ impl Convert {
         )?;
 
         println!("{}", text);
+
+        Ok(())
+    }
+}
+
+/// `adbook clean`
+#[derive(Clap, Debug)]
+pub struct Clean {
+    pub dir: Option<String>,
+}
+
+impl Clean {
+    pub fn run(&mut self) -> Result<()> {
+        let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
+
+        info!("===> Loading book structure");
+        let book = BookStructure::from_dir(dir)?;
+
+        fn is_path_to_keep(path: &Path) -> bool {
+            let name = match path.file_name().and_then(|s| s.to_str()) {
+                Some(name) => name,
+                None => {
+                    error!("Unexpected path while clearning: {}", path.display());
+                    return true;
+                }
+            };
+            name.starts_with(".")
+        }
+
+        info!("===> Clearing the site directory");
+        crate::utils::clear_directory_items(&book.site_dir_path(), is_path_to_keep)?;
 
         Ok(())
     }

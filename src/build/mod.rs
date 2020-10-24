@@ -139,37 +139,16 @@ fn overwrite_site_with_temporary_outputs(
 
     // clear most files in site directory
     trace!("remove files in site directory");
-    for entry in fs::read_dir(&site_dir).context("Unable to `read_dir` the site directory")? {
-        let entry = entry.context("Unable to read some entry when reading site directory item")?;
-
-        /// For example, `.git` should not be deleted
-        fn is_path_to_keep(path: &Path) -> bool {
-            let name = match path.file_name().and_then(|s| s.to_str()) {
-                Some(name) => name,
-                None => return false,
-            };
-            name.starts_with(".")
-        }
-
-        let path = entry.path();
-
-        // never remove the temporary output directory
+    crate::utils::clear_directory_items(&site_dir, |path| {
         if path == out_dir {
-            continue;
+            return true;
         }
-
-        if is_path_to_keep(&path) {
-            continue;
-        }
-
-        if path.is_file() {
-            fs::remove_file(&path)?;
-        } else if path.is_dir() {
-            fs::remove_dir_all(&path)?;
-        } else {
-            //
-        }
-    }
+        let name = match path.file_name().and_then(|s| s.to_str()) {
+            Some(name) => name,
+            None => return false,
+        };
+        name.starts_with(".")
+    })?;
 
     // copy the `includes` files in `book.ron` to the temporary output directory
     for rel_path in &book.book_ron.includes {
