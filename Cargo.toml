@@ -21,4 +21,5 @@ clap = "3.0.0-beta.2"
 rprompt = "1.0.5"
 
 # for `main.rs`
-env_logger = "0.7.1"
+fern = { version = "0.6.0", features = ["colored"] }
+chrono = "0.4.19"
