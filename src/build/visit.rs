@@ -11,6 +11,7 @@ use crate::book::{
 };
 
 /// An `adbook` builder based on `asciidoctor`
+#[derive(Debug, Clone)]
 pub struct AdocBookVisitor {
     buf: String,
     opts: CmdOptions,
@@ -25,9 +26,11 @@ impl AdocBookVisitor {
     }
 }
 
+unsafe impl Send for AdocBookVisitor {}
+
 impl BookVisitor for AdocBookVisitor {
     /// Gets destination path and kicks `asciidoctor` runner
-    fn visit_file(&mut self, src_file: &Path, vcx: &mut BookVisitContext) -> Result<()> {
+    fn visit_file(&mut self, src_file: &Path, vcx: &BookVisitContext) -> Result<()> {
         match src_file.extension().and_then(|o| o.to_str()) {
             Some("adoc") => {}
             Some("md") => {

@@ -10,7 +10,7 @@ use {
 
 use crate::{
     book::{
-        walk::{walk_book, BookVisitor},
+        walk::{walk_book_async, BookVisitor},
         BookStructure,
     },
     build::visit::AdocBookVisitor,
@@ -19,13 +19,13 @@ use crate::{
 /// Builds an `adbook` structure into a site directory
 ///
 /// Actually, into a temporary directory and then a site directory.
-pub fn build_book(book: &BookStructure) -> Result<()> {
+pub async fn build_book(book: &BookStructure) -> Result<()> {
     let mut builder = AdocBookVisitor::new(book.book_ron.adoc_opts.clone());
-    self::build_book_impl(&mut builder, book)
+    self::build_book_impl(&mut builder, book).await
 }
 
 /// book -> tmp -> site
-fn build_book_impl(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()> {
+async fn build_book_impl<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure) -> Result<()> {
     // create site (destination) directory if there's not
     {
         let site = book.site_dir_path();
@@ -44,7 +44,8 @@ fn build_book_impl(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()>
     }
 
     // now let's build the project!
-    walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir)?;
+    // crate::book::walk::walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir);
+    walk_book_async(v, &book.toc, &book.src_dir_path(), &tmp_dir).await;
 
     info!("===> Copying output files to site directory");
     {

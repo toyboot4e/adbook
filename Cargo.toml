@@ -15,6 +15,8 @@ serde = { version = "1.0.116", features = ["derive"] }
 ron = "0.6.2"
 colored = "2.0.0"
 handlebars = "3.5.0"
+futures = { version = "0.3.7", features = [] }
+async-std = "1.6.5"
 
 # for `cli` module
 clap = "3.0.0-beta.2"
