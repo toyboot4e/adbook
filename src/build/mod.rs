@@ -49,7 +49,7 @@ fn build_book_impl(v: &mut impl BookVisitor, book: &BookStructure) -> Result<()>
     info!("===> Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
-        let res = self::copy_outputs(book, &tmp_dir, &mut errors);
+        let res = self::overwrite_site_with_temporary_outputs(book, &tmp_dir, &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
@@ -128,37 +128,49 @@ fn validate_out_dir(out_dir: &Path) -> Result<bool> {
     Ok(true)
 }
 
-fn copy_outputs(book: &BookStructure, out_dir: &Path, errors: &mut Vec<Error>) -> Result<()> {
-    // clear most files in site directory
+/// TODO: refactor
+fn overwrite_site_with_temporary_outputs(
+    book: &BookStructure,
+    out_dir: &Path,
+    errors: &mut Vec<Error>,
+) -> Result<()> {
     let site_dir = book.site_dir_path();
-    for entry in fs::read_dir(&site_dir).context("Unable to `read_dir` the source directory")? {
-        let entry = entry.context("Unable to read some entry when reading source directory")?;
 
-        let name = entry.file_name();
-        let name = name
-            .to_str()
-            .ok_or(anyhow!("Unable to turn OsStr to &str (`copy_outputs`)"))?;
+    // clear most files in site directory
+    trace!("remove files in site directory");
+    for entry in fs::read_dir(&site_dir).context("Unable to `read_dir` the site directory")? {
+        let entry = entry.context("Unable to read some entry when reading site directory item")?;
 
-        // filter `.git` and temporary output directory
-        if name.starts_with(".") || site_dir.join(name) == out_dir {
-            continue;
+        /// For example, `.git` should not be deleted
+        fn is_path_to_keep(path: &Path) -> bool {
+            let name = match path.file_name().and_then(|s| s.to_str()) {
+                Some(name) => name,
+                None => return false,
+            };
+            name.starts_with(".")
         }
 
         let path = entry.path();
+
+        // never remove the temporary output directory
+        if path == out_dir {
+            continue;
+        }
+
+        if is_path_to_keep(&path) {
+            continue;
+        }
+
         if path.is_file() {
             fs::remove_file(&path)?;
         } else if path.is_dir() {
-            fs::create_dir_all(&path)?;
+            fs::remove_dir_all(&path)?;
         } else {
-            // TODO: how can we remove symlinks?
-            errors.push(anyhow!(
-                "Unexpected file when clearing site directroy: {}",
-                path.display()
-            ));
+            //
         }
     }
 
-    // copy the `includes` files in `book.ron`
+    // copy the `includes` files in `book.ron` to the temporary output directory
     for rel_path in &book.book_ron.includes {
         // ensure the given path is valid
         if !rel_path.is_relative() {
@@ -233,7 +245,7 @@ fn copy_outputs(book: &BookStructure, out_dir: &Path, errors: &mut Vec<Error>) -
 
     // copy the output files to site directory
     for entry in fs::read_dir(&out_dir).context("Unable to `read_dir` the tmp directory")? {
-        let entry = entry.context("Unable to read some entry when reading tmp directory")?;
+        let entry = entry.context("Unable to read some entry when reading tmp directory item")?;
 
         let src_path = entry.path();
         let rel_path = src_path.strip_prefix(out_dir).unwrap();
