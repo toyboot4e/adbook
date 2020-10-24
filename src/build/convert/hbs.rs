@@ -2,14 +2,9 @@
 //!
 //! Temlates are supplied [`HbsData`].
 
-use {
-    anyhow::{Context, Result},
-    handlebars::Handlebars,
-    serde::Serialize,
-    std::path::Path,
-};
+use {anyhow::*, handlebars::Handlebars, serde::Serialize, std::path::Path};
 
-use crate::{book::config::CmdOptions, build::convert::adoc::AdocMetadata};
+use crate::build::convert::adoc::AdocMetadata;
 
 /// Variables supplied to Handlebars templates
 #[derive(Default, Serialize)]
@@ -29,12 +24,12 @@ pub struct HbsData<'a> {
 /// * TODO: retained mode
 /// * TODO: return both output and error
 pub fn render_hbs(html: &str, metadata: AdocMetadata, hbs_file: &Path) -> Result<String> {
-    let key = "adbook_template";
+    let key = format!("{}", hbs_file.display());
 
     let hbs = {
         let mut hbs = Handlebars::new();
         hbs.set_strict_mode(true);
-        hbs.register_template_file(key, hbs_file)?;
+        hbs.register_template_file(&key, hbs_file)?;
         hbs
     };
 
@@ -66,7 +61,7 @@ pub fn render_hbs(html: &str, metadata: AdocMetadata, hbs_file: &Path) -> Result
         }
     };
 
-    let output = hbs.render(key, &hbs_data)?;
+    let output = hbs.render(&key, &hbs_data)?;
 
     Ok(output)
 }
