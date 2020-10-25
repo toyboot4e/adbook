@@ -10,7 +10,8 @@
 //! use {adbook::cli::Cli, anyhow::*, clap::Clap};
 //!
 //! fn main() -> Result<()> {
-//!     env_logger::init();
+//!     // initialize your `log` implemetation
+//!     // then run!
 //!     Cli::parse().run()
 //! }
 //! ```

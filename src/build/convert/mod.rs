@@ -4,6 +4,7 @@
 //!
 //! In `adbook`, `asciidoctor` options are supplied with the following placeholder strings:
 //!
+//! * `{base_url}`: base url. useful when supplying absolute path
 //! * `{src_dir}`: source directory
 //! * `{dst_dir}`: destination directory
 //!
@@ -31,28 +32,6 @@ use {
 
 pub use self::adoc::AdocRunContext;
 use self::hbs::HbsContext;
-
-fn ensure_paths(src_file: &Path, src_dir: &Path, site_dir: &Path) -> Result<()> {
-    ensure!(
-        src_file.is_file(),
-        "Given invalid source file path: {}",
-        src_file.display()
-    );
-
-    ensure!(
-        src_dir.is_dir(),
-        "Given non-directory site directory path: {}",
-        site_dir.display()
-    );
-
-    ensure!(
-        site_dir.is_dir(),
-        "Given non-directory site directory path: {}",
-        site_dir.display()
-    );
-
-    Ok(())
-}
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///
@@ -82,18 +61,22 @@ pub fn convert_adoc_buf(
     acx: &AdocRunContext,
     hcx: &HbsContext,
 ) -> Result<()> {
-    self::ensure_paths(src_file, &acx.src_dir, &acx.dst_dir)?;
+    ensure!(
+        src_file.is_file(),
+        "Given invalid source file path: {}",
+        src_file.display()
+    );
 
     // extract metadata
     let metadata = {
-        let text = fs::read_to_string(src_file).context("Unable to read source file")?;
-        adoc::AdocMetadata::extract_with_base(&text, &acx.opts)
+        let adoc_text = fs::read_to_string(src_file).context("Unable to read source file")?;
+        adoc::AdocMetadata::extract_with_base(&adoc_text, &acx)
     };
 
     // should we use "embedded mode" of Asciidoctor?
     let mut acx = acx.clone();
     if metadata.find_attr("hbs").is_some() {
-        acx.opts.push(("--embedded".to_string(), vec![]));
+        acx.set_embedded_mode(true);
     }
 
     // run Asciidoctor and write the output to `buf`
@@ -108,7 +91,7 @@ pub fn convert_adoc_buf(
             let hbs_name = hbs_attr
                 .value()
                 .ok_or_else(|| anyhow!("`hbs` attribute without path"))?;
-            acx.src_dir.join(hbs_name)
+            hcx.src_dir.join(hbs_name)
         };
 
         // `.hbs` files are always located just under `hbs_dir`

@@ -45,7 +45,7 @@ impl fmt::Display for SubTocLoadErrors {
     }
 }
 
-/// List of (valid) items in a directory. It's got from [`TocRon`], which is deserialiezd from `toc.ron`
+/// The recursive book structure, corresponds to `mod.rs` in Rust
 #[derive(Debug, Clone)]
 pub struct Toc {
     /// Absolute path to the [`toc.ron`]
@@ -67,7 +67,7 @@ pub struct TocItem {
 pub enum TocItemContent {
     /// Absolute path to the file
     File(PathBuf),
-    SubToc(PathBuf, Box<Toc>),
+    SubToc(Box<Toc>),
 }
 
 impl Toc {
@@ -133,7 +133,7 @@ impl Toc {
 
                 items.push(TocItem {
                     name: name.to_string(),
-                    content: TocItemContent::SubToc(path.clone(), Box::new(sub_toc)),
+                    content: TocItemContent::SubToc(Box::new(sub_toc)),
                 });
             } else {
                 // case 3. Unexpected item

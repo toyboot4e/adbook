@@ -18,7 +18,7 @@ pub fn flatten_toc_items(toc: &Toc, items: &mut Vec<TocItem>) {
             TocItemContent::File(_) => {
                 items.push(item.clone());
             }
-            TocItemContent::SubToc(ref _path, ref toc) => {
+            TocItemContent::SubToc(ref toc) => {
                 self::flatten_toc_items(toc, items);
             }
         };
@@ -34,7 +34,7 @@ pub fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
             TocItemContent::File(ref file) => {
                 files.push(file.clone());
             }
-            TocItemContent::SubToc(ref _path, ref toc) => {
+            TocItemContent::SubToc(ref toc) => {
                 self::pull_files_rec(toc, files);
             }
         };

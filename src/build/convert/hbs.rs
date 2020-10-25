@@ -6,11 +6,17 @@ use {
     anyhow::*,
     handlebars::Handlebars,
     serde::Serialize,
-    std::{fs, path::Path},
+    std::{
+        fs,
+        path::{Path, PathBuf},
+    },
 };
 
 use crate::{
-    book::toc::{Toc, TocItem, TocItemContent},
+    book::{
+        toc::{Toc, TocItem, TocItemContent},
+        BookStructure,
+    },
     build::convert::adoc::AdocMetadata,
 };
 
@@ -20,13 +26,20 @@ use crate::{
 /// Context to generate [`HbsData`]
 #[derive(Debug, Clone)]
 pub struct HbsContext {
+    pub src_dir: PathBuf,
     pub sidebar: Sidebar,
 }
 
 impl HbsContext {
-    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> (Self, Vec<Error>) {
-        let (sidebar, errors) = Sidebar::from_root_toc_ron(toc, src_dir);
-        (Self { sidebar }, errors)
+    pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
+        let (sidebar, errors) = Sidebar::from_root_toc_ron(&book.toc, &book.src_dir_path());
+
+        let me = Self {
+            src_dir: book.src_dir_path(),
+            sidebar,
+        };
+
+        (me, errors)
     }
 }
 
@@ -76,7 +89,7 @@ impl Sidebar {
                     children: None,
                 })
             }
-            TocItemContent::SubToc(_path, toc) => {
+            TocItemContent::SubToc(toc) => {
                 let children = Self::map_toc(&toc, src_dir, errors);
 
                 // TODO: add URL corresponding to the toc
@@ -125,6 +138,7 @@ impl<'a> HbsData<'a> {
 
         let css = attr("stylesheet", &meta).map(|rel| {
             if let Some(base) = attr("stylesdir", &meta) {
+                // the css file path is supplied with base directory path!
                 format!("{}/{}", base, rel)
             } else {
                 rel

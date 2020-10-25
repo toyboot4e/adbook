@@ -9,7 +9,7 @@ use {
 };
 
 use crate::{
-    book::{config::CmdOptions, walk::BookVisitor, BookStructure},
+    book::{walk::BookVisitor, BookStructure},
     build::convert::{hbs::HbsContext, AdocRunContext},
 };
 
@@ -17,25 +17,29 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct AdocBookVisitor {
     buf: String,
+    // context to run `asciidoctor` and Handlebars
+    acx: AdocRunContext,
+    hcx: HbsContext,
+    // context to setup output file path
     src_dir: PathBuf,
     dst_dir: PathBuf,
-    opts: CmdOptions,
-    hcx: HbsContext,
 }
 
 impl AdocBookVisitor {
     pub fn from_book(book: &BookStructure, dst_dir: &Path) -> (Self, Vec<Error>) {
-        let src_dir = book.src_dir_path();
-        let (hcx, errors) = HbsContext::from_root_toc_ron(&book.toc, &src_dir);
+        let (hcx, errors) = HbsContext::from_book(book);
         trace!("hcx created: {:#?}", hcx);
+
+        let acx = AdocRunContext::from_book(book, dst_dir);
+        trace!("acx created: {:#?}", acx);
 
         (
             Self {
                 buf: String::with_capacity(1024 * 5),
-                src_dir,
-                dst_dir: dst_dir.to_path_buf(),
-                opts: book.book_ron.adoc_opts.clone(),
+                acx,
                 hcx,
+                src_dir: book.src_dir_path(),
+                dst_dir: dst_dir.to_path_buf(),
             },
             errors,
         )
@@ -84,14 +88,13 @@ impl BookVisitor for AdocBookVisitor {
             })?;
         }
 
-        let acx = AdocRunContext::new(&self.src_dir, &self.dst_dir, &self.opts)?;
         let dummy_dst_name = format!("{}", dst_file.display());
 
         crate::build::convert::convert_adoc_buf(
             &mut self.buf,
             src_file,
             &dummy_dst_name,
-            &acx,
+            &self.acx,
             &self.hcx,
         )?;
 

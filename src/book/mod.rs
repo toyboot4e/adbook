@@ -75,7 +75,7 @@ pub struct BookStructure {
     pub root: PathBuf,
     /// `book.ron`
     pub book_ron: BookRon,
-    /// `src/toc.ron`
+    /// `src/toc.ron`, the recursive book structure
     pub toc: Toc,
 }
 

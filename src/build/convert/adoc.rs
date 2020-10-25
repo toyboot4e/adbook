@@ -1,23 +1,17 @@
 //! `asciidoctor` runner and metadata extracter
 //!
-//! # Placeholder strings for `asciidoctor` options
-//!
-//! `asciidoctor` options are supplied with the following placeholder strings:
-//!
-//! * `{src_dir}`
-//! * `{dst_dir}`
+//! Where placeholder strings in `book.ron` (or attribuets) are considered
 
 use {
     anyhow::{Context, Result},
     std::{
-        io,
         path::{Path, PathBuf},
         process::Command,
     },
     thiserror::Error,
 };
 
-use crate::book::config::CmdOptions;
+use crate::book::{config::CmdOptions, BookStructure};
 
 // --------------------------------------------------------------------------------
 // `asciidoctor` runner
@@ -34,35 +28,50 @@ pub enum AdocError {
     FailedToConvert(PathBuf, String),
 }
 
-/// Context for running `asciidoctor`, actually just options
+/// Context for running `asciidoctor`, i.e. options
 #[derive(Debug, Clone)]
 pub struct AdocRunContext {
     /// `-B` option (base directory)
-    pub src_dir: PathBuf,
-    /// `-D` option (destination directory)
-    pub dst_dir: PathBuf,
-    /// Other options
-    pub opts: CmdOptions,
+    src_dir: String,
+    /// `-D`  (destination directory)
+    dst_dir: String,
+    /// Other options, mainly attributes.
+    opts: CmdOptions,
+    /// Used to modify `asciidoctor` attributes supplied to `.adoc` files
+    base_url: String,
 }
 
 impl AdocRunContext {
-    pub fn new(src_dir: &Path, site_dir: &Path, opts: &CmdOptions) -> io::Result<Self> {
-        let src_dir = src_dir.canonicalize()?;
-        let site_dir = site_dir.canonicalize()?;
+    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Self {
+        let src_dir = format!("{}", book.src_dir_path().display());
+        let dst_dir = format!("{}", dst_dir.display());
 
-        Ok(AdocRunContext {
+        Self {
             src_dir,
-            dst_dir: site_dir,
-            opts: opts.clone(),
-        })
+            dst_dir,
+            opts: book.book_ron.adoc_opts.clone(),
+            base_url: book.book_ron.base_url.to_string(),
+        }
     }
 
-    fn setup_placeholder_strings(&self, arg: &str) -> String {
-        let src_dir_str = format!("{}", self.src_dir.display());
-        let dst_dir_str = format!("{}", self.dst_dir.display());
+    pub fn set_embedded_mode(&mut self, b: bool) {
+        if b {
+            self.opts.push(("--embedded".to_string(), vec![]));
+        } else {
+            self.opts = self
+                .opts
+                .clone()
+                .into_iter()
+                .filter(|(name, _values)| name == "--embedded")
+                .collect();
+        }
+    }
 
-        let arg = arg.replace(r#"{src_dir}"#, &src_dir_str);
-        let arg = arg.replace(r#"{dst_dir}"#, &dst_dir_str);
+    /// Important work!
+    pub fn replace_placeholder_strings(&self, arg: &str) -> String {
+        let arg = arg.replace(r#"{base_url}"#, &self.base_url);
+        let arg = arg.replace(r#"{src_dir}"#, &self.src_dir);
+        let arg = arg.replace(r#"{dst_dir}"#, &self.dst_dir);
 
         arg
     }
@@ -70,12 +79,9 @@ impl AdocRunContext {
     /// Applies `asciidoctor` options
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings (base/destination directory)
-        let src_dir_str = format!("{}", self.src_dir.display());
-        let dst_dir_str = format!("{}", self.dst_dir.display());
-
         cmd.current_dir(&self.src_dir)
-            .args(&["-B", &src_dir_str])
-            .args(&["-D", &dst_dir_str]);
+            .args(&["-B", &self.src_dir])
+            .args(&["-D", &self.dst_dir]);
 
         // setup user options
         for (opt, args) in &self.opts {
@@ -88,7 +94,7 @@ impl AdocRunContext {
             // case 2. (option with argument) specified n times
             // like, -a linkcss -a sectnums ..
             for arg in args {
-                let arg = self.setup_placeholder_strings(arg);
+                let arg = self.replace_placeholder_strings(arg);
                 cmd.args(&[opt, &arg]);
             }
         }
@@ -283,10 +289,10 @@ impl AdocMetadata {
 
     /// Extracts metadata from AsciiDoc string and sets up fallback attributes from `asciidoctor`
     /// command line options
-    pub fn extract_with_base(text: &str, cli_opts: &CmdOptions) -> Self {
-        let mut meta = Self::extract(text);
+    pub fn extract_with_base(adoc_text: &str, acx: &AdocRunContext) -> Self {
+        let mut meta = Self::extract(adoc_text, acx);
 
-        let base = Self::from_cmd_opts(cli_opts);
+        let base = Self::from_cmd_opts(&acx.opts, acx);
         meta.derive(base);
 
         meta
@@ -299,7 +305,9 @@ impl AdocMetadata {
     }
 
     /// Extracts metadata from AsciiDoc string
-    pub fn extract(text: &str) -> Self {
+    ///
+    /// Replaces placeholder strings in attribute values.
+    pub fn extract(text: &str, acx: &AdocRunContext) -> Self {
         let mut lines = text.lines().filter(|ln| !Self::is_line_to_skip(ln));
 
         // = Title
@@ -334,8 +342,9 @@ impl AdocMetadata {
                 // :!attribute:
                 attrs.push(AdocAttr::deny(&name[1..]));
             } else {
-                // :attribute:
-                attrs.push(AdocAttr::allow(*name, *value));
+                // :attribute: value
+                let value = acx.replace_placeholder_strings(value);
+                attrs.push(AdocAttr::allow(*name, value));
             }
         }
 
@@ -347,7 +356,7 @@ impl AdocMetadata {
     }
 
     /// Extracts `asciidoctor` options that matches to `-a attr=value`
-    pub fn from_cmd_opts(opts: &CmdOptions) -> Self {
+    pub fn from_cmd_opts(opts: &CmdOptions, acx: &AdocRunContext) -> Self {
         let attr_opts = match opts.iter().find(|(opt_name, _attr_opts)| opt_name == "-a") {
             Some((_opt_name, opts)) => opts,
             None => {
@@ -388,7 +397,8 @@ impl AdocMetadata {
                 value = &value[0..value.len() - 1];
             }
 
-            attrs.push(AdocAttr::allow(name, value));
+            let value = acx.replace_placeholder_strings(value);
+            attrs.push(AdocAttr::allow(name, &value));
         }
 
         Self {
@@ -401,7 +411,7 @@ impl AdocMetadata {
 
 #[cfg(test)]
 mod test {
-    use super::{AdocAttr, AdocMetadata};
+    use super::{AdocAttr, AdocMetadata, AdocRunContext};
 
     const ARTICLE: &str = r###"
 // ^ blank line
@@ -419,7 +429,15 @@ First paragraph!
 
     #[test]
     fn simple_metadata() {
-        let metadata = AdocMetadata::extract(ARTICLE);
+        // dummy
+        let acx = AdocRunContext {
+            src_dir: ".".to_string(),
+            dst_dir: ".".to_string(),
+            opts: vec![],
+            base_url: "".to_string(),
+        };
+
+        let metadata = AdocMetadata::extract(ARTICLE, &acx);
 
         assert_eq!(
             metadata,
@@ -449,7 +467,15 @@ First paragraph!
             vec!["sectnums".to_string(), format!("email={}", mail)],
         )];
 
-        let deriving = AdocMetadata::extract_with_base(ARTICLE, &cmd_opts);
+        // dummy
+        let acx = AdocRunContext {
+            src_dir: ".".to_string(),
+            dst_dir: ".".to_string(),
+            opts: cmd_opts,
+            base_url: "".to_string(),
+        };
+
+        let deriving = AdocMetadata::extract_with_base(ARTICLE, &acx);
 
         assert_eq!(
             deriving.find_attr("sectnums"),
