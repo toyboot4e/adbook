@@ -4,6 +4,12 @@
 
 The name came from [mdbook](https://rust-lang.github.io/mdBook/), which was inspired by [GitBook](https://www.gitbook.com/).
 
+## Demo
+
+Demo site is avaiable [here](https://toyboot4e.github.io/adbook/demo.html).
+
+After getting `adbook` ready, I will add some notes on usage.
+
 ## Installation
 
 ### Rust & adbook
@@ -18,7 +24,7 @@ $ cargo install adbook # -> `$HOME/.cargo/bin`
 
 ### Ruby & Asciidoctor
 
-You need to [Ruby](https://www.ruby-lang.org/en/) and some package manager. I recommend [RVM](https://rvm.io/) for its speed.
+You need [Ruby](https://www.ruby-lang.org/en/) and some package manager. I recommend [RVM](https://rvm.io/) for its speed.
 
 [asciidoctor](https://asciidoctor.org) and [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) can be installed as gems:
 

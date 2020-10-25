@@ -325,7 +325,7 @@ impl AdocMetadata {
             // first `:`
             match colons.next() {
                 Some(_) => {}
-                None => continue,
+                None => break,
             }
 
             // second `:`
