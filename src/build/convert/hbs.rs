@@ -32,7 +32,7 @@ pub struct HbsContext {
 
 impl HbsContext {
     pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
-        let (sidebar, errors) = Sidebar::from_root_toc_ron(&book.toc, &book.src_dir_path());
+        let (sidebar, errors) = Sidebar::from_book(book);
 
         let me = Self {
             src_dir: book.src_dir_path(),
@@ -56,32 +56,55 @@ pub struct Sidebar {
 }
 
 impl Sidebar {
-    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> (Self, Vec<Error>) {
+    pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
         let mut errors = Vec::with_capacity(20);
-        let items: Vec<SidebarItem> = Self::map_toc(toc, src_dir, &mut errors);
+
+        let base_url = &book.book_ron.base_url;
+        let base_url_str = if base_url.is_empty() {
+            "".to_string()
+        } else {
+            format!("/{}/", base_url)
+        };
+
+        let items: Vec<SidebarItem> =
+            Self::map_toc(&book.toc, &book.src_dir_path(), &base_url_str, &mut errors);
 
         (Self { items }, errors)
     }
 
-    fn map_toc(toc: &Toc, src_dir: &Path, errors: &mut Vec<Error>) -> Vec<SidebarItem> {
+    /// the `base_url` is a bit tricky. see `format!` in `map_item`
+    fn map_toc(
+        toc: &Toc,
+        src_dir: &Path,
+        base_url_str: &str,
+        errors: &mut Vec<Error>,
+    ) -> Vec<SidebarItem> {
         toc.items
             .iter()
-            .filter_map(|item| match Self::map_item(item, src_dir, errors) {
-                Ok(item) => Some(item),
-                Err(err) => {
-                    errors.push(err);
-                    None
-                }
-            })
+            .filter_map(
+                |item| match Self::map_item(item, src_dir, base_url_str, errors) {
+                    Ok(item) => Some(item),
+                    Err(err) => {
+                        errors.push(err);
+                        None
+                    }
+                },
+            )
             .collect()
     }
 
-    fn map_item(item: &TocItem, src_dir: &Path, errors: &mut Vec<Error>) -> Result<SidebarItem> {
+    fn map_item(
+        item: &TocItem,
+        src_dir: &Path,
+        base_url_str: &str,
+        errors: &mut Vec<Error>,
+    ) -> Result<SidebarItem> {
         let name = item.name.clone();
+
         match &item.content {
             TocItemContent::File(ref file) => {
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("/{}", url.display());
+                let url = format!("{}{}", base_url_str, url.display());
 
                 Ok(SidebarItem {
                     name,
@@ -90,7 +113,7 @@ impl Sidebar {
                 })
             }
             TocItemContent::SubToc(toc) => {
-                let children = Self::map_toc(&toc, src_dir, errors);
+                let children = Self::map_toc(&toc, src_dir, base_url_str, errors);
 
                 // TODO: add URL corresponding to the toc
                 // let url = path.strip_prefix(src_dir)?;
@@ -199,6 +222,7 @@ pub fn init_hbs(hbs_dir: &Path) -> Result<Handlebars> {
             .context("Unable to stringify partial hbs file path")?;
         let text = fs::read_to_string(&partial)
             .with_context(|| format!("Unable to load partial hbs file: {}", partial.display()))?;
+
         hbs.register_partial(name, &text)?;
     }
 
