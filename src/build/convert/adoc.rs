@@ -8,7 +8,7 @@
 //! * `{dst_dir}`
 
 use {
-    anyhow::{Context, Error, Result},
+    anyhow::{Context, Result},
     std::{
         io,
         path::{Path, PathBuf},
@@ -35,9 +35,8 @@ pub enum AdocError {
 }
 
 /// Context for running `asciidoctor`, actually just options
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AdocRunContext {
-    pub errors: Vec<Error>,
     /// `-B` option (base directory)
     pub src_dir: PathBuf,
     /// `-D` option (destination directory)
@@ -52,7 +51,6 @@ impl AdocRunContext {
         let site_dir = site_dir.canonicalize()?;
 
         Ok(AdocRunContext {
-            errors: Vec::with_capacity(10),
             src_dir,
             dst_dir: site_dir,
             opts: opts.clone(),
@@ -98,7 +96,7 @@ impl AdocRunContext {
 }
 
 /// Sets up `asciidoctor` command
-pub fn asciidoctor(src_file: &Path, rcx: &mut AdocRunContext) -> Result<Command> {
+pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
     ensure!(
         src_file.exists(),
         "Given non-existing file as conversion source"
@@ -124,7 +122,7 @@ pub fn asciidoctor(src_file: &Path, rcx: &mut AdocRunContext) -> Result<Command>
     cmd.arg("--trace").arg("--verbose");
 
     // apply directory settings and user options (often ones defined in `book.ron`)
-    rcx.apply_options(&mut cmd);
+    acx.apply_options(&mut cmd);
 
     Ok(cmd)
 }
@@ -133,7 +131,7 @@ pub fn asciidoctor(src_file: &Path, rcx: &mut AdocRunContext) -> Result<Command>
 pub fn run_asciidoctor(
     src_file: &Path,
     dummy_dst_name: &str,
-    rcx: &mut AdocRunContext,
+    acx: &AdocRunContext,
 ) -> Result<std::process::Output> {
     trace!(
         "Converting adoc: `{}` -> `{}`",
@@ -142,7 +140,7 @@ pub fn run_asciidoctor(
     );
 
     let mut cmd =
-        self::asciidoctor(src_file, rcx).context("when setting up `asciidoctor` options")?;
+        self::asciidoctor(src_file, acx).context("when setting up `asciidoctor` options")?;
 
     let output = cmd.output().with_context(|| {
         format!(
@@ -158,12 +156,12 @@ pub fn run_asciidoctor(
 
 /// Runs `asciidoctor` and write the output to buffer if it's suceceded
 pub fn run_asciidoctor_buf(
+    buf: &mut String,
     src_file: &Path,
     dummy_dst_name: &str,
-    out: &mut String,
-    rcx: &mut AdocRunContext,
+    acx: &AdocRunContext,
 ) -> Result<()> {
-    let output = self::run_asciidoctor(src_file, dummy_dst_name, rcx)?;
+    let output = self::run_asciidoctor(src_file, dummy_dst_name, acx)?;
 
     // ensure the conversion succeeded or else report it as an error
     ensure!(
@@ -178,7 +176,7 @@ pub fn run_asciidoctor_buf(
     // finally output to the buffer
     let text = std::str::from_utf8(&output.stdout)
         .with_context(|| "Unable to decode stdout of `asciidoctor` as UTF8")?;
-    out.push_str(text);
+    buf.push_str(text);
 
     // stderr
     if !output.stderr.is_empty() {

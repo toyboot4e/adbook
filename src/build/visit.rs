@@ -5,9 +5,12 @@ use {
     std::{fs, path::Path},
 };
 
-use crate::book::{
-    config::CmdOptions,
-    walk::{BookVisitContext, BookVisitor},
+use crate::{
+    book::{
+        config::CmdOptions,
+        walk::{BookVisitContext, BookVisitor},
+    },
+    build::convert::AdocRunContext,
 };
 
 /// An `adbook` builder based on `asciidoctor`
@@ -68,15 +71,10 @@ impl BookVisitor for AdocBookVisitor {
             })?;
         }
 
+        let acx = AdocRunContext::new(&vcx.src_dir, &vcx.dst_dir, &self.opts)?;
         let dummy_dst_name = format!("{}", dst_file.display());
-        crate::build::convert::convert_adoc_buf(
-            &mut self.buf,
-            src_file,
-            &vcx.src_dir,
-            &vcx.dst_dir,
-            &dummy_dst_name,
-            &self.opts,
-        )?;
+
+        crate::build::convert::convert_adoc_buf(&mut self.buf, src_file, &dummy_dst_name, &acx)?;
 
         fs::write(&dst_file, &self.buf).with_context(|| {
             format!(

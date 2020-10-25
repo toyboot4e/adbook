@@ -17,7 +17,10 @@ fn main() -> Result<()> {
     Cli::parse().run()
 }
 
-/// Sets up [`fern`]. We'll ignore logs from some crates
+/// Sets up [`fern`]
+///
+/// * ignore logs from some crates
+/// * output logs to `stderr`
 fn configure_log() -> Result<()> {
     let colors = ColoredLevelConfig::new()
         .error(Color::Red)
@@ -40,7 +43,7 @@ fn configure_log() -> Result<()> {
         .level_for("async_std", log::LevelFilter::Debug)
         .level_for("async_io", log::LevelFilter::Debug)
         .level_for("polling", log::LevelFilter::Debug)
-        .chain(std::io::stdout())
+        .chain(std::io::stderr())
         // .chain(fern::log_file("output.log")?)
         .apply()?;
 

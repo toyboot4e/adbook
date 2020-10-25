@@ -7,7 +7,7 @@ Those files are written in the human-friendly [Ron] format.
 
 # `book.ron`
 
-An adbook project has such a directory structure:
+An adbook project has such a file structure:
 
 ```sh
 .
@@ -16,8 +16,8 @@ An adbook project has such a directory structure:
 └── src       # source files
 ```
 
-`book.ron` maps to [`BookRon`]. It's located at the root directory and provides some configuration
-such as book name.
+`book.ron` maps to [`BookRon`]. It's indicates a root directory and provides some configuration such
+as the book name and the author name.
 
 [`BookRon`]: crate::book::config::BookRon
 
@@ -35,7 +35,7 @@ it, recursively:
     └── toc.ron      # lists `a.adoc` and `sub_directory`
 ```
 
-`toc.ron` maps to [`TocRon`]. It's something like `SUMMARY.md` in mdbook or `mod.rs` in Rust.
+`toc.ron` maps to [`TocRon`]. It's similar to `mod.rs` in Rust.
 
 [`TocRon`]: crate::book::config::TocRon
 !*/

@@ -45,7 +45,7 @@ impl fmt::Display for SubTocLoadErrors {
     }
 }
 
-/// List of items in a directory. It's got from [`TocRon`], which is deserialiezd from `toc.ron`
+/// List of (valid) items in a directory. It's got from [`TocRon`], which is deserialiezd from `toc.ron`
 #[derive(Debug, Clone)]
 pub struct Toc {
     /// Absolute path to the [`toc.ron`]
@@ -54,6 +54,8 @@ pub struct Toc {
 }
 
 /// Item in `toc.ron`: `("name", "path")` where path is File | SubToc
+///
+/// Every path is canonicalized to an absolute path.
 #[derive(Debug, Clone)]
 pub struct TocItem {
     pub name: String,
@@ -69,7 +71,7 @@ pub enum TocItemContent {
 }
 
 impl Toc {
-    /// Loads `toc.ron` recursively
+    /// Loads `toc.ron` recursively. Invalid items are excluded
     pub fn from_toc_ron_recursive(
         toc_ron: &TocRon,
         toc_ron_dir: &Path,

@@ -26,7 +26,7 @@ use {
     },
 };
 
-use crate::book::BookStructure;
+use crate::{book::BookStructure, build::convert::AdocRunContext};
 
 // `adbook`
 #[derive(Clap, Debug)]
@@ -212,22 +212,21 @@ impl Convert {
     pub fn run(&mut self) -> Result<()> {
         ensure!(self.src_file.is_file(), "Not given a path to a file");
 
-        let src_dir = self.src_file.parent().unwrap();
-        let site_dir = self.src_file.parent().unwrap();
-        let dst_name = "<stdout>";
+        let acx = {
+            let src_dir = self.src_file.parent().unwrap();
+            let site_dir = self.src_file.parent().unwrap();
 
-        let mut opts = vec![];
-        if let Some(hbs) = self.hbs.take() {
-            opts.push(("-a".to_string(), vec![format!("hbs={}", hbs.display())]));
-        }
+            let mut opts = vec![];
+            if let Some(hbs) = self.hbs.take() {
+                opts.push(("-a".to_string(), vec![format!("hbs={}", hbs.display())]));
+            }
 
-        let text = crate::build::convert::convert_adoc(
-            &self.src_file,
-            src_dir,
-            site_dir,
-            dst_name,
-            &opts,
-        )?;
+            AdocRunContext::new(&src_dir, site_dir, &opts)?
+        };
+
+        let dummy_dst_name = "<stdout>";
+
+        let text = crate::build::convert::convert_adoc(&self.src_file, dummy_dst_name, &acx)?;
 
         println!("{}", text);
 
