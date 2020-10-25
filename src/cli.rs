@@ -45,7 +45,6 @@ impl Cli {
     }
 }
 
-/// `adbook <sub command>`
 #[derive(Clap, Debug)]
 pub enum SubCommand {
     #[clap(name = "init", alias = "i")]
