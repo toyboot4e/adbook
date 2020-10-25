@@ -3,6 +3,11 @@ name = "adbook"
 version = "0.1.0"
 authors = ["toyboot4e <toyboot4e@gmail.com>"]
 edition = "2018"
+exclude = ["/demo/*"]
+keywords = ["book", "ssg", "asciidoc"]
+license = "MIT"
+repository = "https://github.com/toyboot4e/adbook"
+description = "Creates a book from AsciiDoc files"
 
 [dependencies]
 # basic
