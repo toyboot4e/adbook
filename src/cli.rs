@@ -65,7 +65,7 @@ impl SubCommand {
     pub fn run(&mut self) -> Result<()> {
         match self {
             SubCommand::Build(build) => build.run(),
-            SubCommand::Init(new) => new.run(),
+            SubCommand::Init(init) => init.run(),
             SubCommand::Preset(preset) => preset.run(),
             SubCommand::Clean(clean) => clean.run(),
         }
@@ -108,9 +108,10 @@ impl Init {
                 .with_context(|| format!("Unable to create directory at: {}", dir.display()))?;
         } else {
             let book_ron = dir.join("book.ron");
-            if book_ron.exists() {
-                return Err(anyhow!("book.ron exists in the target directory"));
-            }
+            ensure!(
+                !book_ron.exists(),
+                "book.ron exists in the target directory"
+            );
         }
 
         // book.ron (ensured that it doesn't exist)
@@ -119,40 +120,40 @@ impl Init {
             fs::write(&book, crate::book::preset::BOOK_RON)?;
         }
 
-        // `.gitigore`, `src/toc.ron`, `src/1.adoc`, `src/img`
-
-        {
-            let ignore = dir.join(".gitignore");
-            if !ignore.exists() {
-                fs::write(ignore, ".DS_Store")?;
+        fn gen_dir(path: &Path) -> Result<bool> {
+            if !path.exists() {
+                fs::create_dir(path)?;
+                Ok(true)
+            } else {
+                Ok(false)
             }
         }
+
+        fn gen_file(path: &Path, bytes: impl AsRef<[u8]>) -> Result<bool> {
+            if !path.exists() {
+                fs::write(path, bytes)?;
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        }
+
+        gen_file(&dir.join(".gitignore"), ".DS_Store")?;
 
         let src = dir.join("src");
-        if !src.exists() {
-            fs::create_dir(&src)?;
-        }
+        gen_dir(&src)?;
 
         {
-            let toc = src.join("toc.ron");
-            if !toc.exists() {
-                fs::write(toc, crate::book::preset::TOC_RON)?;
-            }
+            let theme = dir.join("theme");
+            gen_dir(&theme)?;
+            gen_dir(&theme.join("css"))?;
+            gen_dir(&theme.join("js"))?;
         }
 
-        {
-            let adoc = src.join("1.adoc");
-            if !adoc.exists() {
-                fs::write(adoc, crate::book::preset::ARTICLE_ADOC)?;
-            }
-        }
+        gen_file(&src.join("toc.ron"), crate::book::preset::TOC_RON)?;
+        gen_file(&src.join("1.adoc"), crate::book::preset::ARTICLE_ADOC)?;
 
-        {
-            let img = src.join("img");
-            if !img.exists() {
-                fs::create_dir(&img)?;
-            }
-        }
+        gen_dir(&src.join("img"))?;
 
         println!(
             "Initialized new adbook project at {}",

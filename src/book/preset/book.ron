@@ -1,4 +1,5 @@
 (
+    base_url: ".",
     authors: ["author"],
     title: "title",
     src_dir: "src",
@@ -6,23 +7,34 @@
 
     includes: [
         "img",
+        "theme/css",
+        "theme/js",
     ],
 
     // options for `asciidoctor`
     adoc_opts: [
         ("-a", [
+            // relative path to Handlebars template from source directory
+            "hbs@=theme/hbs/article.hbs",
+            // css
             "linkcss",
-            "imagesdir@=/img",
+            "stylesdir@=/{base_url}/theme/css",
+            "stylesheet@=term.css",
+            // image
+            "imagesdir@=/{base_url}/img",
             "imagesoutdir@={src_dir}/img",
-            //
-            "!last-update-label",
+            // "favicon@=/img/favicon.png",
+            // preferences
             "hardbreaks",
             "sectnums",
             "sectnumlevels@=2",
-            //
+            "tabside@=4",
+            // features
             "experimental",
             "stem@=latexmath",
             "icons@=font",
+            // links (available as `{name}` in AsciiDoc files)
+            "adbook=https://github.com/toyboot4e/adbook[adbook]",
         ]),
     ]
 )
