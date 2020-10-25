@@ -17,10 +17,20 @@ use crate::{
 // --------------------------------------------------------------------------------
 // Context
 
+#[derive(Debug, Clone)]
 pub struct HbsContext {
     pub sidebar: Sidebar,
 }
 
+impl HbsContext {
+    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> Result<Self> {
+        let sidebar = Sidebar::from_root_toc_ron(toc, src_dir)?;
+
+        Ok(Self { sidebar })
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Sidebar {
     entries: Vec<SidebarEntry>,
 }
@@ -49,8 +59,9 @@ impl Sidebar {
                     src_dir.display(),
                 )
             })?;
+
             // TODO: enable arbitrary webpage root
-            let url = format!("/{}", file.display());
+            let url = format!("/{}", url.display());
 
             entries.push(SidebarEntry {
                 name: name.to_string(),
@@ -63,7 +74,7 @@ impl Sidebar {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct SidebarEntry {
     pub name: String,
     pub url: Option<String>,
@@ -174,12 +185,15 @@ pub fn render_hbs<'a>(
     metadata: &AdocMetadata,
     hbs: &mut Handlebars,
     hbs_file: &Path,
+    hcx: &HbsContext,
 ) -> Result<String> {
     let key = format!("{}", hbs_file.display());
     hbs.register_template_file(&key, hbs_file)
         .with_context(|| format!("Error when loading hbs file: {}", hbs_file.display()))?;
 
-    let hbs_data = HbsData::from_metadata(html, metadata);
+    let mut hbs_data = HbsData::from_metadata(html, metadata);
+    hbs_data.sidebar_entries = hcx.sidebar.entries.clone();
+
     let output = hbs
         .render(&key, &hbs_data)
         .with_context(|| format!("Error when converting file {}", src_name))?;

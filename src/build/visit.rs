@@ -2,30 +2,39 @@
 
 use {
     anyhow::{Context, Result},
-    std::{fs, path::Path},
+    std::{
+        fs,
+        path::{Path, PathBuf},
+    },
 };
 
 use crate::{
-    book::{
-        config::CmdOptions,
-        walk::{BookVisitContext, BookVisitor},
-    },
-    build::convert::AdocRunContext,
+    book::{config::CmdOptions, walk::BookVisitor, BookStructure},
+    build::convert::{hbs::HbsContext, AdocRunContext},
 };
 
 /// An `adbook` builder based on `asciidoctor`
 #[derive(Debug, Clone)]
 pub struct AdocBookVisitor {
     buf: String,
+    src_dir: PathBuf,
+    dst_dir: PathBuf,
     opts: CmdOptions,
+    hcx: HbsContext,
 }
 
 impl AdocBookVisitor {
-    pub fn new(opts: CmdOptions) -> Self {
-        AdocBookVisitor {
-            opts,
+    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Result<Self> {
+        let src_dir = book.src_dir_path();
+        let hcx = HbsContext::from_root_toc_ron(&book.toc, &src_dir)?;
+
+        Ok(Self {
             buf: String::with_capacity(1024 * 5),
-        }
+            src_dir,
+            dst_dir: dst_dir.to_path_buf(),
+            opts: book.book_ron.adoc_opts.clone(),
+            hcx,
+        })
     }
 }
 
@@ -33,7 +42,7 @@ unsafe impl Send for AdocBookVisitor {}
 
 impl BookVisitor for AdocBookVisitor {
     /// Gets destination path and kicks `asciidoctor` runner
-    fn visit_file(&mut self, src_file: &Path, vcx: &BookVisitContext) -> Result<()> {
+    fn visit_file(&mut self, src_file: &Path) -> Result<()> {
         match src_file.extension().and_then(|o| o.to_str()) {
             Some("adoc") => {}
             Some("md") => {
@@ -45,7 +54,7 @@ impl BookVisitor for AdocBookVisitor {
         }
 
         // relative path from source directory
-        let rel = match src_file.strip_prefix(&vcx.src_dir) {
+        let rel = match src_file.strip_prefix(&self.src_dir) {
             Ok(r) => r,
             Err(_err) => bail!(
                 "Fail that is not in source directly found: {}",
@@ -53,7 +62,7 @@ impl BookVisitor for AdocBookVisitor {
             ),
         };
 
-        let dst_file = vcx.dst_dir.join(&rel).with_extension("html");
+        let dst_file = self.dst_dir.join(&rel).with_extension("html");
 
         let dst_dir = dst_file.parent().with_context(|| {
             format!(
@@ -71,10 +80,16 @@ impl BookVisitor for AdocBookVisitor {
             })?;
         }
 
-        let acx = AdocRunContext::new(&vcx.src_dir, &vcx.dst_dir, &self.opts)?;
+        let acx = AdocRunContext::new(&self.src_dir, &self.dst_dir, &self.opts)?;
         let dummy_dst_name = format!("{}", dst_file.display());
 
-        crate::build::convert::convert_adoc_buf(&mut self.buf, src_file, &dummy_dst_name, &acx)?;
+        crate::build::convert::convert_adoc_buf(
+            &mut self.buf,
+            src_file,
+            &dummy_dst_name,
+            &acx,
+            &self.hcx,
+        )?;
 
         fs::write(&dst_file, &self.buf).with_context(|| {
             format!(

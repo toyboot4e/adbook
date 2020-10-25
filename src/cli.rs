@@ -26,7 +26,7 @@ use {
     },
 };
 
-use crate::{book::BookStructure, build::convert::AdocRunContext};
+use crate::book::BookStructure;
 
 // `adbook`
 #[derive(Clap, Debug)]
@@ -54,9 +54,6 @@ pub enum SubCommand {
     #[clap(name = "build", alias = "b")]
     /// Builds an `adbook` project
     Build(Build),
-    /// Converts an AsciiDoc file
-    #[clap(name = "convert", alias = "c", alias = "co")]
-    Convert(Convert),
     /// Prints one of the preset files: `article.adoc`, `book.ron` or `toc.ron`
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
@@ -70,7 +67,6 @@ impl SubCommand {
             SubCommand::Build(build) => build.run(),
             SubCommand::Init(new) => new.run(),
             SubCommand::Preset(preset) => preset.run(),
-            SubCommand::Convert(convert) => convert.run(),
             SubCommand::Clean(clean) => clean.run(),
         }
     }
@@ -194,41 +190,6 @@ impl Preset {
                 eprintln!("specify one of `book`, `toc` or `article");
             }
         }
-
-        Ok(())
-    }
-}
-
-/// `adbook convert`
-#[derive(Clap, Debug)]
-pub struct Convert {
-    pub src_file: PathBuf,
-    /// Handlebars template file path **relative to the source file**
-    #[clap(long, short)]
-    pub hbs: Option<PathBuf>,
-}
-
-impl Convert {
-    pub fn run(&mut self) -> Result<()> {
-        ensure!(self.src_file.is_file(), "Not given a path to a file");
-
-        let acx = {
-            let src_dir = self.src_file.parent().unwrap();
-            let site_dir = self.src_file.parent().unwrap();
-
-            let mut opts = vec![];
-            if let Some(hbs) = self.hbs.take() {
-                opts.push(("-a".to_string(), vec![format!("hbs={}", hbs.display())]));
-            }
-
-            AdocRunContext::new(&src_dir, site_dir, &opts)?
-        };
-
-        let dummy_dst_name = "<stdout>";
-
-        let text = crate::build::convert::convert_adoc(&self.src_file, dummy_dst_name, &acx)?;
-
-        println!("{}", text);
 
         Ok(())
     }

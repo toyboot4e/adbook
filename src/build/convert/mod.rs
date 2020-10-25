@@ -30,6 +30,7 @@ use {
 };
 
 pub use self::adoc::AdocRunContext;
+use self::hbs::HbsContext;
 
 fn ensure_paths(src_file: &Path, src_dir: &Path, site_dir: &Path) -> Result<()> {
     ensure!(
@@ -57,9 +58,14 @@ fn ensure_paths(src_file: &Path, src_dir: &Path, site_dir: &Path) -> Result<()> 
 ///
 /// * `dummy_dst_name`: used for debug log
 /// * `opts`: options provided with `asciidoctor`
-pub fn convert_adoc(src_file: &Path, dummy_dst_name: &str, acx: &AdocRunContext) -> Result<String> {
+pub fn convert_adoc(
+    src_file: &Path,
+    dummy_dst_name: &str,
+    acx: &AdocRunContext,
+    hcx: &HbsContext,
+) -> Result<String> {
     let mut buf = String::with_capacity(5 * 1024);
-    self::convert_adoc_buf(&mut buf, src_file, dummy_dst_name, acx)?;
+    self::convert_adoc_buf(&mut buf, src_file, dummy_dst_name, acx, hcx)?;
     Ok(buf)
 }
 
@@ -74,6 +80,7 @@ pub fn convert_adoc_buf(
     src_file: &Path,
     dummy_dst_name: &str,
     acx: &AdocRunContext,
+    hcx: &HbsContext,
 ) -> Result<()> {
     self::ensure_paths(src_file, &acx.src_dir, &acx.dst_dir)?;
 
@@ -108,7 +115,7 @@ pub fn convert_adoc_buf(
         let output = {
             let hbs_dir = hbs_file_path.parent().unwrap();
             let mut hbs = hbs::init_hbs(&hbs_dir)?;
-            hbs::render_hbs(buf, &src_name, &metadata, &mut hbs, &hbs_file_path)?
+            hbs::render_hbs(buf, &src_name, &metadata, &mut hbs, &hbs_file_path, hcx)?
         };
 
         buf.clear();
