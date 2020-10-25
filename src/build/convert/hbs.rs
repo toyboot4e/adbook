@@ -10,82 +10,95 @@ use {
 };
 
 use crate::{
-    book::toc::{Toc, TocItemContent},
+    book::toc::{Toc, TocItem, TocItemContent},
     build::convert::adoc::AdocMetadata,
 };
 
 // --------------------------------------------------------------------------------
 // Context
 
+/// Context to generate [`HbsData`]
 #[derive(Debug, Clone)]
 pub struct HbsContext {
     pub sidebar: Sidebar,
 }
 
 impl HbsContext {
-    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> Result<Self> {
-        let sidebar = Sidebar::from_root_toc_ron(toc, src_dir)?;
-
-        Ok(Self { sidebar })
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Sidebar {
-    entries: Vec<SidebarEntry>,
-}
-
-impl Sidebar {
-    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> Result<Self> {
-        let mut items = Vec::with_capacity(40);
-        crate::book::walk::flatten_toc_items(toc, &mut items);
-
-        let mut items: Vec<_> = items
-            .into_iter()
-            .map(|item| match item.content {
-                TocItemContent::File(path) => (item.name, path),
-                _ => unreachable!(),
-            })
-            .collect();
-        items.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-
-        let mut entries = Vec::with_capacity(items.len());
-        for item in &items {
-            let (name, file) = item;
-            let url = file.strip_prefix(src_dir).with_context(|| {
-                format!(
-                    "File in ToC not relative to source directory\n  file: {}\n  src_dir: {}",
-                    file.display(),
-                    src_dir.display(),
-                )
-            })?;
-
-            // TODO: enable arbitrary webpage root
-            let url = format!("/{}", url.display());
-
-            entries.push(SidebarEntry {
-                name: name.to_string(),
-                url: Some(url),
-                children: None,
-            });
-        }
-
-        Ok(Self { entries })
+    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> (Self, Vec<Error>) {
+        let (sidebar, errors) = Sidebar::from_root_toc_ron(toc, src_dir);
+        (Self { sidebar }, errors)
     }
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub struct SidebarEntry {
+pub struct SidebarItem {
     pub name: String,
     pub url: Option<String>,
     pub children: Option<Box<Vec<Self>>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Sidebar {
+    items: Vec<SidebarItem>,
+}
+
+impl Sidebar {
+    pub fn from_root_toc_ron(toc: &Toc, src_dir: &Path) -> (Self, Vec<Error>) {
+        let mut errors = Vec::with_capacity(20);
+        let items: Vec<SidebarItem> = Self::map_toc(toc, src_dir, &mut errors);
+
+        (Self { items }, errors)
+    }
+
+    fn map_toc(toc: &Toc, src_dir: &Path, errors: &mut Vec<Error>) -> Vec<SidebarItem> {
+        toc.items
+            .iter()
+            .filter_map(|item| match Self::map_item(item, src_dir, errors) {
+                Ok(item) => Some(item),
+                Err(err) => {
+                    errors.push(err);
+                    None
+                }
+            })
+            .collect()
+    }
+
+    fn map_item(item: &TocItem, src_dir: &Path, errors: &mut Vec<Error>) -> Result<SidebarItem> {
+        let name = item.name.clone();
+        match &item.content {
+            TocItemContent::File(ref file) => {
+                let url = file.strip_prefix(src_dir)?.with_extension("html");
+                let url = format!("/{}", url.display());
+
+                Ok(SidebarItem {
+                    name,
+                    url: Some(url),
+                    children: None,
+                })
+            }
+            TocItemContent::SubToc(_path, toc) => {
+                let children = Self::map_toc(&toc, src_dir, errors);
+
+                // TODO: add URL corresponding to the toc
+                // let url = path.strip_prefix(src_dir)?;
+                // let url = format!("/{}", url.display());
+                let url = None;
+
+                Ok(SidebarItem {
+                    name,
+                    url,
+                    children: Some(Box::new(children)),
+                })
+            }
+        }
+    }
 }
 
 // --------------------------------------------------------------------------------
 // Data
 
 /// Variables directly supplied to Handlebars templates
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct HbsData<'a> {
     /// html data
     pub h_title: String,
@@ -98,40 +111,39 @@ pub struct HbsData<'a> {
     pub a_email: Option<String>,
     pub a_stylesheet: Option<String>,
     /// Handlebars template context
-    pub sidebar_entries: Vec<SidebarEntry>,
+    pub sidebar_items: Vec<SidebarItem>,
 }
 
 impl<'a> HbsData<'a> {
-    pub fn from_metadata(html: &'a str, metadata: &AdocMetadata) -> Self {
+    /// WARN: be sure to set `sidebar_items` later
+    pub fn new(html: &'a str, meta: &AdocMetadata, sidebar: Sidebar) -> Self {
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
                 .find_attr(name)
                 .and_then(|a| a.value().map(|s| s.to_string()))
         }
 
-        let css = attr("stylesheet", &metadata).map(|rel| {
-            if let Some(base) = attr("stylesdir", &metadata) {
+        let css = attr("stylesheet", &meta).map(|rel| {
+            if let Some(base) = attr("stylesdir", &meta) {
                 format!("{}/{}", base, rel)
             } else {
                 rel
             }
         });
 
-        let sidebar_entries = vec![];
-
         HbsData {
             // TODO: supply html title via `book.ron` using placeholder sutring
-            h_title: metadata.title.clone().unwrap_or("".into()),
-            h_author: attr("author", &metadata).unwrap_or("".into()),
+            h_title: meta.title.clone().unwrap_or("".into()),
+            h_author: attr("author", &meta).unwrap_or("".into()),
             //
-            a_title: metadata.title.clone(),
+            a_title: meta.title.clone(),
             a_article: html,
-            a_revdate: attr("revdate", &metadata),
-            a_author: attr("author", &metadata),
-            a_email: attr("email", &metadata),
+            a_revdate: attr("revdate", &meta),
+            a_author: attr("author", &meta),
+            a_email: attr("email", &meta),
             a_stylesheet: css,
             //
-            sidebar_entries,
+            sidebar_items: sidebar.items,
         }
     }
 }
@@ -191,8 +203,7 @@ pub fn render_hbs<'a>(
     hbs.register_template_file(&key, hbs_file)
         .with_context(|| format!("Error when loading hbs file: {}", hbs_file.display()))?;
 
-    let mut hbs_data = HbsData::from_metadata(html, metadata);
-    hbs_data.sidebar_entries = hcx.sidebar.entries.clone();
+    let hbs_data = HbsData::new(html, metadata, hcx.sidebar.clone());
 
     let output = hbs
         .render(&key, &hbs_data)

@@ -1,7 +1,7 @@
 //! Implementation of [`crate::book::walk::BookVisitor`]
 
 use {
-    anyhow::{Context, Result},
+    anyhow::{Context, Error, Result},
     std::{
         fs,
         path::{Path, PathBuf},
@@ -24,17 +24,21 @@ pub struct AdocBookVisitor {
 }
 
 impl AdocBookVisitor {
-    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Result<Self> {
+    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> (Self, Vec<Error>) {
         let src_dir = book.src_dir_path();
-        let hcx = HbsContext::from_root_toc_ron(&book.toc, &src_dir)?;
+        let (hcx, errors) = HbsContext::from_root_toc_ron(&book.toc, &src_dir);
+        trace!("hcx created: {:#?}", hcx);
 
-        Ok(Self {
-            buf: String::with_capacity(1024 * 5),
-            src_dir,
-            dst_dir: dst_dir.to_path_buf(),
-            opts: book.book_ron.adoc_opts.clone(),
-            hcx,
-        })
+        (
+            Self {
+                buf: String::with_capacity(1024 * 5),
+                src_dir,
+                dst_dir: dst_dir.to_path_buf(),
+                opts: book.book_ron.adoc_opts.clone(),
+                hcx,
+            },
+            errors,
+        )
     }
 }
 

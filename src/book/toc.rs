@@ -67,7 +67,7 @@ pub struct TocItem {
 pub enum TocItemContent {
     /// Absolute path to the file
     File(PathBuf),
-    SubToc(Box<Toc>),
+    SubToc(PathBuf, Box<Toc>),
 }
 
 impl Toc {
@@ -133,7 +133,7 @@ impl Toc {
 
                 items.push(TocItem {
                     name: name.to_string(),
-                    content: TocItemContent::SubToc(Box::new(sub_toc)),
+                    content: TocItemContent::SubToc(path.clone(), Box::new(sub_toc)),
                 });
             } else {
                 // case 3. Unexpected item

@@ -11,7 +11,7 @@ use {
 pub type CmdOptions = Vec<(String, Vec<String>)>;
 
 /// Deserialized from `book.ron` in the root of an `adbook` project
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct BookRon {
     /// Authors of the book
     pub authors: Vec<String>,
@@ -26,6 +26,12 @@ pub struct BookRon {
     /// Additional options for `asciidoctor` command
     pub adoc_opts: CmdOptions,
 }
+
+// #[derive(Deserialize, Serialize, Debug, Clone)]
+// pub enum IncludeItem {
+//     Copy(PathBuf),
+//     CopyTo(PathBuf, PathBuf),
+// }
 
 /// Deserialized from `toc.ron` in directories in source directory of an `adbook` project
 #[derive(Deserialize, Serialize, Debug)]

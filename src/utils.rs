@@ -8,25 +8,31 @@ use {
 
 /// Prints printables as errors with a header
 pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
-    if errors.is_empty() {
+    self::print_items(errors, "error", header_text);
+}
+
+/// Prints printables as errors with a header
+pub fn print_warnings(warnings: &Vec<impl std::fmt::Display>, header_text: &str) {
+    self::print_items(warnings, "warnings", header_text);
+}
+
+fn print_items(items: &Vec<impl std::fmt::Display>, kind_name: &str, header_text: &str) {
+    if items.is_empty() {
         return;
     }
 
     // header string: "<n> error[s] <header_text>"
-    eprintln!(
-        "{} {}:",
-        format!(
-            "{} {}",
-            errors.len(),
-            if errors.len() == 1 { "error" } else { "errors" }
-        )
-        .bold()
-        .red(),
-        header_text.bold().red()
-    );
+    let kind_name = if items.len() == 1 {
+        kind_name.to_string()
+    } else {
+        format!("{}s", kind_name)
+    };
 
-    for err in errors {
-        eprintln!("- {}", err);
+    let text = format!("{} {} {}:", items.len(), kind_name, header_text);
+    eprintln!("{}", text.red().bold());
+
+    for item in items {
+        eprintln!("- {}", item);
     }
 }
 
