@@ -27,6 +27,7 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct HbsContext {
     pub src_dir: PathBuf,
+    pub base_url: String,
     pub sidebar: Sidebar,
 }
 
@@ -36,6 +37,7 @@ impl HbsContext {
 
         let me = Self {
             src_dir: book.src_dir_path(),
+            base_url: book.book_ron.base_url.clone(),
             sidebar,
         };
 
@@ -136,6 +138,7 @@ impl Sidebar {
 /// Variables directly supplied to Handlebars templates
 #[derive(Serialize, Debug, Clone)]
 pub struct HbsData<'a> {
+    pub base_url: String,
     /// html data
     pub h_title: String,
     pub h_author: String,
@@ -152,7 +155,7 @@ pub struct HbsData<'a> {
 
 impl<'a> HbsData<'a> {
     /// WARN: be sure to set `sidebar_items` later
-    pub fn new(html: &'a str, meta: &AdocMetadata, sidebar: Sidebar) -> Self {
+    pub fn new(html: &'a str, meta: &AdocMetadata, baseurl: &str, sidebar: Sidebar) -> Self {
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
                 .find_attr(name)
@@ -169,6 +172,7 @@ impl<'a> HbsData<'a> {
         });
 
         HbsData {
+            base_url: baseurl.to_string(),
             // TODO: supply html title via `book.ron` using placeholder sutring
             h_title: meta.title.clone().unwrap_or("".into()),
             h_author: attr("author", &meta).unwrap_or("".into()),
@@ -241,7 +245,7 @@ pub fn render_hbs<'a>(
     hbs.register_template_file(&key, hbs_file)
         .with_context(|| format!("Error when loading hbs file: {}", hbs_file.display()))?;
 
-    let hbs_data = HbsData::new(html, metadata, hcx.sidebar.clone());
+    let hbs_data = HbsData::new(html, metadata, &hcx.base_url, hcx.sidebar.clone());
 
     let output = hbs
         .render(&key, &hbs_data)
