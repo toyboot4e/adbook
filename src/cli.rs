@@ -19,7 +19,6 @@ use {
     anyhow::*,
     clap::Clap,
     colored::*,
-    futures::executor::block_on,
     std::{
         fs,
         path::{Path, PathBuf},
@@ -86,7 +85,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         info!("===> Building the book");
-        block_on(crate::build::build_book(&book))?;
+        crate::build::build_book(&book)?;
 
         Ok(())
     }

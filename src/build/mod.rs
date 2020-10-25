@@ -5,6 +5,7 @@ pub mod visit;
 
 use {
     anyhow::{Context, Error, Result},
+    futures::executor::block_on,
     std::{fs, path::Path},
 };
 
@@ -16,7 +17,7 @@ use crate::{
 /// Builds an `adbook` structure into a site directory
 ///
 /// book -> tmp -> site
-pub async fn build_book(book: &BookStructure) -> Result<()> {
+pub fn build_book(book: &BookStructure) -> Result<()> {
     // create site (destination) directory if there's not
     {
         let site = book.site_dir_path();
@@ -37,7 +38,7 @@ pub async fn build_book(book: &BookStructure) -> Result<()> {
     // now let's build the project!
     let mut v = AdocBookVisitor::from_book(book, &tmp_dir)?;
     // crate::book::walk::walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir);
-    walk_book_async(&mut v, &book.toc).await;
+    block_on(walk_book_async(&mut v, &book.toc));
 
     info!("===> Copying output files to site directory");
     {
