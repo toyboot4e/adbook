@@ -6,21 +6,23 @@ The name came from [mdbook](https://rust-lang.github.io/mdBook/), which was insp
 
 ## Installation
 
-You need `adbook`, [asciidoctor](https://asciidoctor.org) and [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/).
+### Rust & adbook
 
-### adbook
+After installing [Rust](https://www.rust-lang.org/), `adbook` is avaiable via crates.io:
 
 ```sh
 $ cargo install adbook # -> `$HOME/.cargo/bin`
 ```
 
+> Be sure to set your `PATH` to `$HOME/.cargo/bin`
+
 ### Ruby & Asciidoctor
 
-If you have [RVM](https://rvm.io/) in your computer:
+You need to [Ruby](https://www.ruby-lang.org/en/) and some package manager. I recommend [RVM](https://rvm.io/) for its speed.
+
+[asciidoctor](https://asciidoctor.org) and [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) can be installed as gems:
 
 ```sh
 $ rvm install asciidoctor
 $ rvm install asciidoctor-diagram
 ```
-
-> I recommand RVM because commands installed with `gem` are somehow slow (at least on macOS).
