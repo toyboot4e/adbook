@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     Cli::parse().run()
 }
 
-/// Sets up [`fern`]
+/// Sets up [`fern`] respecting `RUST_LOG`
 ///
 /// * ignore logs from some crates
 /// * output logs to `stderr`
@@ -29,6 +29,20 @@ fn configure_log() -> Result<()> {
         .debug(Color::Blue)
         .trace(Color::BrightBlack);
 
+    use log::LevelFilter;
+    let level = match std::env::var("RUST_LOG")
+        .as_ref()
+        .map(|s| s.as_str())
+        .unwrap_or("")
+    {
+        "error" | "Error" | "ERROR" => LevelFilter::Error,
+        "warn" | "Warn" | "WARN" => LevelFilter::Warn,
+        "info" | "Info" | "INFO" => LevelFilter::Info,
+        "debug" | "Debug" | "DEBUG" => LevelFilter::Debug,
+        "trace" | "Trace" | "TRACE" => LevelFilter::Trace,
+        _ => LevelFilter::Off,
+    };
+
     fern::Dispatch::new()
         .format(move |out, message, record| {
             out.finish(format_args!(
@@ -39,6 +53,7 @@ fn configure_log() -> Result<()> {
                 message
             ))
         })
+        .level(level)
         .level_for("handlebars", log::LevelFilter::Info)
         .level_for("async_std", log::LevelFilter::Debug)
         .level_for("async_io", log::LevelFilter::Debug)
