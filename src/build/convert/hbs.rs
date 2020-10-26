@@ -14,7 +14,7 @@ use {
 
 use crate::{
     book::{
-        toc::{Toc, TocItem, TocItemContent},
+        toc::{Toc, TocItem},
         BookStructure,
     },
     build::convert::adoc::AdocMetadata,
@@ -101,30 +101,27 @@ impl Sidebar {
         base_url_str: &str,
         errors: &mut Vec<Error>,
     ) -> Result<SidebarItem> {
-        let name = item.name.clone();
-
-        match &item.content {
-            TocItemContent::File(ref file) => {
+        match &item {
+            TocItem::File(name, file) => {
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
                 let url = format!("{}{}", base_url_str, url.display());
 
                 Ok(SidebarItem {
-                    name,
+                    name: name.to_owned(),
                     url: Some(url),
                     children: None,
                 })
             }
-            TocItemContent::SubToc(toc) => {
+            TocItem::Dir(toc) => {
+                // preface file
+                let url = toc.preface.strip_prefix(src_dir)?.with_extension("html");
+                let url = format!("{}{}", base_url_str, url.display());
+
                 let children = Self::map_toc(&toc, src_dir, base_url_str, errors);
 
-                // TODO: add URL corresponding to the toc
-                // let url = path.strip_prefix(src_dir)?;
-                // let url = format!("/{}", url.display());
-                let url = None;
-
                 Ok(SidebarItem {
-                    name,
-                    url,
+                    name: toc.name.to_owned(),
+                    url: Some(url),
                     children: Some(Box::new(children)),
                 })
             }

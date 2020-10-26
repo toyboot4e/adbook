@@ -16,7 +16,7 @@ An adbook project has such a file structure:
 └── src       # source files
 ```
 
-`book.ron` maps to [`BookRon`]. It's indicates a root directory and provides some configuration such
+`book.ron` maps to [`BookRon`]. It indicates a root directory and provides some configuration such
 as the book name and the author name.
 
 [`BookRon`]: crate::book::config::BookRon
@@ -30,8 +30,8 @@ it, recursively:
 └── src
     ├── a.adoc
     ├── sub_directory
-    │   ├── b.adoc
-    │   └── toc.ron  # lists `b.adoc`
+    │   ├── preface.adoc
+    │   └── toc.ron  # lists `preface.adoc`
     └── toc.ron      # lists `a.adoc` and `sub_directory`
 ```
 
@@ -134,7 +134,8 @@ impl BookStructure {
             trace!("root toc.ron loaded: {:?}", toc_ron);
 
             // Here we actually load a root `toc.ron`
-            Toc::from_toc_ron_recursive(&toc_ron, &src_dir)
+            trace!("loading toc.ron");
+            Toc::from_toc_ron_recursive(&toc_ron, &src_dir)?
         };
         trace!("toc.ron loaded: {:#?}", toc);
 

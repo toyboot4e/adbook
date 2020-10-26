@@ -30,7 +30,17 @@ pub struct BookRon {
 }
 
 /// Deserialized from `toc.ron` in directories in source directory of an `adbook` project
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct TocRon {
-    pub items: Vec<(String, String)>,
+    /// (name, file) that describes this directory
+    pub preface: (String, PathBuf),
+    /// Child items
+    pub items: Vec<TocRonItem>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum TocRonItem {
+    /// (name, url)
+    File(String, PathBuf),
+    Dir(PathBuf),
 }

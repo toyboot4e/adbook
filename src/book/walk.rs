@@ -5,24 +5,11 @@ use {
     std::path::{Path, PathBuf},
 };
 
-use crate::book::toc::{Toc, TocItem, TocItemContent};
+use crate::book::toc::{Toc, TocItem};
 
 /// Converts each file in book
 pub trait BookVisitor: Clone + Send + Sync {
     fn visit_file(&mut self, file: &Path) -> Result<()>;
-}
-
-pub fn flatten_toc_items(toc: &Toc, items: &mut Vec<TocItem>) {
-    for item in &toc.items {
-        match item.content {
-            TocItemContent::File(_) => {
-                items.push(item.clone());
-            }
-            TocItemContent::SubToc(ref toc) => {
-                self::flatten_toc_items(toc, items);
-            }
-        };
-    }
 }
 
 /// [Depth-first] iteration
@@ -30,11 +17,12 @@ pub fn flatten_toc_items(toc: &Toc, items: &mut Vec<TocItem>) {
 /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
 pub fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
     for item in &toc.items {
-        match item.content {
-            TocItemContent::File(ref file) => {
-                files.push(file.clone());
+        match item {
+            TocItem::File(_name, path) => {
+                files.push(path.clone());
             }
-            TocItemContent::SubToc(ref toc) => {
+            TocItem::Dir(toc) => {
+                files.push(toc.preface.clone());
                 self::pull_files_rec(toc, files);
             }
         };
