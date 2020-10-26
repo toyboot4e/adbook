@@ -13,10 +13,7 @@ use {
 };
 
 use crate::{
-    book::{
-        toc::{Toc, TocItem},
-        BookStructure,
-    },
+    book::{toc::TocItem, BookStructure},
     build::convert::adoc::AdocMetadata,
 };
 

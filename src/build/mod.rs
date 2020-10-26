@@ -29,11 +29,8 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     }
 
     // create temporary directory if there's not
-    let tmp_dir = book.site_dir_path().join("__tmp__");
-    if !self::validate_out_dir(&tmp_dir)? {
-        println!("Stopped building adbook directory");
-        return Ok(());
-    }
+    let tmp_dir = book.site_dir_path().join("__adbook_tmp__");
+    self::validate_tmp_dir(&tmp_dir).context("Unable to validate temporary output directory")?;
 
     // now let's build the project!
     let (mut v, errors) = AdocBookVisitor::from_book(book, &tmp_dir);
@@ -65,8 +62,7 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     Ok(())
 }
 
-/// Returns if the directory is valid or not
-fn validate_out_dir(out_dir: &Path) -> Result<bool> {
+fn validate_tmp_dir(out_dir: &Path) -> Result<()> {
     // make sure we have an available temporary output directory
     if out_dir.exists() {
         ensure!(
@@ -75,21 +71,9 @@ fn validate_out_dir(out_dir: &Path) -> Result<bool> {
             out_dir.display()
         );
 
-        // ask user if `adbook` is allowed to clear the to-be temporary directory
-        println!("-----------------------------------------------------------");
-        println!("There's already a directory where `adbook` wants to output temporary files:");
-        println!("{}", out_dir.display());
-        println!("Is it OK to clear all files in that directory and use it as a temporary output directory?");
-
-        match rprompt::prompt_reply_stdout("> [y/n]: ")?.as_str() {
-            "y" | "yes" => {}
-            _ => {
-                return Ok(false);
-            }
-        }
-
+        // OK, we'll remove the directory anyway
         trace!(
-            "Creating the temporary output directory at: {}",
+            "Removing the existing temporary output directory at: {}",
             out_dir.display()
         );
 
@@ -121,7 +105,7 @@ fn validate_out_dir(out_dir: &Path) -> Result<bool> {
         out_dir.display()
     );
 
-    Ok(true)
+    Ok(())
 }
 
 /// TODO: refactor
