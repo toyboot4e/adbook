@@ -29,11 +29,11 @@ fn configure_log() -> Result<()> {
         .debug(Color::Blue)
         .trace(Color::BrightBlack);
 
-    use log::LevelFilter;
-    let level = match std::env::var("RUST_LOG")
+    use {log::LevelFilter, std::env};
+    let level = match env::var("ADBOOK_LOG")
         .as_ref()
         .map(|s| s.as_str())
-        .unwrap_or("")
+        .unwrap_or("info")
     {
         "error" | "Error" | "ERROR" => LevelFilter::Error,
         "warn" | "Warn" | "WARN" => LevelFilter::Warn,
