@@ -6,11 +6,11 @@ The name came from [mdbook], which was inspired by [GitBook].
 [GitBook]: https://www.gitbook.com/
 !*/
 
-// Globally importing `info!`, `warn!`, etc.
+// Globally importing macros: `info!`, `warn!`, etc.
 #[macro_use]
 extern crate log;
 
-// Globally importing `anyhow!`, `bail!` and `ensure!`
+// Globally importing macros: `anyhow!`, `bail!` and `ensure!`
 #[macro_use]
 extern crate anyhow;
 

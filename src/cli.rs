@@ -102,10 +102,7 @@ impl Init {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
         let dir = PathBuf::from(&dir);
 
-        if !dir.exists() {
-            fs::create_dir(&dir)
-                .with_context(|| format!("Unable to create directory at: {}", dir.display()))?;
-        } else {
+        {
             let book_ron = dir.join("book.ron");
             ensure!(
                 !book_ron.exists(),
@@ -113,49 +110,16 @@ impl Init {
             );
         }
 
-        // book.ron (ensured that it doesn't exist)
-        {
-            let book = dir.join("book.ron");
-            fs::write(&book, crate::book::preset::BOOK_RON)?;
+        if !dir.exists() {
+            fs::create_dir(&dir).with_context(|| {
+                format!("Unable to create init directory at: {}", dir.display())
+            })?;
         }
 
-        fn gen_dir(path: &Path) -> Result<bool> {
-            if !path.exists() {
-                fs::create_dir(path)?;
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        }
-
-        fn gen_file(path: &Path, bytes: impl AsRef<[u8]>) -> Result<bool> {
-            if !path.exists() {
-                fs::write(path, bytes)?;
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        }
-
-        gen_file(&dir.join(".gitignore"), ".DS_Store")?;
-
-        let src = dir.join("src");
-        gen_dir(&src)?;
-
-        {
-            let theme = dir.join("theme");
-            gen_dir(&theme)?;
-            gen_dir(&theme.join("css"))?;
-            gen_dir(&theme.join("js"))?;
-        }
-
-        gen_file(&src.join("toc.ron"), crate::book::preset::TOC_RON)?;
-        gen_file(&src.join("1.adoc"), crate::book::preset::ARTICLE_ADOC)?;
-
-        gen_dir(&src.join("img"))?;
+        crate::book::init::gen_init_files(&dir)?;
 
         println!(
-            "Initialized new adbook project at {}",
+            "Initialized a new adbook project at {}",
             format!("{}", dir.display()).green()
         );
 
@@ -171,19 +135,20 @@ pub struct Preset {
 
 impl Preset {
     pub fn run(&mut self) -> Result<()> {
+        use crate::book::init::files;
         let file = self.file.as_ref().map(|s| s.as_str()).unwrap_or("");
 
         match file {
             "b" | "book" | "book.ron" => {
-                let s = std::str::from_utf8(crate::book::preset::BOOK_RON)?;
+                let s = std::str::from_utf8(files::BOOK)?;
                 println!("{}", s);
             }
             "t" | "toc" | "toc.ron" => {
-                let s = std::str::from_utf8(crate::book::preset::TOC_RON)?;
+                let s = std::str::from_utf8(files::src::TOC)?;
                 println!("{}", s);
             }
             "a" | "article" | "article.adoc" => {
-                let s = std::str::from_utf8(crate::book::preset::ARTICLE_ADOC)?;
+                let s = std::str::from_utf8(files::src::ARTICLE)?;
                 println!("{}", s);
             }
             _ => {

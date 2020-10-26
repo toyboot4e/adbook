@@ -41,7 +41,7 @@ it, recursively:
 !*/
 
 pub mod config;
-pub mod preset;
+pub mod init;
 pub mod toc;
 pub mod walk;
 
