@@ -16,13 +16,13 @@ pub trait BookVisitor: Clone + Send + Sync {
 ///
 /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
 pub fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
+    files.push(toc.preface.clone());
     for item in &toc.items {
         match item {
             TocItem::File(_name, path) => {
                 files.push(path.clone());
             }
             TocItem::Dir(toc) => {
-                files.push(toc.preface.clone());
                 self::pull_files_rec(toc, files);
             }
         };

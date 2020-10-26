@@ -68,21 +68,22 @@ impl Sidebar {
             format!("/{}/", base_url)
         };
 
+        let preface_item = TocItem::File(book.toc.name.to_owned(), book.toc.preface.to_owned());
+        let items = std::iter::once(&preface_item).chain(&book.toc.items);
         let items: Vec<SidebarItem> =
-            Self::map_toc(&book.toc, &book.src_dir_path(), &base_url_str, &mut errors);
+            Self::map_items(items, &book.src_dir_path(), &base_url_str, &mut errors);
 
         (Self { items }, errors)
     }
 
     /// the `base_url` is a bit tricky. see `format!` in `map_item`
-    fn map_toc(
-        toc: &Toc,
+    fn map_items<'a>(
+        items: impl Iterator<Item = &'a TocItem>,
         src_dir: &Path,
         base_url_str: &str,
         errors: &mut Vec<Error>,
     ) -> Vec<SidebarItem> {
-        toc.items
-            .iter()
+        items
             .filter_map(
                 |item| match Self::map_item(item, src_dir, base_url_str, errors) {
                     Ok(item) => Some(item),
@@ -117,7 +118,7 @@ impl Sidebar {
                 let url = toc.preface.strip_prefix(src_dir)?.with_extension("html");
                 let url = format!("{}{}", base_url_str, url.display());
 
-                let children = Self::map_toc(&toc, src_dir, base_url_str, errors);
+                let children = Self::map_items(toc.items.iter(), src_dir, base_url_str, errors);
 
                 Ok(SidebarItem {
                     name: toc.name.to_owned(),
