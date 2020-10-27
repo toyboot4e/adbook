@@ -7,17 +7,17 @@ use std::path::Path;
 pub mod files {
     //! Init files in bytes
 
-    pub static BOOK: &[u8] = include_bytes!("init_/book.ron");
+    pub static BOOK: &[u8] = include_bytes!("../../init/book.ron");
 
-    pub static EDITOR_CONFIG: &[u8] = include_bytes!("init_/.editorconfig");
-    pub static GIT_IGNORE: &[u8] = include_bytes!("init_/.gitignore");
+    pub static EDITOR_CONFIG: &[u8] = include_bytes!("../../init/.editorconfig");
+    pub static GIT_IGNORE: &[u8] = include_bytes!("../../init/.gitignore");
 
     pub mod site {}
 
     pub mod src {
-        pub static TOC: &[u8] = include_bytes!("init_/src/toc.ron");
-        pub static INDEX: &[u8] = include_bytes!("init_/src/index.adoc");
-        pub static ARTICLE: &[u8] = include_bytes!("init_/src/article.adoc");
+        pub static TOC: &[u8] = include_bytes!("../../init/src/toc.ron");
+        pub static INDEX: &[u8] = include_bytes!("../../init/src/index.adoc");
+        pub static ARTICLE: &[u8] = include_bytes!("../../init/src/article.adoc");
 
         pub mod static_ {
             pub mod img {}
@@ -25,26 +25,26 @@ pub mod files {
 
         pub mod theme {
             pub mod hbs {
-                pub static ARTICLE: &[u8] = include_bytes!("init_/src/theme/hbs/article.hbs");
+                pub static ARTICLE: &[u8] = include_bytes!("../../init/src/theme/hbs/article.hbs");
 
                 pub mod partials {
                     pub static SIDEBAR: &[u8] =
-                        include_bytes!("init_/src/theme/hbs/partials/sidebar.hbs");
+                        include_bytes!("../../init/src/theme/hbs/partials/sidebar.hbs");
                     pub static SIDEBAR_ITEM: &[u8] =
-                        include_bytes!("init_/src/theme/hbs/partials/sidebar_item.hbs");
+                        include_bytes!("../../init/src/theme/hbs/partials/sidebar_item.hbs");
                 }
             }
             pub mod css {
-                pub static TERM: &[u8] = include_bytes!("init_/src/theme/css/term.css");
+                pub static TERM: &[u8] = include_bytes!("../../init/src/theme/css/term.css");
                 pub mod partials {
                     pub static ADOC: &[u8] =
-                        include_bytes!("init_/src/theme/css/partials/adoc.css");
+                        include_bytes!("../../init/src/theme/css/partials/adoc.css");
                     pub static PRISM_OKIDIA: &[u8] =
-                        include_bytes!("init_/src/theme/css/partials/prism_okidia.css");
+                        include_bytes!("../../init/src/theme/css/partials/prism_okidia.css");
                 }
             }
             pub mod js {
-                pub static PRISM: &[u8] = include_bytes!("init_/src/theme/js/prism.js");
+                pub static PRISM: &[u8] = include_bytes!("../../init/src/theme/js/prism.js");
             }
         }
     }
