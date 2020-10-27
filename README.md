@@ -6,7 +6,7 @@ The name came from [mdbook](https://rust-lang.github.io/mdBook/), which was insp
 
 ## Demo
 
-Demo site is avaiable [here](https://toyboot4e.github.io/adbook/demo.html).
+Demo site is avaiable [here](https://toyboot4e.github.io/adbook/).
 
 After getting `adbook` ready, I will add some notes on usage.
 
