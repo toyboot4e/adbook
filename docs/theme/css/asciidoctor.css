@@ -1,0 +1,15 @@
+@import url("base/asciidoctor.css");
+@import url("partials/prism_default.css");
+
+/* Some hack to hide callouts characters (`(1)` for example) when using Prism.js */
+.highlight b {
+    display: none;
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Sidebar
+ * -------------------------------------------------------------------------------- */
+
+nav.sidebar {
+    position: fixed;
+}

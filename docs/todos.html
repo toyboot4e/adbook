@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="">
+    <title>TODOs</title>
+    <!-- Template style sheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- User style sheets -->
+    
+    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+</head>
+
+<body class="article">
+    <div id="header"><h1>TODOs</h1>
+
+    </div>
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+    <ol><li><a href="/adbook/index.html">Introduction</a>
+    
+</li><li><a href="/adbook/themes/preface.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+    
+</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+    
+</li></ol></a>
+    
+</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
+    
+</li><li><a href="/adbook/usages.html">Advanced usages</a>
+    
+</li><li><a href="/adbook/custom.html">Customizing theme</a>
+    
+</li><li><a href="/adbook/todos.html">TODOs</a>
+    
+</li></ol>
+</nav>
+
+    <!-- Asciidoctor output -->
+    <div id="content">
+        <div class="sect1">
+<h2 id="_before_removing_wip_tag">Before removing WIP tag</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Improve sidebar style</p>
+</li>
+<li>
+<p>Highlight current file</p>
+</li>
+<li>
+<p>Add demo files to repository</p>
+</li>
+<li>
+<p>Add <code>serve</code> command. Use <code>ADBOOK_LOG</code></p>
+</li>
+<li>
+<p>Add <code>convert</code> command</p>
+</li>
+<li>
+<p>Show Handlebars errors</p>
+</li>
+<li>
+<p>Rename preface to more appropriate word</p>
+</li>
+<li>
+<p>Mention <code>include</code> path in demo</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_high_priority">1. High priority</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Show footnote content on mouse hover</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_middle_priority">2. Middle priority</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>PDF page style</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_low_priority">3. Low priority</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Support markdown source files</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            messageStyle: "none",
+            tex2jax: {
+                inlineMath: [["\\(", "\\)"]],
+                displayMath: [["\\[", "\\]"]],
+                ignoreClass: "nostem|nolatexmath"
+            },
+            asciimath2jax: {
+                delimiters: [["\\$", "\\$"]],
+                ignoreClass: "nostem|noasciimath"
+            },
+            TeX: { equationNumbers: { autoNumber: "none" } }
+        })
+        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+            MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+                if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+                    data.math.root.display = "block"
+                }
+                return data
+            })
+        })
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+
+    <!-- Prism.js -->
+    
+    <script src="//adbook/theme/js/prism.js"></script>
+    
+</body>
+
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="toyboot4e">
+    <title>Asciidoctor-diagrams demo</title>
+    <!-- Template style sheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- User style sheets -->
+    
+    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+</head>
+
+<body class="article">
+    <div id="header"><h1>Asciidoctor-diagrams demo</h1>
+    <div class="details">
+        <span id="author" class="author">toyboot4e</span>
+        
+        <br>
+        <span id="revdate">Oct 19, 2020</span>
+    </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+    <ol><li><a href="/adbook/index.html">Introduction</a>
+    
+</li><li><a href="/adbook/themes/preface.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+    
+</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+    
+</li></ol></a>
+    
+</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
+    
+</li><li><a href="/adbook/usages.html">Advanced usages</a>
+    
+</li><li><a href="/adbook/custom.html">Customizing theme</a>
+    
+</li><li><a href="/adbook/todos.html">TODOs</a>
+    
+</li></ol>
+</nav>
+
+    <!-- Asciidoctor output -->
+    <div id="content">
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generate diagrams from ascii text!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_requirements">1. Requirements</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Make sure you have asciidoctor-diagram:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">$ rvm install asciidoctor-diagram</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asciidoctor_diagram">2. asciidoctor-diagram</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_ditaa">2.1. Ditaa</h3>
+<div class="imageblock">
+<div class="content">
+<img src="/adbook/static/img/ditaa/serde.png" alt="serde" width="620" height="308">
+</div>
+<div class="title">Figure 1. Overview of the serde framework</div>
+</div>
+<details>
+<summary class="title">Source</summary>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-adoc" data-lang="adoc">.Overview of the serde framework
+[ditaa, "ditaa/serde"]
+....
+      /---------------------\   /--------------------\
+      |                     |   |                    |
+      |    /-------------\  |   |  /--------------\  |
+      |    |  Serialize  |  |   |  |  Serializer  |  |
+      |    \-------------/  |   |  \--------------/  |
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
++-----+----------+  /-------+---+------\  +----------+---+
+| data structure |  | serde data model |  | data format  |
++-----+----------+  \-------+---+------/  +----------+---+
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
+      |    /-------------\  |   |  /--------------\  |
+      |    | Deserialize |  |   |  | Deserializer |  |
+      |    \-------------/  |   |  \--------------/  |
+      | cGRE                |   | c1AB               |
+      \---------------------/   \--------------------/
+                 ser                      de
+....</code></pre>
+</div>
+</div>
+</div>
+</details>
+</div>
+<div class="sect2">
+<h3 id="_plant_uml">2.2. Plant UML</h3>
+<div class="paragraph">
+<p>Mindmap:</p>
+</div>
+<div class="imageblock freesize">
+<div class="content">
+<img src="/adbook/static/img/svg.png" alt="svg" width="782" height="122">
+</div>
+</div>
+<details>
+<summary class="title">Source</summary>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-adoc" data-lang="adoc">[plantuml.freesize,svg]
+----
+@startmindmap
++ Programming
+++ Languages
++++_ Crafting Interpreters
++++_ compilerbook
+++ Games
++++_ Languages
++++_ Frameworks
+-- Text editors
+---_ VSCode
+---_ Sublime Text 3
+---_ NeoVim
+---_ Evil Emacs
+@endmindmap
+----</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>+</code>: right</p>
+</li>
+<li>
+<p><code>-</code>: left</p>
+</li>
+<li>
+<p><code>_</code>: branch</p>
+</li>
+</ul>
+</div>
+</div>
+</details>
+</div>
+</div>
+</div>
+</div>
+
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            messageStyle: "none",
+            tex2jax: {
+                inlineMath: [["\\(", "\\)"]],
+                displayMath: [["\\[", "\\]"]],
+                ignoreClass: "nostem|nolatexmath"
+            },
+            asciimath2jax: {
+                delimiters: [["\\$", "\\$"]],
+                ignoreClass: "nostem|noasciimath"
+            },
+            TeX: { equationNumbers: { autoNumber: "none" } }
+        })
+        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+            MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+                if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+                    data.math.root.display = "block"
+                }
+                return data
+            })
+        })
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+
+    <!-- Prism.js -->
+    
+    <script src="//adbook/theme/js/prism.js"></script>
+    
+</body>
+
+</html>
