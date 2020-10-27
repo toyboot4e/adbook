@@ -94,13 +94,12 @@ impl Build {
 /// `adbook init`
 #[derive(Clap, Debug)]
 pub struct Init {
-    pub dir: Option<String>,
+    pub dir: String,
 }
 
 impl Init {
     pub fn run(&mut self) -> Result<()> {
-        let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
-        let dir = PathBuf::from(&dir);
+        let dir = PathBuf::from(&self.dir);
 
         {
             let book_ron = dir.join("book.ron");
@@ -136,8 +135,8 @@ pub struct Preset {
 impl Preset {
     pub fn run(&mut self) -> Result<()> {
         use crate::book::init::files;
-        let file = self.file.as_ref().map(|s| s.as_str()).unwrap_or("");
 
+        let file = self.file.as_ref().map(|s| s.as_str()).unwrap_or("");
         match file {
             "b" | "book" | "book.ron" => {
                 let s = std::str::from_utf8(files::BOOK)?;
