@@ -1,3 +1,4 @@
 = Advanced usages
 
+* `base_url`
 

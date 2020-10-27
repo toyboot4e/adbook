@@ -3,19 +3,24 @@
 :!sectnums:
 == Before removing WIP tag
 
-* Improve sidebar style
-* Highlight current file
-* Add demo files to repository
-* Add `serve` command. Use `ADBOOK_LOG`
+=== I will
+
+* Specify names automatically in `toc.ron`
+* Rename "preface" to more appropriate word
+* Improve sidebar style (current file & inherited index maybe)
+
+=== I should
+
+* Add `serve` command
 * Add `convert` command
 * Show Handlebars errors
-* Rename preface to more appropriate word
 * Mention `include` path in demo
 
 :sectnums:
 == High priority
 
-* Show footnote content on mouse hover
+* Support Asciidoctor extensions
+** Show footnote content on mouse hover
 
 == Middle priority
 

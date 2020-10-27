@@ -56,13 +56,14 @@ tmp
     │   ├── css
     │   ├── hbs
     │   └── js
-    └── toc.ron
+    └── toc.ron // <4>
 
 8 directories, 4 files
 ----
 <1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/0.1.0/adbook/book/config/struct.BookRon.html[BookRon]
 <2> The site directory, where `adbook` outputs files
 <3> The source directory, which is basically mapped to the site directory
+<4> `toc.ron` is very similar to `mod.rs` in Rust. They are located in each directory and lists `.adoc` files in it.
 
 `adbook` maps files from source directory to site directory, converting `.adoc` files to html files. To generate html files, {adoc} and {handlebars} templates are used.
 

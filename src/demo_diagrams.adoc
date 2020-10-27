@@ -74,7 +74,7 @@ $ rvm install asciidoctor-diagram
 
 Mindmap:
 
-[plantuml.freesize,svg]
+[plantuml.freesize,miandmap]
 ----
 @startmindmap
 
@@ -98,7 +98,7 @@ Mindmap:
 ========
 [source,adoc]
 --------
-[plantuml.freesize,svg]
+[plantuml.freesize,mindmap]
 ----
 @startmindmap
 + Programming
@@ -116,6 +116,8 @@ Mindmap:
 @endmindmap
 ----
 --------
+
+The mindmap syntax:
 
 * `+`: right
 * `-`: left
