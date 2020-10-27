@@ -58,11 +58,11 @@ impl Sidebar {
     pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
         let mut errors = Vec::with_capacity(20);
 
-        let base_url = &book.book_ron.base_url;
-        let base_url_str = if base_url.is_empty() {
+        let base_url_str = if book.book_ron.base_url.is_empty() {
             "".to_string()
         } else {
-            format!("/{}/", base_url)
+            // `base_url` is defined in this form: `/base/url`
+            format!("{}/", book.book_ron.base_url)
         };
 
         let preface_item = TocItem::File(book.toc.name.to_owned(), book.toc.preface.to_owned());
@@ -150,7 +150,7 @@ pub struct HbsData<'a> {
 
 impl<'a> HbsData<'a> {
     /// WARN: be sure to set `sidebar_items` later
-    pub fn new(html: &'a str, meta: &AdocMetadata, baseurl: &str, sidebar: Sidebar) -> Self {
+    pub fn new(html: &'a str, meta: &AdocMetadata, base_url: &str, sidebar: Sidebar) -> Self {
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
             metadata
                 .find_attr(name)
@@ -167,7 +167,7 @@ impl<'a> HbsData<'a> {
         });
 
         HbsData {
-            base_url: baseurl.to_string(),
+            base_url: base_url.to_string(),
             // TODO: supply html title via `book.ron` using placeholder sutring
             h_title: meta.title.clone().unwrap_or("".into()),
             h_author: attr("author", &meta).unwrap_or("".into()),

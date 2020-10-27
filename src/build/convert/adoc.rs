@@ -31,11 +31,11 @@ pub enum AdocError {
 /// Context for running `asciidoctor`, i.e. options
 #[derive(Debug, Clone)]
 pub struct AdocRunContext {
-    /// `-B` option (base directory)
+    /// `asciidoctor -B` (base directory)
     src_dir: String,
-    /// `-D`  (destination directory)
+    /// `asciidoctor -D` (destination directory)
     dst_dir: String,
-    /// Other options, mainly attributes.
+    /// `asciidoctor -a` (attributes) or other options
     opts: CmdOptions,
     /// Used to modify `asciidoctor` attributes supplied to `.adoc` files
     base_url: String,
@@ -148,6 +148,8 @@ pub fn run_asciidoctor(
     let mut cmd =
         self::asciidoctor(src_file, acx).context("when setting up `asciidoctor` options")?;
 
+    // trace!("{:?}", cmd);
+
     let output = cmd.output().with_context(|| {
         format!(
             "when running `asciidoctor`:\n  src: {}\n  dst: {}\n  cmd: {:?}",
@@ -251,10 +253,10 @@ impl AdocAttr {
     }
 }
 
-/// Asciidoctor metadata (basically document attributes)
+/// Asciidoctor metadata supplied to Handlebars data
 ///
-/// Because `asciidoctor --embedded` does not output document header (and the document title), we
-/// have to extract document attributes manually.
+/// We have to extract them manually because `asciidoctor --embedded` doesn't generate document
+/// title and header.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdocMetadata {
     pub title: Option<String>,

@@ -4,7 +4,7 @@
 //!
 //! In `adbook`, `asciidoctor` options are supplied with the following placeholder strings:
 //!
-//! * `{base_url}`: base url. useful when supplying absolute path
+//! * `{base_url}`: base url in this form: `/base/url`. useful when supplying absolute path
 //! * `{src_dir}`: source directory
 //! * `{dst_dir}`: destination directory
 //!
@@ -73,17 +73,17 @@ pub fn convert_adoc_buf(
         adoc::AdocMetadata::extract_with_base(&adoc_text, &acx)
     };
 
-    // should we use "embedded mode" of Asciidoctor?
+    // we use "embedded mode" of `asciidoctor` if we'll apply Handlebars template later
     let mut acx = acx.clone();
     if metadata.find_attr("hbs").is_some() {
         acx.set_embedded_mode(true);
     }
 
-    // run Asciidoctor and write the output to `buf`
+    // run `asciidoctor` and write the output to `buf`
     buf.clear();
     adoc::run_asciidoctor_buf(buf, src_file, dummy_dst_name, &acx)?;
 
-    // maybe apply handlebars
+    // maybe apply Handlebars template
     if let Some(hbs_attr) = metadata.find_attr("hbs") {
         let src_name = format!("{}", src_file.display());
 
