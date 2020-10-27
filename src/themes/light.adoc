@@ -1,0 +1,10 @@
+= Demo in Asciidoctor default theme
+:author: toyboot4e
+:email: some mail
+:revdate: Oct 24, 2020
+:stylesheet: asciidoctor.css
+
+WARNING: This theme is exactly the original Asciidoctor CSS file and not modified to fit onto `adbook`.
+
+// include path starts from source directory
+include::themes/demo.adoc[]

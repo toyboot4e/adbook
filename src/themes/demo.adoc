@@ -1,0 +1,366 @@
+If you don't know {adoc}, let's see the features!
+
+== Basics
+
+=== Paragraphs and line breaks
+
+This is the first paragraph.
+
+This is the second paragraph.
+This is the second line of the second paragraph.
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+This is the first paragraph.
+
+This is the second paragraph.
+This is the second line of the second paragraph.
+----
+========
+
+// `demo/book.ron` enables `hardbreaks`, where newline is translated as `<br>`.
+// If not, newlines are treated as wrapped text and if you want to insert `<br>`, you have to add
+// ` +` to end of a line.
+
+[NOTE]
+====
+The indents are given by a CSS. You can modify `term.css` to remove them.
+By the way, this block is one of the "admonition blocks".
+====
+
+=== Formats
+
+*strong*, _italic_, [.line-through]#line through#, [.underline]#underline#, [.big]#big#, [.small]#small#
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+*strong*, _italic_, [.line-through]#line through#, [.underline]#underline#, [.big]#big#, [.small]#small#
+----
+
+Not that good syntax actually!
+========
+
+=== Unordered list
+
+* 1
++
+This paragraph is "joined" to the list item using `+` symbol.
+This is one of the excellent features of AsciiDoc!
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+* 1
++
+This paragraph is "joined" to the list item using `+` symbol.
+This is one of the excellent features of AsciiDoc!
+----
+========
+
+* 2
+** 2-a
+** 2-b
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+* 2
+** 2-a
+** 2-b
+----
+========
+
+=== Ordered list
+
+. 1
+.. 1-a
+.. 1-b
+. 2
+. 3
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+. 1
+.. 1-a
+.. 1-b
+. 2
+. 3
+----
+========
+
+=== Table
+
+|===
+| a | b | c
+
+| a | b | c
+| a | b | c
+|===
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+|===
+| a | b | c
+
+| a | b | c
+| a | b | c
+|===
+----
+========
+
+=== UI icons (`asciidoctor -a experimental`)
+
+* Keyboard macros: kbd:[cmd+shift+ctrl+opt+X]
+* Menu icons: menu:File[Save]
+* UI buttons: btn:[OK]
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+* Keyboard macros: kbd:[cmd+shift+ctrl+opt+X]
+* Menu icons: menu:File[Save]
+* UI buttons: btn:[OK]
+----
+========
+
+=== Admonition blocks (`<details>` in CSS)
+
+.One line admonition blocks
+[%collapsible]
+========
+TIP: `TIP: one line text`
+
+NOTE: `NOTE: one line text`
+
+WARNING: `WARNING: one line text`
+
+IMPORTANT: `IMPORTANT: one line text`
+
+CAUTION: `CAUTION: one line text`
+========
+
+.Another admonition block syntax
+[%collapsible]
+========
+[source,adoc]
+--------
+[NOTE]
+====
+This is good when we want to write a big admonotion block!
+====
+--------
+========
+
+== Rich features
+
+=== Footnotes
+
+Footnote here: footnote:[It's nice if you can see this text with mouse hover. Such Asciidoctor extension _should_ exist and I would consider using it.]
+
+[source,adoc]
+----
+Footnote here: footnote:[It's nice if you can see this text with mouse hover. Such Asciidoctor extension _should_ exist and I would consider using it.]
+----
+
+=== Mathjax
+
+Use inline/non-inline `stem` block:
+
+[stem]
+++++
+m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} = \mathbb{F} \\
+\int m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} \mathrm{d}t = \int \mathbb{F} \mathrm{d}t \\
+\left[ m \frac {\mathrm{d} \mathbb{x}} {\mathrm{d} t} \right]_{t_1}^{t_2} = \left[ \mathbb{F} t \right]_{t_1}^{t_2} \\
+++++
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+----
+[stem]
+++++
+m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} = \mathbb{F} \\
+\int m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} \mathrm{d}t = \int \mathbb{F} \mathrm{d}t \\
+\left[ m \frac {\mathrm{d} \mathbb{x}} {\mathrm{d} t} \right]_{t_1}^{t_2} = \left[ \mathbb{F} t \right]_{t_1}^{t_2} \\
+++++
+----
+========
+
+=== Source code block
+
+Code block with "callouts":
+
+[source]
+----
+Here! We! // <1>
+Come!!! // <2>
+----
+<1> First callout
+<2> Second callout
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+[source]
+----
+Here! We! // <1>
+Come!!! // <2>
+----
+<1> First callout
+<2> Second callout
+--------
+========
+
+=== Advanced source code blocks
+
+{prism} extensions:
+
+==== https://prismjs.com/plugins/keep-markup/[Keep Markup] extension
+
+This is mainly for keeping Asciidoctor callouts after processing {prism} to highlight code:
+
+[source,rust]
+----
+fn main() { // <1>
+    println!("Hello, world!");
+}
+----
+<1> callout style is kept!
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+[source,rust]
+----
+fn main() { // <1>
+    println!("Hello, world!");
+}
+----
+<1> callout style is kept!
+--------
+========
+
+==== https://prismjs.com/plugins/line-numbers/[Line Numbers] extension
+
+[.line-numbers]
+[source,rust]
+----
+fn main() {
+    println!("Hello, world!");
+}
+----
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+[.line-numbers]
+[source,rust]
+----
+fn main() {
+    println!("Hello, world!");
+}
+----
+--------
+========
+
+NOTE: Unfortunatelly, `[source%number]` doesn't work when using {prism}.
+
+==== https://prismjs.com/plugins/diff-highlight/[Diff Highlight] extension
+
+[source,diff-rust diff-highlight]
+----
+fn main() {
++     println!("Hello, world!"); // <1>
+}
+----
+<1> diff highlight!
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+[source,diff-rust diff-highlight]
+----
+fn main() {
++     println!("Hello, world!"); // <1>
+}
+----
+<1> diff highlight!
+--------
+========
+
+==== https://prismjs.com/plugins/match-braces/[Match braces] extension
+
+We need the rainbow parentheses for no reason. However, it's not working. Help me out with it!
+
+[source,lisp]
+[.match-braces]
+----
+((((hello world) world) wolrd) world)
+----
+
+== Tricks
+
+=== Using attributes to create links
+
+{adbook} {adbook} {adbook}. By the way.. isn't it nice if we don't have to write URL every time we write {adbook}? That's possible! We can use AsciiDoc _document attributes_ with such syntax: `{ad_book}`.
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+{adbook} {adbook} {adbook}. By the way.. isn't it nice if we don't have to write URL every time we write {adbook}? That's possible! We can use AsciiDoc _document attributes_ with such syntax: `{ad_book}`.
+
+--------
+========
+
+Document attributes can be set in each `.adoc` file:
+
+[source,adoc]
+----
+:adoc: link:https://github.com/toyboot4e/adbook[adbook]
+// consider defining document attributes globally. options:
+// 1. `include:path/to/file/that/lists/links/as/attributes[]`
+// 2. `book.ron` (see below)
+----
+
+Or in `book.ron`:
+
+.`book.ron` content
+[%collapsible]
+========
+// ron is not supported so..
+[source,json]
+--------
+include::../../book.ron[]
+--------
+========
+
+TIP: `book.ron` is embedded to this file with: `include::../../book.ron[]`

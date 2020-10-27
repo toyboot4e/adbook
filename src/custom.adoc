@@ -1,0 +1,6 @@
+= Customizing theme
+
+`adbook` converts each `.adoc` file by running `asciidoctor` and then applying a Handlebars template (if it's specified).
+
+== Custom html/css
+

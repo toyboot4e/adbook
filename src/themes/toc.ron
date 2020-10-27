@@ -1,0 +1,7 @@
+(
+    preface: ("Demos by themes", "preface.adoc"),
+    items: [
+        File("Terminal dark", "term.adoc"),
+        File("Asciidoctor default", "light.adoc"),
+    ],
+)

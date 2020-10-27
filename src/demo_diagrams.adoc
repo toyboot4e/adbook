@@ -1,0 +1,123 @@
+= Asciidoctor-diagrams demo
+:revdate: Oct 19, 2020
+:author: toyboot4e
+
+Generate diagrams from ascii text!
+
+== Requirements
+
+Make sure you have asciidoctor-diagram:
+
+[source,sh]
+----
+$ rvm install asciidoctor-diagram
+----
+
+== asciidoctor-diagram
+
+=== Ditaa
+
+.Overview of the serde framework
+[ditaa, "ditaa/serde"]
+....
+      /---------------------\   /--------------------\
+      |                     |   |                    |
+      |    /-------------\  |   |  /--------------\  |
+      |    |  Serialize  |  |   |  |  Serializer  |  |
+      |    \-------------/  |   |  \--------------/  |
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
++-----+----------+  /-------+---+------\  +----------+---+
+| data structure |  | serde data model |  | data format  |
++-----+----------+  \-------+---+------/  +----------+---+
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
+      |    /-------------\  |   |  /--------------\  |
+      |    | Deserialize |  |   |  | Deserializer |  |
+      |    \-------------/  |   |  \--------------/  |
+      | cGRE                |   | c1AB               |
+      \---------------------/   \--------------------/
+                 ser                      de
+....
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+.Overview of the serde framework
+[ditaa, "ditaa/serde"]
+....
+      /---------------------\   /--------------------\
+      |                     |   |                    |
+      |    /-------------\  |   |  /--------------\  |
+      |    |  Serialize  |  |   |  |  Serializer  |  |
+      |    \-------------/  |   |  \--------------/  |
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
++-----+----------+  /-------+---+------\  +----------+---+
+| data structure |  | serde data model |  | data format  |
++-----+----------+  \-------+---+------/  +----------+---+
+      |       ^       |     |   |    ^       |       |
+      |       |       v     |   |    |       v       |
+      |    /-------------\  |   |  /--------------\  |
+      |    | Deserialize |  |   |  | Deserializer |  |
+      |    \-------------/  |   |  \--------------/  |
+      | cGRE                |   | c1AB               |
+      \---------------------/   \--------------------/
+                 ser                      de
+....
+--------
+========
+
+=== Plant UML
+
+Mindmap:
+
+[plantuml.freesize,svg]
+----
+@startmindmap
+
++ Programming
+++ Languages
++++_ Crafting Interpreters
++++_ compilerbook
+++ Games
++++_ Languages
++++_ Frameworks
+-- Text editors
+---_ VSCode
+---_ Sublime Text 3
+---_ NeoVim
+---_ Evil Emacs
+@endmindmap
+----
+
+.Source
+[%collapsible]
+========
+[source,adoc]
+--------
+[plantuml.freesize,svg]
+----
+@startmindmap
++ Programming
+++ Languages
++++_ Crafting Interpreters
++++_ compilerbook
+++ Games
++++_ Languages
++++_ Frameworks
+-- Text editors
+---_ VSCode
+---_ Sublime Text 3
+---_ NeoVim
+---_ Evil Emacs
+@endmindmap
+----
+--------
+
+* `+`: right
+* `-`: left
+* `_`: branch
+========

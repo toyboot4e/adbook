@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="{{h_author}}">
+    <title>{{h_title}}</title>
+    <!-- Template style sheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- User style sheets -->
+    {{#if a_stylesheet}}
+    <link rel="stylesheet" href="{{a_stylesheet}}">{{/if}}
+</head>
+
+<body class="article">
+    {{#if (or a_title a_author a_email a_revdate) ~}}
+    <div id="header">
+        {{~#if a_title ~}}
+        <h1>{{a_title}}</h1>
+        {{~/if~}}
+    {{~#if (or a_author a_email a_revdate)}}
+    <div class="details">
+        {{#if a_author}}<span id="author" class="author">{{a_author}}</span>{{/if}}
+        {{#if a_email}}<span id="email" class="email">{{a_email}}</span>{{/if}}
+        {{#if (or a_author a_email)}}<br>{{/if}}
+        {{#if a_revdate}}<span id="revdate">{{a_revdate}}</span>{{/if}}
+    </div>
+    {{~/if}}
+
+    </div>
+    {{~/if}}
+
+    <!-- Sidebar -->
+    {{> sidebar}}
+
+    <!-- Asciidoctor output -->
+    <div id="content">
+        {{!-- this is not indented unfortunately --}}
+        {{{~ a_article~}}}
+    </div>
+
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            messageStyle: "none",
+            tex2jax: {
+                inlineMath: [["\\(", "\\)"]],
+                displayMath: [["\\[", "\\]"]],
+                ignoreClass: "nostem|nolatexmath"
+            },
+            asciimath2jax: {
+                delimiters: [["\\$", "\\$"]],
+                ignoreClass: "nostem|noasciimath"
+            },
+            TeX: { equationNumbers: { autoNumber: "none" } }
+        })
+        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+            MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+                if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+                    data.math.root.display = "block"
+                }
+                return data
+            })
+        })
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+
+    <!-- Prism.js -->
+    {{#if base_url}}
+    <script src="/{{base_url}}/theme/js/prism.js"></script>
+    {{else}}
+    <script src="/theme/js/prism.js"></script>
+    {{/if}}
+</body>
+
+</html>

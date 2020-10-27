@@ -1,0 +1,3 @@
+= Demos by themes
+
+You can override `stylesheet` document attribute and set CSS file per document!
