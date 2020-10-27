@@ -6,21 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="toyboot4e">
-    <title>Demo in terminal dark theme</title>
+    <title>Term-vert theme</title>
     <!-- Template style sheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- User style sheets -->
     
-    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+    <link rel="stylesheet" href="/adbook/theme/css/term_vert.css">
 </head>
 
 <body class="article">
-    <div id="header"><h1>Demo in terminal dark theme</h1>
+    <div id="header"><h1>Term-vert theme</h1>
     <div class="details">
         <span id="author" class="author">toyboot4e</span>
         <span id="email" class="email">some mail</span>
         <br>
-        <span id="revdate">Oct 24, 2020</span>
+        <span id="revdate">Oct 28, 2020</span>
     </div>
 
     </div>
@@ -52,44 +52,42 @@
     <div id="content">
         <div id="preamble">
 <div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-This theme might not cover all the Asciidoctor features
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>縦書きです！！！！</p>
 </div>
 <div class="paragraph">
-<p>If you don&#8217;t know <a href="https://asciidoctor.org/">Asciidoctor</a>, let&#8217;s see the features!</p>
+<p>この CSS は <span class="line-through">無残ですね</span> ほとんど調整されていません。縦と横が入れ替わると、スペースの設定などが大変だったためです。でも小説のプレビューなどには利用できると思います。モダンブラウザの縦書き機能を上手く使っていきましょう！</p>
+</div>
+<div class="paragraph">
+<p><code>&lt;div contenteditable="true"&gt;</code> にすれば、ブラウザを縦書きエディタにすることもできます！　ファイルの保存などが大変そうですけれど……。</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>もしも <a href="https://asciidoctor.org/">Asciidoctor</a> をご存知でなければ、その機能を見ていきましょう。</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_basics">1. Basics</h2>
+<h2 id="_基本">1. 基本</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_paragraphs_and_line_breaks">1.1. Paragraphs and line breaks</h3>
+<h3 id="_段落と改行">1.1. 段落と改行</h3>
 <div class="paragraph">
-<p>This is the first paragraph.</p>
+<p>これは最初の段落です。</p>
 </div>
 <div class="paragraph">
-<p>This is the second paragraph.<br>
-This is the second line of the second paragraph.</p>
+<p>これは二番目の段落です。<br>
+これは二番目の段落の二番目の行です。</p>
 </div>
 <details>
 <summary class="title">Source</summary>
 <div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-adoc" data-lang="adoc">This is the first paragraph.
+<pre class="highlight"><code class="language-adoc" data-lang="adoc">これは最初の段落です。
 
-This is the second paragraph.
-This is the second line of the second paragraph.</code></pre>
+これは二番目の段落です。
+これは二番目の段落の二番目の行です。</code></pre>
 </div>
 </div>
 </div>
@@ -102,8 +100,8 @@ This is the second line of the second paragraph.</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>The indents are given by a CSS. You can modify <code>term.css</code> to remove them.<br>
-By the way, this block is one of the "admonition blocks".</p>
+<p>インデントは CSS によって与えられており、 <code>term.css</code> を編集して削除できます。<br>
+ところで、このブロックは『admonition block』と呼ばれています。</p>
 </div>
 </td>
 </tr>
@@ -111,7 +109,7 @@ By the way, this block is one of the "admonition blocks".</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_formats">1.2. Formats</h3>
+<h3 id="_フォーマット">1.2. フォーマット</h3>
 <div class="paragraph">
 <p><strong>strong</strong>, <em>italic</em>, <span class="line-through">line through</span>, <span class="underline">underline</span>, <span class="big">big</span>, <span class="small">small</span></p>
 </div>
@@ -124,10 +122,22 @@ By the way, this block is one of the "admonition blocks".</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Not that good syntax actually!</p>
+<p>正直そんなに良い構文ではないと思います！</p>
 </div>
 </div>
 </details>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+疲れてきたので訳を止めます。
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_unordered_list">1.3. Unordered list</h3>
@@ -270,7 +280,7 @@ This is one of the excellent features of AsciiDoc!</code></pre>
 </details>
 </div>
 <div class="sect2">
-<h3 id="_ui_icons_asciidoctor_a_experimental">1.6. UI icons (<code>asciidoctor -a experimental</code>)</h3>
+<h3 id="_ui_アイコン_asciidoctor_a_experimental">1.6. UI アイコン (<code>asciidoctor -a experimental</code>)</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -381,10 +391,10 @@ This is good when we want to write a big admonotion block!
 </div>
 </div>
 <div class="sect1">
-<h2 id="_rich_features">2. Rich features</h2>
+<h2 id="_リッチな機能">2. リッチな機能</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_footnotes">2.1. Footnotes</h3>
+<h3 id="_脚注_footnotes">2.1. 脚注 (footnotes)</h3>
 <div class="paragraph">
 <p>Footnote here: <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup></p>
 </div>
@@ -395,7 +405,7 @@ This is good when we want to write a big admonotion block!
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mathjax">2.2. Mathjax</h3>
+<h3 id="_数式_mathjax">2.2. 数式 (Mathjax)</h3>
 <div class="paragraph">
 <p>Use inline/non-inline <code>stem</code> block:</p>
 </div>
@@ -423,7 +433,7 @@ m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} = \mathbb{F} \\
 </details>
 </div>
 <div class="sect2">
-<h3 id="_source_code_block">2.3. Source code block</h3>
+<h3 id="_コードブロック">2.3. コードブロック</h3>
 <div class="paragraph">
 <p>Code block with "callouts":</p>
 </div>
@@ -463,7 +473,7 @@ Come!!! <i class="conum" data-value="2"></i><b>(2)</b>
 </details>
 </div>
 <div class="sect2">
-<h3 id="_advanced_source_code_blocks">2.4. Advanced source code blocks</h3>
+<h3 id="_コードブロックの進んだ機能_prism_js">2.4. コードブロックの進んだ機能 (Prism.js)</h3>
 <div class="paragraph">
 <p>{prism} extensions:</p>
 </div>
@@ -627,60 +637,7 @@ fn main() {
 <div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">(
-    base_url: "/adbook",
-    authors: ["adbook"],
-    title: "adbook demo site",
-    src_dir: "src",
-    // generate files to `docs/`
-    site_dir: "docs",
-
-    includes: [
-        "static/img",
-        "theme/css",
-        "theme/js",
-    ],
-
-    // `asciidoctor` command line options
-    adoc_opts: [
-        ("-a", [
-            // relative path to Handlebars template from the source directory
-            "hbs@=theme/hbs/article.hbs",
-
-            // css
-            "linkcss",
-            "stylesdir@={base_url}/theme/css",
-            "stylesheet@=term.css",
-
-            // image
-            "imagesdir@={base_url}/static/img",
-            "imagesoutdir@={src_dir}/static/img",
-            // "favicon@=/img/favicon.png",
-
-            // preferences
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            "tabside@=4",
-            // "!last-update-label",
-
-            // features
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
-
-            // links (available with `{name}` syntax in AsciiDoc files)
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
-            "adbook=https://github.com/toyboot4e/adbook[adbook]",
-            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
-            "handlebars=https://handlebarsjs.com/[Handlebars]",
-            "prismjs=https://prismjs.com/[Prism.js]",
-
-            "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "rust=https://www.rust-lang.org/[Rust]",
-        ]),
-    ]
-)</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">Unresolved directive in term_vert.adoc - include::../../book.ron[]</code></pre>
 </div>
 </div>
 </div>

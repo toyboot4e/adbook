@@ -3,5 +3,6 @@
     items: [
         File("Terminal dark", "term.adoc"),
         File("Asciidoctor default", "light.adoc"),
+        File("Vertical writing", "term_vert.adoc"),
     ],
 )

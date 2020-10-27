@@ -1,33 +1,48 @@
-If you don't know {adoc}, let's see the features!
+= Term-vert theme
+:stylesheet: term_vert.css
+:author: toyboot4e
+:email: some mail
+:revdate: Oct 28, 2020
 
-== Basics
 
-=== Paragraphs and line breaks
+縦書きです！！！！
 
-This is the first paragraph.
+この CSS は [.line-through]#無残ですね# ほとんど調整されていません。縦と横が入れ替わると、スペースの設定などが大変だったためです。でも小説のプレビューなどには利用できると思います。モダンブラウザの縦書き機能を上手く使っていきましょう！
 
-This is the second paragraph.
-This is the second line of the second paragraph.
+`<div contenteditable="true">` にすれば、ブラウザを縦書きエディタにすることもできます！　ファイルの保存などが大変そうですけれど……。
+
+---
+
+もしも {adoc} をご存知でなければ、その機能を見ていきましょう。
+
+== 基本
+
+=== 段落と改行
+
+これは最初の段落です。
+
+これは二番目の段落です。
+これは二番目の段落の二番目の行です。
 
 .Source
 [%collapsible]
 ========
 [source,adoc]
 ----
-This is the first paragraph.
+これは最初の段落です。
 
-This is the second paragraph.
-This is the second line of the second paragraph.
+これは二番目の段落です。
+これは二番目の段落の二番目の行です。
 ----
 ========
 
 [NOTE]
 ====
-The indents are given by a CSS. You can modify `term.css` to remove them.
-By the way, this block is one of the "admonition blocks".
+インデントは CSS によって与えられており、 `term.css` を編集して削除できます。
+ところで、このブロックは『admonition block』と呼ばれています。
 ====
 
-=== Formats
+=== フォーマット
 
 *strong*, _italic_, [.line-through]#line through#, [.underline]#underline#, [.big]#big#, [.small]#small#
 
@@ -39,8 +54,10 @@ By the way, this block is one of the "admonition blocks".
 *strong*, _italic_, [.line-through]#line through#, [.underline]#underline#, [.big]#big#, [.small]#small#
 ----
 
-Not that good syntax actually!
+正直そんなに良い構文ではないと思います！
 ========
+
+WARNING: 疲れてきたので訳を止めます。
 
 === Unordered list
 
@@ -120,7 +137,7 @@ This is one of the excellent features of AsciiDoc!
 ----
 ========
 
-=== UI icons (`asciidoctor -a experimental`)
+=== UI アイコン (`asciidoctor -a experimental`)
 
 * Keyboard macros: kbd:[cmd+shift+ctrl+opt+X]
 * Menu icons: menu:File[Save]
@@ -165,9 +182,9 @@ This is good when we want to write a big admonotion block!
 --------
 ========
 
-== Rich features
+== リッチな機能
 
-=== Footnotes
+=== 脚注 (footnotes)
 
 Footnote here: footnote:[It's nice if you can see this text with mouse hover. Such Asciidoctor extension _should_ exist and I would consider using it.]
 
@@ -176,7 +193,7 @@ Footnote here: footnote:[It's nice if you can see this text with mouse hover. Su
 Footnote here: footnote:[It's nice if you can see this text with mouse hover. Such Asciidoctor extension _should_ exist and I would consider using it.]
 ----
 
-=== Mathjax
+=== 数式 (Mathjax)
 
 Use inline/non-inline `stem` block:
 
@@ -201,7 +218,7 @@ m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} = \mathbb{F} \\
 ----
 ========
 
-=== Source code block
+=== コードブロック
 
 Code block with "callouts":
 
@@ -228,7 +245,7 @@ Come!!! // <2>
 --------
 ========
 
-=== Advanced source code blocks
+=== コードブロックの進んだ機能 (Prism.js)
 
 {prism} extensions:
 
@@ -360,3 +377,4 @@ include::../../book.ron[]
 ========
 
 TIP: `book.ron` is embedded to this file with: `include::../../book.ron[]`
+
