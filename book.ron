@@ -1,0 +1,52 @@
+(
+    base_url: "/adbook",
+    authors: ["adbook"],
+    title: "adbook demo site",
+    src_dir: "src",
+    // generate files to `docs/`
+    site_dir: "docs",
+
+    includes: [
+        "static/img",
+        "theme/css",
+        "theme/js",
+    ],
+
+    // `asciidoctor` command line options
+    adoc_opts: [
+        ("-a", [
+            // relative path to Handlebars template from the source directory
+            "hbs@=theme/hbs/article.hbs",
+
+            // css
+            "linkcss",
+            "stylesdir@={base_url}/theme/css",
+            "stylesheet@=term.css",
+
+            // image
+            "imagesdir@={base_url}/static/img",
+            "imagesoutdir@={src_dir}/static/img",
+            // "favicon@=/img/favicon.png",
+
+            // preferences
+            "hardbreaks",
+            "sectnums",
+            "sectnumlevels@=2",
+            "tabside@=4",
+            // "!last-update-label",
+
+            // features
+            "experimental",
+            "stem@=latexmath",
+            "icons@=font",
+
+            // links (available with `{name}` syntax in AsciiDoc files)
+            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
+            "adbook=https://github.com/toyboot4e/adbook[adbook]",
+            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
+            "adoc=https://asciidoctor.org/[Asciidoctor]",
+            "handlebars=https://handlebarsjs.com/[Handlebars]",
+            "prismjs=https://prismjs.com/[Prism.js]",
+        ]),
+    ]
+)
