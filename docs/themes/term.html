@@ -19,9 +19,9 @@
 
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
-    <ol><li><a href="/adbook/index.html">Introduction</a>
+    <ol><li><a href="/adbook/index.html">About</a>
     
-</li><li><a href="/adbook/themes/preface.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+</li><li><a href="/adbook/themes/summary.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
     
 </li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
     
@@ -459,12 +459,12 @@ Come!!! <i class="conum" data-value="2"></i><b>(2)</b>
 <div class="sect2">
 <h3 id="_advanced_source_code_blocks">2.4. Advanced source code blocks</h3>
 <div class="paragraph">
-<p>{prism} extensions:</p>
+<p><a href="https://prismjs.com/">Prism.js</a> extensions:</p>
 </div>
 <div class="sect3">
 <h4 id="_keep_markup_extension"><a href="https://prismjs.com/plugins/keep-markup/">Keep Markup</a> extension</h4>
 <div class="paragraph">
-<p>This is mainly for keeping Asciidoctor callouts after processing {prism} to highlight code:</p>
+<p>This is mainly for keeping Asciidoctor callouts after processing <a href="https://prismjs.com/">Prism.js</a> to highlight code:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -530,7 +530,7 @@ fn main() {
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Unfortunatelly, <code>[source%number]</code> doesn&#8217;t work when using {prism}.
+Unfortunatelly, <code>[source%number]</code> doesn&#8217;t work when using <a href="https://prismjs.com/">Prism.js</a>.
 </td>
 </tr>
 </table>
@@ -622,17 +622,22 @@ fn main() {
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">(
+    // toyboot4e.github.io/adbook
     base_url: "/adbook",
+    src_dir: "src",
+    site_dir: "docs",
+
     authors: ["adbook"],
     title: "adbook demo site",
-    src_dir: "src",
-    // generate files to `docs/`
-    site_dir: "docs",
 
     includes: [
         "static/img",
         "theme/css",
         "theme/js",
+    ],
+
+    converts: [
+        // "404.adoc",
     ],
 
     // `asciidoctor` command line options
@@ -656,7 +661,6 @@ fn main() {
             "sectnums",
             "sectnumlevels@=2",
             "tabside@=4",
-            // "!last-update-label",
 
             // features
             "experimental",
@@ -664,14 +668,15 @@ fn main() {
             "icons@=font",
 
             // links (available with `{name}` syntax in AsciiDoc files)
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
             "adbook=https://github.com/toyboot4e/adbook[adbook]",
+            "rust=https://www.rust-lang.org/[Rust]",
+            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
             "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
             "handlebars=https://handlebarsjs.com/[Handlebars]",
             "prismjs=https://prismjs.com/[Prism.js]",
 
             "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "rust=https://www.rust-lang.org/[Rust]",
+            "prism=https://prismjs.com/[Prism.js]",
         ]),
     ]
 )</code></pre>
@@ -734,7 +739,7 @@ The path is relative to <code>demo.adoc</code> because it itself is included in 
 
     <!-- Prism.js -->
     
-    <script src="//adbook/theme/js/prism.js"></script>
+    <script src="/adbook/theme/js/prism.js"></script>
     
 </body>
 

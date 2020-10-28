@@ -181,9 +181,6 @@ h4,
 h5,
 h6,
 .title {
-    /* TODO: does it work on other than macOS */
-    /* shaper fonts for headers and captions */
-    /* font-family: "Noto Serif", serif; */
     font-family: "Times", serif;
     color: #d8d8d8; /* lighter color */
 }
@@ -197,10 +194,9 @@ h4 {
 }
 
 h1 {
-    /* font-size: 3rem; */
     font-size: 2.4rem;
-    margin-top: 0rem;
-    margin-bottom: 0.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 h2 {

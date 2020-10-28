@@ -1,15 +1,20 @@
 (
+    // toyboot4e.github.io/adbook
     base_url: "/adbook",
+    src_dir: "src",
+    site_dir: "docs",
+
     authors: ["adbook"],
     title: "adbook demo site",
-    src_dir: "src",
-    // generate files to `docs/`
-    site_dir: "docs",
 
     includes: [
         "static/img",
         "theme/css",
         "theme/js",
+    ],
+
+    converts: [
+        // "404.adoc",
     ],
 
     // `asciidoctor` command line options
@@ -33,7 +38,6 @@
             "sectnums",
             "sectnumlevels@=2",
             "tabside@=4",
-            // "!last-update-label",
 
             // features
             "experimental",
@@ -41,14 +45,15 @@
             "icons@=font",
 
             // links (available with `{name}` syntax in AsciiDoc files)
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
             "adbook=https://github.com/toyboot4e/adbook[adbook]",
+            "rust=https://www.rust-lang.org/[Rust]",
+            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
             "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
             "handlebars=https://handlebarsjs.com/[Handlebars]",
             "prismjs=https://prismjs.com/[Prism.js]",
 
             "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "rust=https://www.rust-lang.org/[Rust]",
+            "prism=https://prismjs.com/[Prism.js]",
         ]),
     ]
 )

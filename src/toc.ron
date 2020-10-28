@@ -1,5 +1,5 @@
 (
-    preface: ("Introduction", "index.adoc"),
+    summary: ("About", "index.adoc"),
     items: [
         Dir("themes"),
         File("Demo (diagrams)", "demo_diagrams.adoc"),

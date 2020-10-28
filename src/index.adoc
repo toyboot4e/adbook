@@ -60,12 +60,22 @@ tmp
 
 8 directories, 4 files
 ----
-<1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/0.1.0/adbook/book/config/struct.BookRon.html[BookRon]
+<1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon]
 <2> The site directory, where `adbook` outputs files
 <3> The source directory, which is basically mapped to the site directory
-<4> `toc.ron` is very similar to `mod.rs` in Rust. They are located in each directory and lists `.adoc` files in it.
+<4> `toc.ron` is very similar to `mod.rs` and maps to https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html[TocRon]. They are located in each directory and lists `.adoc` files in it.
 
-`adbook` maps files from source directory to site directory, converting `.adoc` files to html files. To generate html files, {adoc} and {handlebars} templates are used.
+Now we can build our book:
+
+[source,sh]
+----
+$ cd my-book
+$ adbook build
+----
+
+`adbook` convertes `.adoc` files to html files using {handlebars} templates.
+
+TODO: serve
 
 === Differences from mdbook
 
@@ -73,13 +83,13 @@ tmp
 
 Other differences:
 
-* `adbook` uses Prism.js to highlight source files.
+* `adbook` uses {prism} to highlight source files by default.
 * `adbook` can't enjoy Rust playground.
 * `adbook` doesn't provide hidden source files (so copy some template to get started).
 
 === Differences from raw `asciidoctor` command
 
-* `asciidoctor` does not create multiple page website.
+* `adbook` creates multiple page websites while Asciidoctor creates a single page websites by default.
 * `adbook` provides some placeholder strings to _document attributes_, such as `{base_url}`.
 
 == References

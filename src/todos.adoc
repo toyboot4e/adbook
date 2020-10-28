@@ -5,8 +5,13 @@
 
 === I will
 
-* Rename "preface" to more appropriate word
-* Improve sidebar style (current file & inherited index maybe)
+* Handle authors and title name in `book.ron`
+* Add favicon
+* Improve sidebar style
+** Highlight current page link
+** Use inherited index
+** Show sidebar button on the left when the screen is small
+* Print file
 
 === I should
 

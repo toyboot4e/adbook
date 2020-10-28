@@ -1,8 +1,7 @@
 (
-    preface: ("Demos by themes", "preface.adoc"),
+    summary: ("Demos by themes", "summary.adoc"),
     items: [
         File("Terminal dark", "term.adoc"),
         File("Asciidoctor default", "light.adoc"),
-        File("Vertical writing", "term_vert.adoc"),
     ],
 )
