@@ -14,20 +14,13 @@
     <link rel="stylesheet" href="{{a_stylesheet}}">{{/if}}
 </head>
 
-<body class="article">
+<body>
     {{#if (or a_title a_author a_email a_revdate) ~}}
     <div id="header">
+
         {{~#if a_title ~}}
         <h1>{{a_title}}</h1>
         {{~/if~}}
-    {{~#if (or a_author a_email a_revdate)}}
-    <div class="details">
-        {{#if a_author}}<span id="author" class="author">{{a_author}}</span>{{/if}}
-        {{#if a_email}}<span id="email" class="email">{{a_email}}</span>{{/if}}
-        {{#if (or a_author a_email)}}<br>{{/if}}
-        {{#if a_revdate}}<span id="revdate">{{a_revdate}}</span>{{/if}}
-    </div>
-    {{~/if}}
 
     </div>
     {{~/if}}
@@ -35,10 +28,21 @@
     <!-- Sidebar -->
     {{> sidebar}}
 
-    <!-- Asciidoctor output -->
-    <div id="content">
-        {{!-- this is not indented unfortunately --}}
-        {{{~ a_article~}}}
+    <div id="content" class="article">
+        {{~#if (or a_author a_email a_revdate) ~}}
+        <div id="adoc-meta">
+            {{#if a_author}}<span id="author" class="author">{{a_author}}</span>{{/if}}
+            {{#if a_email}}<span id="email" class="email">{{a_email}}</span>{{/if}}
+            {{#if (or a_author a_email)}}<br>{{/if}}
+            {{#if a_revdate}}<span id="revdate">{{a_revdate}}</span>{{/if}}
+        </div>
+        {{~/if~}}
+
+        <!-- Asciidoctor output -->
+        {{!-- TODO: indent --}}
+        <main>
+            {{{~ a_article~}}}
+        </main>
     </div>
 
     <!-- MathJax -->

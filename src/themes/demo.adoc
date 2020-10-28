@@ -359,4 +359,6 @@ include::../../book.ron[]
 --------
 ========
 
-TIP: `book.ron` is embedded to this file with: `include::../../book.ron[]`
+`book.ron` is embedded to this file with: `include::../../book.ron[]`.
+
+NOTE: The path is relative to `demo.adoc` because it itself is included in theme demo files: `term.adoc` and `light.adoc`. Or else, it's relative to the source directory. For the path resolution, see the https://asciidoctor.org/docs/user-manual/#include-resolution[corresponding page] of the manual.

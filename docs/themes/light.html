@@ -14,16 +14,8 @@
     <link rel="stylesheet" href="/adbook/theme/css/asciidoctor.css">
 </head>
 
-<body class="article">
-    <div id="header"><h1>Demo in Asciidoctor default theme</h1>
-    <div class="details">
-        <span id="author" class="author">toyboot4e</span>
-        <span id="email" class="email">some mail</span>
-        <br>
-        <span id="revdate">Oct 24, 2020</span>
-    </div>
-
-    </div>
+<body>
+    <div id="header"><h1>Demo in Asciidoctor default theme</h1></div>
 
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
@@ -32,8 +24,6 @@
 </li><li><a href="/adbook/themes/preface.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
     
 </li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
-    
-</li><li><a href="/adbook/themes/term_vert.html">Vertical writing</a>
     
 </li></ol></a>
     
@@ -48,9 +38,13 @@
 </li></ol>
 </nav>
 
-    <!-- Asciidoctor output -->
-    <div id="content">
-        <div id="preamble">
+    <div id="content" class="article"><div id="adoc-meta">
+            <span id="author" class="author">toyboot4e</span>
+            <span id="email" class="email">some mail</span>
+            <br>
+            <span id="revdate">Oct 24, 2020</span>
+        </div><!-- Asciidoctor output -->
+        <main><div id="preamble">
 <div class="sectionbody">
 <div class="admonitionblock warning">
 <table>
@@ -685,14 +679,17 @@ fn main() {
 </div>
 </div>
 </details>
-<div class="admonitionblock tip">
+<div class="paragraph">
+<p><code>book.ron</code> is embedded to this file with: <code>include::../../book.ron[]</code>.</p>
+</div>
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<code>book.ron</code> is embedded to this file with: <code>include::../../book.ron[]</code>
+The path is relative to <code>demo.adoc</code> because it itself is included in theme demo files: <code>term.adoc</code> and <code>light.adoc</code>. Or else, it&#8217;s relative to the source directory. For the path resolution, see the <a href="https://asciidoctor.org/docs/user-manual/#include-resolution">corresponding page</a> of the manual.
 </td>
 </tr>
 </table>
@@ -706,7 +703,8 @@ fn main() {
 <a href="#_footnoteref_1">1</a>. It&#8217;s nice if you can see this text with mouse hover. Such Asciidoctor extension <em>should</em> exist and I would consider using it.
 </div>
 </div>
-</div>
+</main>
+    </div>
 
     <!-- MathJax -->
     <script type="text/x-mathjax-config">

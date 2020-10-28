@@ -28,74 +28,119 @@
  * Global rules
  * -------------------------------------------------------------------------------- */
 
-/* Insert indentation automatically */
+/* Insert indentations automatically */
 div:not(.ulist) > .paragraph > p {
     text-indent: 1em;
 }
 
-/* -------------------------------------------------------------------------------- *
- * Sidebar
- * -------------------------------------------------------------------------------- */
-
-nav.sidebar {
-    position: fixed;
+:root {
+    --sidebar-width: 300px;
+    --bg: #2f2f2f;
+    --article-max-width: 960px;
+    --article-pad: 15px;
 }
 
-/* -------------------------------------------------------------------------------- *
- * Title
- * -------------------------------------------------------------------------------- */
-
-/* This is some nice trick from! */
-#header .details br {
-    display: none;
+/* Show article only */
+@media only screen and (max-width: 900px) {
+    #sidebar {
+        display: none;
+    }
 }
 
-#header .details br + span:before {
-    content: "\00a0\2013\00a0";
+/* Show article and nav bar */
+@media only screen and (min-width: 900px) and (max-width: 1590px) {
+    main {
+        margin-left: var(--sidebar-width);
+    }
 }
 
-/* Add a horizontal line after the #header */
-#header {
-    border-bottom: 1px solid #d75f5f;
-}
-
-/* Add a horizontal line after the article (before footnotes) */
-div#footer > .blog-title {
-    border-top: 1px solid #d75f5f;
+/* Show article and nav bar (no need to care about each other) */
+@media only screen and (min-width: 1590px) {
+    main {
+        margin: auto;
+    }
 }
 
 /* -------------------------------------------------------------------------------- *
  * Document outline
  * -------------------------------------------------------------------------------- */
 
-/* Centerize header (`<h1>` and `.details`. `.details` are author, email and revdate in AsciiDoc) */
-div#header {
-    margin: auto;
+/* -------------------------------------------------------------------------------- *
+ * sidebar
+ */
+
+#sidebar {
+    position: fixed;
+    background-color: rgb(45,45,45);
+    border-right: 1px solid black;
+    width: var(--sidebar-width);
+    height: 100%;
+    font-size: 15px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
 }
 
-h1,
-.details {
+.sidebar ol {
+    width: auto;
+}
+
+.sidebar li a {
+    text-decoration: none;
+    color: rgb(192,192,192);
+}
+
+/* -------------------------------------------------------------------------------- *
+ * title
+ */
+
+#header {
+    border-bottom: 1px solid #d75f5f;
+    background-color: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+h1 {
     text-align: center;
 }
 
-/* Article, AsciiDoc output (wrapped in `<div#content>`) */
+/* This is some nice trick from the default Asciidoctor CSS! */
+#adoc-meta br {
+    display: none;
+}
+
+#adoc-meta br + span:before {
+    content: "\00a0\2013\00a0";
+}
+
+/* -------------------------------------------------------------------------------- *
+ * article
+ */
+
+/* Wrapper of article */
 div#content {
-    /* article width */
-    max-width: 60em; /* 960 px after all */
-    /* align center */
-    margin: auto;
-    padding: 0 0.5rem 0 0.5rem;
+    padding-left: var(--article-pad);
+    padding-right: var(--article-pad);
+}
+
+/* Article, AsciiDoc output */
+main {
+    max-width: var(--article-max-width);
 }
 
 /* author, email and revdate in AsciiDoc word */
-.details {
+#adoc-meta {
+    text-align: center;
+    margin: 0.5em 0 0.5em 0;
     font-size: 0.9rem;
-    margin-top: 0em;
-    margin-bottom: 0.5rem;
     color: #a1a1a1;
 }
 
-/* footer (footnotes only) */
+/* -------------------------------------------------------------------------------- *
+ * footer (footnotes)
+ */
+
 div#footnotes {
     margin-top: 1em;
 }
@@ -114,15 +159,19 @@ div#footnotes {
 }
 
 /* -------------------------------------------------------------------------------- *
- * General style
+ * Article style
  * -------------------------------------------------------------------------------- */
 
-html {
-    background-color: #2f2f2f;
+body {
+    background-color: var(--bg);
     color: #cccccc;
     font-family: "Open Sans", sans-serif;
     margin: 0;
     padding: 0;
+}
+
+main {
+    line-height: 1.5;
 }
 
 h1,
@@ -139,10 +188,6 @@ h6,
     color: #d8d8d8; /* lighter color */
 }
 
-div#content {
-    line-height: 1.5;
-}
-
 /* headers*/
 h2,
 h3,
@@ -152,7 +197,8 @@ h4 {
 }
 
 h1 {
-    font-size: 3rem;
+    /* font-size: 3rem; */
+    font-size: 2.4rem;
     margin-top: 0rem;
     margin-bottom: 0.5rem;
 }

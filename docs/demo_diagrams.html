@@ -14,16 +14,8 @@
     <link rel="stylesheet" href="/adbook/theme/css/term.css">
 </head>
 
-<body class="article">
-    <div id="header"><h1>Asciidoctor-diagrams demo</h1>
-    <div class="details">
-        <span id="author" class="author">toyboot4e</span>
-        
-        <br>
-        <span id="revdate">Oct 19, 2020</span>
-    </div>
-
-    </div>
+<body>
+    <div id="header"><h1>Asciidoctor-diagrams demo</h1></div>
 
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
@@ -32,8 +24,6 @@
 </li><li><a href="/adbook/themes/preface.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
     
 </li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
-    
-</li><li><a href="/adbook/themes/term_vert.html">Vertical writing</a>
     
 </li></ol></a>
     
@@ -48,9 +38,13 @@
 </li></ol>
 </nav>
 
-    <!-- Asciidoctor output -->
-    <div id="content">
-        <div id="preamble">
+    <div id="content" class="article"><div id="adoc-meta">
+            <span id="author" class="author">toyboot4e</span>
+            
+            <br>
+            <span id="revdate">Oct 19, 2020</span>
+        </div><!-- Asciidoctor output -->
+        <main><div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Generate diagrams from ascii text!</p>
@@ -168,7 +162,8 @@
 </div>
 </div>
 </div>
-</div>
+</main>
+    </div>
 
     <!-- MathJax -->
     <script type="text/x-mathjax-config">

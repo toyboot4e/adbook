@@ -5,7 +5,6 @@
 
 === I will
 
-* Specify names automatically in `toc.ron`
 * Rename "preface" to more appropriate word
 * Improve sidebar style (current file & inherited index maybe)
 
