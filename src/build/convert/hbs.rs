@@ -8,6 +8,7 @@ use {
     serde::Serialize,
     std::{
         fs,
+        io::{BufRead, BufReader},
         path::{Path, PathBuf},
     },
 };
@@ -101,11 +102,30 @@ impl Sidebar {
     ) -> Result<SidebarItem> {
         match &item {
             TocItem::File(name, file) => {
+                let name = if !name.is_empty() {
+                    name.to_string()
+                } else {
+                    // extract header and use it as name
+                    let f = fs::File::open(&file)
+                        .with_context(|| anyhow!("Unable to open file {}", file.display()))?;
+                    let mut f = BufReader::new(f);
+
+                    let mut buf = String::with_capacity(200);
+                    f.read_line(&mut buf)
+                        .with_context(|| anyhow!("Unable to peek file {}", file.display()))?;
+
+                    if buf.starts_with("= ") {
+                        buf[2..].to_string()
+                    } else {
+                        "<unnamed>".to_string()
+                    }
+                };
+
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
                 let url = format!("{}{}", base_url_str, url.display());
 
                 Ok(SidebarItem {
-                    name: name.to_owned(),
+                    name,
                     url: Some(url),
                     children: None,
                 })
