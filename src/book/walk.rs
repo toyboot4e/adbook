@@ -5,35 +5,54 @@ use {
     std::path::{Path, PathBuf},
 };
 
-use crate::book::toc::{Toc, TocItem};
+use crate::book::{
+    toc::{Toc, TocItem},
+    BookStructure,
+};
 
 /// Converts each file in book
 pub trait BookVisitor: Clone + Send + Sync {
     fn visit_file(&mut self, file: &Path) -> Result<()>;
 }
 
-/// [Depth-first] iteration
-///
-/// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
-pub fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
-    files.push(toc.preface.clone());
-    for item in &toc.items {
-        match item {
-            TocItem::File(_name, path) => {
-                files.push(path.clone());
-            }
-            TocItem::Dir(toc) => {
-                self::pull_files_rec(toc, files);
-            }
-        };
+fn pull_book_files(book: &BookStructure) -> Vec<PathBuf> {
+    // note that paths in `Toc` are already canonicalized (can can be passed to visitors directly)
+
+    /// [Depth-first] iteration
+    ///
+    /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
+    fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
+        files.push(toc.preface.clone());
+        for item in &toc.items {
+            match item {
+                TocItem::File(_name, path) => {
+                    files.push(path.clone());
+                }
+                TocItem::Dir(toc) => {
+                    pull_files_rec(toc, files);
+                }
+            };
+        }
     }
+
+    let mut files = Vec::with_capacity(80);
+
+    // converts
+    let src_dir = book.src_dir_path();
+    for p in &book.book_ron.converts {
+        let path = src_dir.join(p);
+        files.push(path);
+    }
+
+    // `toc.ron` files
+    pull_files_rec(&book.toc, &mut files);
+
+    files
 }
 
 /// Walks a root [`Toc`] and converts files one by one
-pub fn walk_book(v: &mut impl BookVisitor, root_toc: &Toc) {
-    let mut files = Vec::with_capacity(80);
-    self::pull_files_rec(root_toc, &mut files);
-
+pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
+    let files = self::pull_book_files(&book);
     let results = files.iter().map(|file| v.visit_file(file));
 
     let errors: Vec<_> = results
@@ -47,9 +66,8 @@ pub fn walk_book(v: &mut impl BookVisitor, root_toc: &Toc) {
 }
 
 /// Walks a root [`Toc`] and converts files in parallel
-pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, root_toc: &Toc) {
-    let mut files = Vec::with_capacity(80);
-    self::pull_files_rec(root_toc, &mut files);
+pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure) {
+    let files = self::pull_book_files(&book);
 
     // collect `Future`s
     let xs = files.into_iter().map(|file| {

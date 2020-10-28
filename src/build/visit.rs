@@ -64,10 +64,7 @@ impl BookVisitor for AdocBookVisitor {
         // relative path from source directory
         let rel = match src_file.strip_prefix(&self.src_dir) {
             Ok(r) => r,
-            Err(_err) => bail!(
-                "Fail that is not in source directly found: {}",
-                src_file.display(),
-            ),
+            Err(_err) => bail!("File not in source directly: {}", src_file.display(),),
         };
 
         let dst_file = self.dst_dir.join(&rel).with_extension("html");

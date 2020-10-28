@@ -36,8 +36,7 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     let (mut v, errors) = AdocBookVisitor::from_book(book, &tmp_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
 
-    // crate::book::walk::walk_book(v, &book.toc, &book.src_dir_path(), &tmp_dir);
-    block_on(walk_book_async(&mut v, &book.toc));
+    block_on(walk_book_async(&mut v, &book));
 
     info!("===> Copying output files to site directory");
     {
