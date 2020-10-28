@@ -8,19 +8,19 @@
 //! * `{src_dir}`: source directory
 //! * `{dst_dir}`: destination directory
 //!
+//! So we can fully specify `stylesdir`, `imagesdir` and `imagesoutdir` attributes!
+//!
 //! # Handlebars attribute
 //!
-//! `adbook` treats `hbs` AsciiDoc attribute as the path to a Handlebars template file:
+//! `adbook` specially treats `hbs` AsciiDoc attribute as the path to a Handlebars template file:
 //!
 //! ```adoc
 //! = Simple article
-//! :hbs: hbs/simple.hbs
-//! // translated as: src/hbs/simple.hbs
-//!
-//! This is a simple article templated with `simple.hbs`!
+//! :hbs: theme/hbs/simple.hbs
+//! // translated as: {src_dir}/theme/hbs/simple.hbs
 //! ```
 //!
-//! `hbs` is always **relative to the root directory**; no base directory is supplied.
+//! `hbs` is always relative to the source directory and no base directory is supplied.
 
 mod adoc;
 pub mod hbs;

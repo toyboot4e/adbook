@@ -1,6 +1,6 @@
 //! `asciidoctor` runner and metadata extracter
 //!
-//! Where placeholder strings in `book.ron` (or attribuets) are considered
+//! Where placeholder strings in `book.ron` (or attribuets) are considered.
 
 use {
     anyhow::{Context, Result},
@@ -29,11 +29,30 @@ pub enum AdocError {
 }
 
 /// Context for running `asciidoctor`, i.e. options
+///
+/// # String interpolation
+///
+/// [`Self::replace_placeholder_strings`] does it.
+///
+/// # Asciidoctor options that are not used
+///
+/// ## `asciidoctor -B`
+///
+/// It's used to supply (virtual) directory, especially when the input is stdin. The
+/// directory path is used for the "safe mode".
+///
+/// ## `asciidoctor -D`
+///
+/// It's for specifying output file path and good for mirroing one directory to another:
+///
+/// ```sh
+/// $ asciidoctor -D out -R . '**/*.adoc'
+/// ```
 #[derive(Debug, Clone)]
 pub struct AdocRunContext {
-    /// `asciidoctor -B` (base directory)
+    /// Source directory
     src_dir: String,
-    /// `asciidoctor -D` (destination directory)
+    /// Destination directory
     dst_dir: String,
     /// `asciidoctor -a` (attributes) or other options
     opts: CmdOptions,
@@ -78,10 +97,12 @@ impl AdocRunContext {
 
     /// Applies `asciidoctor` options
     pub fn apply_options(&self, cmd: &mut Command) {
-        // setup directory settings (base/destination directory)
-        cmd.current_dir(&self.src_dir)
-            .args(&["-B", &self.src_dir])
-            .args(&["-D", &self.dst_dir]);
+        // setup directory settings
+        cmd.current_dir(&self.src_dir).args(&["-B", &self.src_dir]);
+
+        // We're outputting to stdout and `-D` does nothing.
+        // It's just a helper for specifying destination file path.
+        // cmd.args(&["-D", &self.dst_dir]);
 
         // setup user options
         for (opt, args) in &self.opts {

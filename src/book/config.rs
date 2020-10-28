@@ -5,11 +5,6 @@ use {
     std::path::PathBuf,
 };
 
-/// Arguments to a command
-///
-/// `[("--one-option", ["a", "b"]), ("--another", []), ..]`.
-pub type CmdOptions = Vec<(String, Vec<String>)>;
-
 /// Deserialized from `book.ron` in the root of an `adbook` project
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct BookRon {
@@ -44,3 +39,8 @@ pub enum TocRonItem {
     File(String, PathBuf),
     Dir(PathBuf),
 }
+
+/// Arguments to a command
+///
+/// `[("--one-option", ["a", "b"]), ("--another", []), ..]`.
+pub type CmdOptions = Vec<(String, Vec<String>)>;
