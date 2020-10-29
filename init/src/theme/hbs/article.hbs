@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="{{h_author}}">
+    <title>{{h_title}}</title>
+    <link rel="icon" href="{{base_url}}/theme/favicon.svg">
+    {{~ #if a_stylesheet ~}}
+    <link rel="stylesheet" href="{{a_stylesheet}}">
+    {{~ /if ~}}
+    <!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
+</head>
+
+<body>
+    {{!~ Slibling of #sidebar so that we can use `~` selecter ~}}
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
+    <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div>
+
+        {{~ #if a_title ~}}
+        <h1>{{a_title}}</h1>
+        {{else}}
+        <h1>Untitled</h1>
+        {{~ /if ~}}
+    </div>
+
+    {{> sidebar}}
+
+    <div id="content" class="article">
+        {{~#if (or a_author a_email a_revdate) ~}}
+        <div id="adoc-meta">
+            {{#if a_author}}<span id="author" class="author">{{a_author}}</span>{{/if}}
+            {{#if a_email}}<span id="email" class="email">{{a_email}}</span>{{/if}}
+            {{#if (or a_author a_email)}}<br>{{/if}}
+            {{#if a_revdate}}<span id="revdate">{{a_revdate}}</span>{{/if}}
+        </div>
+        {{~/if~}}
+
+        <!-- Asciidoctor output -->
+        {{!-- TODO: indent --}}
+        <main>
+            {{{~ a_article~}}}
+        </main>
+    </div>
+
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            messageStyle: "none",
+            tex2jax: {
+                inlineMath: [["\\(", "\\)"]],
+                displayMath: [["\\[", "\\]"]],
+                ignoreClass: "nostem|nolatexmath"
+            },
+            asciimath2jax: {
+                delimiters: [["\\$", "\\$"]],
+                ignoreClass: "nostem|noasciimath"
+            },
+            TeX: { equationNumbers: { autoNumber: "none" } }
+        })
+        MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+            MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+                if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+                    data.math.root.display = "block"
+                }
+                return data
+            })
+        })
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+
+    <!-- Prism.js -->
+    {{#if base_url}}
+    <script src="{{base_url}}/theme/js/prism.js"></script>
+    {{else}}
+    <script src="/theme/js/prism.js"></script>
+    {{/if}}
+</body>
+
+</html>

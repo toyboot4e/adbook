@@ -1,0 +1,7 @@
+(
+    summary: ("About", "index.adoc"),
+    items: [
+        File("Article", "article.adoc"),
+        // Dir("path"),
+    ],
+)
