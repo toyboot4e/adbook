@@ -89,7 +89,7 @@ pub static LIST: &[(&str, &[u8]); 24] = {
         ("src/theme/css", &[]),
         ("src/theme/css/term.css", css::TERM),
         ("src/theme/css/partials", &[]),
-        ("src/theme/css/partials/adoc.css", css::partials::TERM_ADOC),
+        ("src/theme/css/partials/term_adoc.css", css::partials::TERM_ADOC),
         (
             "src/theme/css/partials/prism_okidia.css",
             css::partials::PRISM_OKIDIA,
