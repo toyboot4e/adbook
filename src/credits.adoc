@@ -1,9 +1,6 @@
 = Credits
 
-[.text-center]
-====
 `adbook` is inspired by {mdbook} and powered by {adoc}.
 
-The demo is using https://fontawesome.com/[Font Awesome] icons (4.7.0). The demo's favicon is from http://neko.moo.jp/BS/[化け猫缶 素材屋].
-====
+The demo is using {prism}, https://fontawesome.com/[Font Awesome] icons and favicon icon from http://neko.moo.jp/BS/[化け猫缶 素材屋].
 
