@@ -2,8 +2,7 @@
     summary: ("About", "index.adoc"),
     items: [
         Dir("demos"),
-        File("Advanced usages", "usages.adoc"),
-        File("Customizing theme", "custom.adoc"),
-        File("TODOs", "todos.adoc"),
+        File("", "custom.adoc"),
+        File("", "todos.adoc"),
     ],
 )

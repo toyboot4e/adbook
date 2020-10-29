@@ -1,18 +1,32 @@
 = Customizing
 
-`adbook` converts each `.adoc` file by running `asciidoctor` and then applies a Handlebars template (if it's specified).
+Anyone really wants to do it? It's not that ready for now.
 
 == Configuration
 
-=== Special attributes
-
-`adbook` treats `hbs` document attribute as the path to a Handlebars template file relative to the source directory.
-
-=== Custom file structure
-
-Anyone really wants to do that?
+Custom file structure: see https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon] (and https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html[TocRon]).
 
 == Custom Handlebars template
 
+`adbook` converts each `.adoc` file by running `asciidoctor` and then applies a Handlebars template (if it's specified).
+
+All Handlebars templates should be located in one directory, say, `hbs`. Partial files should be under `hbs/partials` and they're loaded before running Handlebars.
+
+=== Special document attributes
+
+`adbook` treats `hbs` document attribute as the path to a Handlebars template file relative to the source directory.
+
+So we can do this:
+
+[source,adoc]
+----
+= Title
+:hbs: src/theme/hbs/my_cool_template.hbs
+----
+
+=== Template data
+
 `HbsData` in https://docs.rs/adbook/latest/adbook/build/convert/hbs.html[hbs.rs] is supplied to Handlebars template.
+
+More data? Hmm..
 
