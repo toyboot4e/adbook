@@ -3,7 +3,8 @@
  * -------------------------------------------------------------------------------- */
 
 /* Using font awesome icons */
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+@import url("font-awesome-4.7.0/css/font-awesome.css");
+/* @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"); */
 
 /* --------------------------------------------------------------------------------
  * callout colors (conum)
@@ -138,7 +139,7 @@ a span.icon > .fa {
 }
 
 /* --------------------------------------------------------------------------------
- * Keyboard icons
+ * Keyboard icons (just styles)
  */
 
 /* .keyseq{color:rgba(51,51,51,.8)} */

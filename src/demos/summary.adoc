@@ -1,0 +1,13 @@
+= Demos
+
+You can nest directories as this!
+
+`toc.ron` in this directory is:
+
+[source,toml]
+----
+include::demos/toc.ron[]
+----
+
+// Prism.js can't highlight `ron` so I'm using toml instead
+

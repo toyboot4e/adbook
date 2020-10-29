@@ -6,30 +6,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="">
-    <title>Customizing theme</title>
-    <!-- Template style sheets -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- User style sheets -->
-    
-    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+    <title>Customizing</title>
+    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/term.css"><!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
 </head>
 
 <body>
-    <div id="header"><h1>Customizing theme</h1></div>
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
+    <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div><h1>Customizing</h1>
+        </div>
 
-    <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
     <ol><li><a href="/adbook/index.html">About</a>
     
-</li><li><a href="/adbook/themes/summary.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
     
-</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
     
 </li></ol></a>
-    
-</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
-    
-</li><li><a href="/adbook/usages.html">Advanced usages</a>
     
 </li><li><a href="/adbook/custom.html">Customizing theme</a>
     
@@ -47,9 +52,28 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_custom_htmlcss">1. Custom html/css</h2>
+<h2 id="_configuration">1. Configuration</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_special_attributes">1.1. Special attributes</h3>
+<div class="paragraph">
+<p><code>adbook</code> treats <code>hbs</code> document attribute as the path to a Handlebars template file relative to the source directory.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_custom_file_structure">1.2. Custom file structure</h3>
+<div class="paragraph">
+<p>Anyone really wants to do that?</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_handlebars_template">2. Custom Handlebars template</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>HbsData</code> in <a href="https://docs.rs/adbook/latest/adbook/build/convert/hbs.html">hbs.rs</a> is supplied to Handlebars template.</p>
+</div>
 </div>
 </div>
 </main>

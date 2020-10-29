@@ -1,8 +1,7 @@
 (
     summary: ("About", "index.adoc"),
     items: [
-        Dir("themes"),
-        File("Demo (diagrams)", "demo_diagrams.adoc"),
+        Dir("demos"),
         File("Advanced usages", "usages.adoc"),
         File("Customizing theme", "custom.adoc"),
         File("TODOs", "todos.adoc"),

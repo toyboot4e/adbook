@@ -1,7 +1,0 @@
-(
-    summary: ("Demos by themes", "summary.adoc"),
-    items: [
-        File("Terminal dark", "term.adoc"),
-        File("Asciidoctor default", "light.adoc"),
-    ],
-)

@@ -11,6 +11,7 @@
         "static/img",
         "theme/css",
         "theme/js",
+        "theme/favicon.svg",
     ],
 
     converts: [
@@ -20,7 +21,7 @@
     // `asciidoctor` command line options
     adoc_opts: [
         ("-a", [
-            // relative path to Handlebars template from the source directory
+            // default Handlebars template file, relative to the source directroy
             "hbs@=theme/hbs/article.hbs",
 
             // css
@@ -31,7 +32,6 @@
             // image
             "imagesdir@={base_url}/static/img",
             "imagesoutdir@={src_dir}/static/img",
-            // "favicon@=/img/favicon.png",
 
             // preferences
             "hardbreaks",

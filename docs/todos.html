@@ -7,29 +7,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="">
     <title>TODOs</title>
-    <!-- Template style sheets -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- User style sheets -->
-    
-    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/term.css"><!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
 </head>
 
 <body>
-    <div id="header"><h1>TODOs</h1></div>
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
+    <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div><h1>TODOs</h1>
+        </div>
 
-    <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
     <ol><li><a href="/adbook/index.html">About</a>
     
-</li><li><a href="/adbook/themes/summary.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
     
-</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
     
 </li></ol></a>
-    
-</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
-    
-</li><li><a href="/adbook/usages.html">Advanced usages</a>
     
 </li><li><a href="/adbook/custom.html">Customizing theme</a>
     
@@ -40,42 +45,8 @@
 
     <div id="content" class="article"><!-- Asciidoctor output -->
         <main><div class="sect1">
-<h2 id="_before_removing_wip_tag">Before removing WIP tag</h2>
+<h2 id="_polish">Polish</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_i_will">I will</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Handle authors and title name in <code>book.ron</code></p>
-</li>
-<li>
-<p>Add favicon</p>
-</li>
-<li>
-<p>Improve sidebar style</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Highlight current page link</p>
-</li>
-<li>
-<p>Use inherited index</p>
-</li>
-<li>
-<p>Show sidebar button on the left when the screen is small</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Print file</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_i_should">I should</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -87,11 +58,7 @@
 <li>
 <p>Show Handlebars errors</p>
 </li>
-<li>
-<p>Mention <code>include</code> path in demo</p>
-</li>
 </ul>
-</div>
 </div>
 </div>
 </div>
@@ -101,11 +68,14 @@
 <div class="ulist">
 <ul>
 <li>
-<p>Support Asciidoctor extensions</p>
+<p>Improve the sidebar style</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Show footnote content on mouse hover</p>
+<p>Highlight current page link</p>
+</li>
+<li>
+<p>Use inherited index</p>
 </li>
 </ul>
 </div>
@@ -120,7 +90,17 @@
 <div class="ulist">
 <ul>
 <li>
-<p>PDF page style</p>
+<p>Support Asciidoctor extensions</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Show footnote content on mouse hover</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Add print view</p>
 </li>
 </ul>
 </div>

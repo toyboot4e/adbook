@@ -1,8 +1,0 @@
-= Demo in terminal dark theme
-:author: toyboot4e
-:email: some mail
-:revdate: Oct 24, 2020
-
-WARNING: This theme might not cover all the Asciidoctor features
-
-include::themes/demo.adoc[]

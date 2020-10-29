@@ -7,25 +7,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="{{h_author}}">
     <title>{{h_title}}</title>
-    <!-- Template style sheets -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- User style sheets -->
-    {{#if a_stylesheet}}
-    <link rel="stylesheet" href="{{a_stylesheet}}">{{/if}}
+    <link rel="icon" href="{{base_url}}/theme/favicon.svg">
+    {{~ #if a_stylesheet ~}}
+    <link rel="stylesheet" href="{{a_stylesheet}}">
+    {{~ /if ~}}
+    <!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
 </head>
 
 <body>
-    {{#if (or a_title a_author a_email a_revdate) ~}}
+    {{!~ Slibling of #sidebar so that we can use `~` selecter ~}}
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
     <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div>
 
-        {{~#if a_title ~}}
+        {{~ #if a_title ~}}
         <h1>{{a_title}}</h1>
-        {{~/if~}}
-
+        {{else}}
+        <h1>Untitled</h1>
+        {{~ /if ~}}
     </div>
-    {{~/if}}
 
-    <!-- Sidebar -->
     {{> sidebar}}
 
     <div id="content" class="article">

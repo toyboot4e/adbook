@@ -1,6 +1,18 @@
-= Customizing theme
+= Customizing
 
 `adbook` converts each `.adoc` file by running `asciidoctor` and then applies a Handlebars template (if it's specified).
 
-== Custom html/css
+== Configuration
+
+=== Special attributes
+
+`adbook` treats `hbs` document attribute as the path to a Handlebars template file relative to the source directory.
+
+=== Custom file structure
+
+Anyone really wants to do that?
+
+== Custom Handlebars template
+
+`HbsData` in https://docs.rs/adbook/latest/adbook/build/convert/hbs.html[hbs.rs] is supplied to Handlebars template.
 

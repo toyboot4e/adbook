@@ -1,3 +1,10 @@
+= Demo in terminal dark theme
+:author: toyboot4e
+:email: some mail
+:revdate: Oct 24, 2020
+
+WARNING: This theme might not cover all the Asciidoctor features
+
 If you don't know {adoc}, let's see the features!
 
 == Basics
@@ -359,6 +366,7 @@ include::../../book.ron[]
 --------
 ========
 
-`book.ron` is embedded to this file with: `include::../../book.ron[]`.
+`book.ron` is embedded to this file with: `include::../book.ron[]`.
 
-NOTE: The path is relative to `demo.adoc` because it itself is included in theme demo files: `term.adoc` and `light.adoc`. Or else, it's relative to the source directory. For the path resolution, see the https://asciidoctor.org/docs/user-manual/#include-resolution[corresponding page] of the manual.
+NOTE: The path is relative to the source directory. For more information, see the https://asciidoctor.org/docs/user-manual/#include-resolution[corresponding page] of the manual.
+

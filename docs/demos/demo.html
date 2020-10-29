@@ -6,30 +6,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="toyboot4e">
-    <title>Demo in Asciidoctor default theme</title>
-    <!-- Template style sheets -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- User style sheets -->
-    
-    <link rel="stylesheet" href="/adbook/theme/css/asciidoctor.css">
+    <title>Demo in terminal dark theme</title>
+    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/term.css"><!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
 </head>
 
 <body>
-    <div id="header"><h1>Demo in Asciidoctor default theme</h1></div>
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
+    <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div><h1>Demo in terminal dark theme</h1>
+        </div>
 
-    <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
     <ol><li><a href="/adbook/index.html">About</a>
     
-</li><li><a href="/adbook/themes/summary.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
     
-</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
     
 </li></ol></a>
-    
-</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
-    
-</li><li><a href="/adbook/usages.html">Advanced usages</a>
     
 </li><li><a href="/adbook/custom.html">Customizing theme</a>
     
@@ -53,7 +58,7 @@
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-This theme is exactly the original Asciidoctor CSS and not modified to fit onto <code>adbook</code>.
+This theme might not cover all the Asciidoctor features
 </td>
 </tr>
 </table>
@@ -621,71 +626,13 @@ fn main() {
 <div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">(
-    // toyboot4e.github.io/adbook
-    base_url: "/adbook",
-    src_dir: "src",
-    site_dir: "docs",
-
-    authors: ["adbook"],
-    title: "adbook demo site",
-
-    includes: [
-        "static/img",
-        "theme/css",
-        "theme/js",
-    ],
-
-    converts: [
-        // "404.adoc",
-    ],
-
-    // `asciidoctor` command line options
-    adoc_opts: [
-        ("-a", [
-            // relative path to Handlebars template from the source directory
-            "hbs@=theme/hbs/article.hbs",
-
-            // css
-            "linkcss",
-            "stylesdir@={base_url}/theme/css",
-            "stylesheet@=term.css",
-
-            // image
-            "imagesdir@={base_url}/static/img",
-            "imagesoutdir@={src_dir}/static/img",
-            // "favicon@=/img/favicon.png",
-
-            // preferences
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            "tabside@=4",
-
-            // features
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
-
-            // links (available with `{name}` syntax in AsciiDoc files)
-            "adbook=https://github.com/toyboot4e/adbook[adbook]",
-            "rust=https://www.rust-lang.org/[Rust]",
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
-            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
-            "handlebars=https://handlebarsjs.com/[Handlebars]",
-            "prismjs=https://prismjs.com/[Prism.js]",
-
-            "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "prism=https://prismjs.com/[Prism.js]",
-        ]),
-    ]
-)</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">Unresolved directive in demo.adoc - include::../../book.ron[]</code></pre>
 </div>
 </div>
 </div>
 </details>
 <div class="paragraph">
-<p><code>book.ron</code> is embedded to this file with: <code>include::../../book.ron[]</code>.</p>
+<p><code>book.ron</code> is embedded to this file with: <code>include::../book.ron[]</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -694,7 +641,7 @@ fn main() {
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The path is relative to <code>demo.adoc</code> because it itself is included in theme demo files: <code>term.adoc</code> and <code>light.adoc</code>. Or else, it&#8217;s relative to the source directory. For the path resolution, see the <a href="https://asciidoctor.org/docs/user-manual/#include-resolution">corresponding page</a> of the manual.
+The path is relative to the source directory. For more information, see the <a href="https://asciidoctor.org/docs/user-manual/#include-resolution">corresponding page</a> of the manual.
 </td>
 </tr>
 </table>

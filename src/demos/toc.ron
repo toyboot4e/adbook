@@ -1,0 +1,7 @@
+(
+    summary: ("Demos", "summary.adoc"),
+    items: [
+        File("Demo", "demo.adoc"),
+        File("Demo (diagrams)", "demo_diagrams.adoc"),
+    ],
+)

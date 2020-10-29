@@ -2,6 +2,8 @@
 
 `adbook` is a tool for building book-like webpages. If you like this demo, you might like `adbook`, too.
 
+https://github.com/toyboot4e/adbook[Repository]
+
 == Installation
 
 === Rust & adbook
@@ -31,7 +33,7 @@ We're ready!
 
 === Usage
 
-Let's make a new book:
+Let's create a new book:
 
 [source,bash]
 ----
@@ -39,7 +41,7 @@ $ adbook init my-book
 Initialized a new adbook project at my-book
 ----
 
-And see the files:
+And see the files in it:
 
 [source,bash]
 ----
@@ -60,9 +62,9 @@ tmp
 
 8 directories, 4 files
 ----
-<1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon]
-<2> The site directory, where `adbook` outputs files
-<3> The source directory, which is basically mapped to the site directory
+<1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon]. https://github.com/ron-rs/ron[Ron] is a human-friendly file format.
+<2> `site` is the site directory, where `adbook` outputs files.
+<3> `src` is the source directory, which is basically mapped to the site directory.
 <4> `toc.ron` is very similar to `mod.rs` and maps to https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html[TocRon]. They are located in each directory and lists `.adoc` files in it.
 
 Now we can build our book:
@@ -73,41 +75,48 @@ $ cd my-book
 $ adbook build
 ----
 
-`adbook` convertes `.adoc` files to html files using {handlebars} templates.
+For details, check out the https://github.com/toyboot4e/adbook/tree/gh-pages[source files] of this demo.
 
 TODO: serve
 
 === Differences from mdbook
 
-{adbook} is highly inspired by {mdbook}, but it uses https://asciidoctor.org/docs/what-is-asciidoc/[AsciiDoc] for source files instead of Markdown.
+{adbook} is highly inspired by {mdbook}, but it uses https://asciidoctor.org/docs/what-is-asciidoc/[AsciiDoc] for source files instead of Markdown. AsciiDoc is an expressive language, as you can see in the demos.
 
 Other differences:
 
 * `adbook` uses {prism} to highlight source files by default.
-* `adbook` can't enjoy Rust playground.
-* `adbook` doesn't provide hidden source files (so copy some template to get started).
+* `adbook` requires user to have theme data in their source directory
+* {mdbook} supports a bunch of things that `adbook` does not:
+** enjoying Rust playground
+** print view
+** searching
+** changing themes dynamically
 
 === Differences from raw `asciidoctor` command
 
-* `adbook` creates multiple page websites while Asciidoctor creates a single page websites by default.
+* `adbook` creates multiple page websites while Asciidoctor creates single page websites by default.
 * `adbook` provides some placeholder strings to _document attributes_, such as `{base_url}`.
 
 == References
 
-=== AsciiDoc documentations
+=== Asciidoctor documentations
 
 * https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[AsciiDoc Syntax Quick Reference]
 +
-This is good for learning AsciiDoc quickly.
+This is good for learning AsciiDoc for the first time.
+
+* https://asciidoctor.org/docs/user-manual/[Asciidoctor User Manual]
++
+The well-written manual.
+
+* http://www.seinan-gu.ac.jp/~shito/asciidoctor/html_chunk/[Asciidoctor User Manual (unofficial chunked version)]
++
+Chunked version of the manual enerated with https://github.com/wshito/asciidoctor-chunker[asciidoctor-chunker]
 
 * https://asciidoctor-docs.netlify.app[Asciidoctor Documentation :: The Docs @ Asciidoctor]
 +
 This is an in-progress official Asciidoctor documentation generated with https://antora.org/[Antora].
-
-* https://asciidoctor.org/docs/user-manual/[Asciidoctor User Manual]
-* http://www.seinan-gu.ac.jp/~shito/asciidoctor/html_chunk/[Asciidoctor User Manual (unofficial chunked version)]
-+
-Generated with https://github.com/wshito/asciidoctor-chunker[asciidoctor-chunker]
 
 === Alternatives to `adbook`
 

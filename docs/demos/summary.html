@@ -6,30 +6,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="">
-    <title>Advanced usages</title>
-    <!-- Template style sheets -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- User style sheets -->
-    
-    <link rel="stylesheet" href="/adbook/theme/css/term.css">
+    <title>Demos</title>
+    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/term.css"><!-- Hide sidebar by default if the window is not so wide -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function() {
+            if (document.body.clientWidth <= 900) {
+                document.getElementById("nav-btn-click").checked = true;
+            }
+        });
+    </script
 </head>
 
 <body>
-    <div id="header"><h1>Advanced usages</h1></div>
+    <input type="checkbox" id="nav-btn-click" style="display:none;">
+    <div id="header">
+        <div id="nav-btn">
+            <label for="nav-btn-click">
+                <i class="fa fa-bars"></i>
+            </label>
+        </div><h1>Demos</h1>
+        </div>
 
-    <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
     <ol><li><a href="/adbook/index.html">About</a>
     
-</li><li><a href="/adbook/themes/summary.html">Demos by themes<ol><li><a href="/adbook/themes/term.html">Terminal dark</a>
+</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
     
-</li><li><a href="/adbook/themes/light.html">Asciidoctor default</a>
+</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
     
 </li></ol></a>
-    
-</li><li><a href="/adbook/demo_diagrams.html">Demo (diagrams)</a>
-    
-</li><li><a href="/adbook/usages.html">Advanced usages</a>
     
 </li><li><a href="/adbook/custom.html">Customizing theme</a>
     
@@ -39,12 +44,22 @@
 </nav>
 
     <div id="content" class="article"><!-- Asciidoctor output -->
-        <main><div class="ulist">
-<ul>
-<li>
-<p><code>base_url</code></p>
-</li>
-</ul>
+        <main><div class="paragraph">
+<p>You can nest directories as this!</p>
+</div>
+<div class="paragraph">
+<p><code>toc.ron</code> in this directory is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-toml" data-lang="toml">(
+    summary: ("Demos", "summary.adoc"),
+    items: [
+        File("Demo", "demo.adoc"),
+        File("Demo (diagrams)", "demo_diagrams.adoc"),
+    ],
+)</code></pre>
+</div>
 </div>
 </main>
     </div>
