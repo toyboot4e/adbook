@@ -8,7 +8,7 @@ use {
 /// Deserialized from `book.ron` in the root of an `adbook` project
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct BookRon {
-    /// Use it to supply absolute paths (use `/{base_url/path` instead of `/path`)
+    /// Use it to supply absolute paths (use `{base_url/path` instead of `/path`)
     pub base_url: String,
     /// The source directory
     pub src_dir: PathBuf,
@@ -18,7 +18,7 @@ pub struct BookRon {
     pub authors: Vec<String>,
     /// Title of the book
     pub title: String,
-    /// Files or directories copied to `site` directory
+    /// Files or directories copied to site directory
     pub includes: Vec<PathBuf>,
     /// Files to convert but not in sidebar. Typically `404.adoc`
     pub converts: Vec<PathBuf>,
@@ -30,7 +30,7 @@ pub struct BookRon {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct TocRon {
     /// (name, file) that describes this directory
-    pub preface: (String, PathBuf),
+    pub summary: (String, PathBuf),
     /// Child items
     pub items: Vec<TocRonItem>,
 }

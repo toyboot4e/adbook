@@ -28,7 +28,7 @@ pub enum AdocError {
     FailedToConvert(PathBuf, String),
 }
 
-/// Context for running `asciidoctor`, i.e. options
+/// Context for running `asciidoctor`
 ///
 /// # String interpolation
 ///

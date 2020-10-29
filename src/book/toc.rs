@@ -19,8 +19,8 @@ pub enum TocLoadError {
     #[error("Unable to locate `{0}` in `{1}`")]
     FailedToLocateItem(PathBuf, PathBuf),
     /// (relative_path_to_the_file, book_ron_directory_path)
-    #[error("Unable to locate preface `{0}` in `{1}`")]
-    FailedToLocatePreface(PathBuf, PathBuf),
+    #[error("Unable to locate summary `{0}` in `{1}`")]
+    FailedToLocateSummary(PathBuf, PathBuf),
     #[error("Unexpected item with path: {0}")]
     FoundOddItem(PathBuf),
     #[error("Found directory without `toc.ron`: {0}")]
@@ -79,11 +79,11 @@ impl Toc {
         trace!("parsing toc.ron at directory `{}`", toc_ron_dir.display());
 
         let preface = {
-            let file = toc_ron_dir.join(&toc_ron.preface.1);
+            let file = toc_ron_dir.join(&toc_ron.summary.1);
             // preface file is required
             if !file.is_file() {
-                return Err(TocLoadError::FailedToLocatePreface(
-                    toc_ron.preface.1.to_owned(),
+                return Err(TocLoadError::FailedToLocateSummary(
+                    toc_ron.summary.1.to_owned(),
                     toc_ron_dir.to_owned(),
                 ));
             }
@@ -172,7 +172,7 @@ impl Toc {
         Ok((
             Self {
                 dir: toc_ron_dir.to_path_buf(),
-                name: toc_ron.preface.0.to_owned(),
+                name: toc_ron.summary.0.to_owned(),
                 preface,
                 items,
             },

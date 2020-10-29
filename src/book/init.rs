@@ -24,6 +24,7 @@ pub mod files {
         }
 
         pub mod theme {
+            pub static FAVICON: &[u8] = include_bytes!("../../init/src/theme/favicon.svg");
             pub mod hbs {
                 pub static ARTICLE: &[u8] = include_bytes!("../../init/src/theme/hbs/article.hbs");
 
@@ -37,8 +38,8 @@ pub mod files {
             pub mod css {
                 pub static TERM: &[u8] = include_bytes!("../../init/src/theme/css/term.css");
                 pub mod partials {
-                    pub static ADOC: &[u8] =
-                        include_bytes!("../../init/src/theme/css/partials/adoc.css");
+                    pub static TERM_ADOC: &[u8] =
+                        include_bytes!("../../init/src/theme/css/partials/term_adoc.css");
                     pub static PRISM_OKIDIA: &[u8] =
                         include_bytes!("../../init/src/theme/css/partials/prism_okidia.css");
                 }
@@ -51,28 +52,31 @@ pub mod files {
 }
 
 /// List of init files
-pub static LIST: &[(&str, &[u8]); 23] = {
+pub static LIST: &[(&str, &[u8]); 24] = {
     use files::src::{
         self,
-        theme::{css, hbs, js},
+        theme::{self, css, hbs, js},
     };
 
     &[
         // 3
-        ("book.ron", files::BOOK),
         (".gitignore", files::GIT_IGNORE),
         (".editorconfig", files::EDITOR_CONFIG),
+        ("book.ron", files::BOOK),
         // 1
         ("site", &[]),
-        // 6
+        // 4
         ("src", &[]),
         ("src/toc.ron", src::TOC),
         ("src/index.adoc", src::INDEX),
         ("src/article.adoc", src::ARTICLE),
+        // 2
         ("src/static", &[]),
         ("src/static/img", &[]),
-        // 6
+        // 2
         ("src/theme", &[]),
+        ("src/theme/favicon.svg", theme::FAVICON),
+        // 5
         ("src/theme/hbs", &[]),
         ("src/theme/hbs/article.hbs", hbs::ARTICLE),
         ("src/theme/hbs/partials", &[]),
@@ -85,7 +89,7 @@ pub static LIST: &[(&str, &[u8]); 23] = {
         ("src/theme/css", &[]),
         ("src/theme/css/term.css", css::TERM),
         ("src/theme/css/partials", &[]),
-        ("src/theme/css/partials/adoc.css", css::partials::ADOC),
+        ("src/theme/css/partials/adoc.css", css::partials::TERM_ADOC),
         (
             "src/theme/css/partials/prism_okidia.css",
             css::partials::PRISM_OKIDIA,
