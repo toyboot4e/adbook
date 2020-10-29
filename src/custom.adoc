@@ -21,7 +21,7 @@ So we can do this:
 [source,adoc]
 ----
 = Title
-:hbs: src/theme/hbs/my_cool_template.hbs
+:hbs: theme/hbs/my_cool_template.hbs
 ----
 
 === Template data
