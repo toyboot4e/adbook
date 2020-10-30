@@ -80,12 +80,7 @@ impl Sidebar {
     pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
         let mut errors = Vec::with_capacity(20);
 
-        let base_url_str = if book.book_ron.base_url.is_empty() {
-            "".to_string()
-        } else {
-            // `base_url` is defined in this form: `/base/url`
-            format!("{}/", book.book_ron.base_url)
-        };
+        let base_url_str = format!("{}/", book.book_ron.base_url);
 
         let summary_item = {
             let (name, file) = (&book.toc.name, &book.toc.summary);
@@ -138,7 +133,7 @@ impl Sidebar {
             TocItem::File(name, file) => {
                 let name = Self::get_title(name, file)?;
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}/{}", base_url_str, url.display());
+                let url = format!("{}{}", base_url_str, url.display());
 
                 Ok(SidebarItem {
                     name,
@@ -151,7 +146,7 @@ impl Sidebar {
                 let name = Self::get_title(&toc.name, &toc.summary)?;
 
                 let url = toc.summary.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}/{}", base_url_str, url.display());
+                let url = format!("{}{}", base_url_str, url.display());
 
                 let children = Self::map_items(toc.items.iter(), src_dir, base_url_str, errors);
 
