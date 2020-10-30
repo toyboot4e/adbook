@@ -56,6 +56,27 @@ pub struct Sidebar {
 }
 
 impl Sidebar {
+    /// Reads the first line of a file and if it starts with `= ` it is the title
+    fn get_title(title: &str, file: &Path) -> Result<String> {
+        if !title.is_empty() {
+            return Ok(title.to_string());
+        }
+
+        let f = fs::File::open(&file)
+            .with_context(|| anyhow!("Unable to open file {}", file.display()))?;
+        let mut f = BufReader::new(f);
+
+        let mut buf = String::with_capacity(200);
+        f.read_line(&mut buf)
+            .with_context(|| anyhow!("Unable to peek file {}", file.display()))?;
+
+        if buf.starts_with("= ") {
+            Ok(buf[2..].trim().to_string())
+        } else {
+            Ok("<untitled>".to_string())
+        }
+    }
+
     pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
         let mut errors = Vec::with_capacity(20);
 
@@ -66,8 +87,21 @@ impl Sidebar {
             format!("{}/", book.book_ron.base_url)
         };
 
-        let preface_item = TocItem::File(book.toc.name.to_owned(), book.toc.summary.to_owned());
-        let items = std::iter::once(&preface_item).chain(&book.toc.items);
+        let summary_item = {
+            let (name, file) = (&book.toc.name, &book.toc.summary);
+
+            let name = match Self::get_title(name, file) {
+                Ok(name) => name,
+                Err(err) => {
+                    errors.push(err);
+                    "<ERROR>".to_string()
+                }
+            };
+
+            TocItem::File(name, book.toc.summary.to_owned())
+        };
+
+        let items = std::iter::once(&summary_item).chain(&book.toc.items);
         let items: Vec<SidebarItem> =
             Self::map_items(items, &book.src_dir_path(), &base_url_str, &mut errors);
 
@@ -102,25 +136,7 @@ impl Sidebar {
     ) -> Result<SidebarItem> {
         match &item {
             TocItem::File(name, file) => {
-                let name = if !name.is_empty() {
-                    name.to_string()
-                } else {
-                    // extract header and use it as name
-                    let f = fs::File::open(&file)
-                        .with_context(|| anyhow!("Unable to open file {}", file.display()))?;
-                    let mut f = BufReader::new(f);
-
-                    let mut buf = String::with_capacity(200);
-                    f.read_line(&mut buf)
-                        .with_context(|| anyhow!("Unable to peek file {}", file.display()))?;
-
-                    if buf.starts_with("= ") {
-                        buf[2..].to_string()
-                    } else {
-                        "<unnamed>".to_string()
-                    }
-                };
-
+                let name = Self::get_title(name, file)?;
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
                 let url = format!("{}/{}", base_url_str, url.display());
 
@@ -132,13 +148,15 @@ impl Sidebar {
             }
             TocItem::Dir(toc) => {
                 // preface file
+                let name = Self::get_title(&toc.name, &toc.summary)?;
+
                 let url = toc.summary.strip_prefix(src_dir)?.with_extension("html");
                 let url = format!("{}/{}", base_url_str, url.display());
 
                 let children = Self::map_items(toc.items.iter(), src_dir, base_url_str, errors);
 
                 Ok(SidebarItem {
-                    name: toc.name.to_owned(),
+                    name,
                     url: Some(url),
                     children: Some(Box::new(children)),
                 })
