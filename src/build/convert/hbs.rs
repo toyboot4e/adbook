@@ -66,7 +66,7 @@ impl Sidebar {
             format!("{}/", book.book_ron.base_url)
         };
 
-        let preface_item = TocItem::File(book.toc.name.to_owned(), book.toc.preface.to_owned());
+        let preface_item = TocItem::File(book.toc.name.to_owned(), book.toc.summary.to_owned());
         let items = std::iter::once(&preface_item).chain(&book.toc.items);
         let items: Vec<SidebarItem> =
             Self::map_items(items, &book.src_dir_path(), &base_url_str, &mut errors);
@@ -122,7 +122,7 @@ impl Sidebar {
                 };
 
                 let url = file.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}{}", base_url_str, url.display());
+                let url = format!("{}/{}", base_url_str, url.display());
 
                 Ok(SidebarItem {
                     name,
@@ -132,8 +132,8 @@ impl Sidebar {
             }
             TocItem::Dir(toc) => {
                 // preface file
-                let url = toc.preface.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}{}", base_url_str, url.display());
+                let url = toc.summary.strip_prefix(src_dir)?.with_extension("html");
+                let url = format!("{}/{}", base_url_str, url.display());
 
                 let children = Self::map_items(toc.items.iter(), src_dir, base_url_str, errors);
 

@@ -22,7 +22,7 @@ fn pull_book_files(book: &BookStructure) -> Vec<PathBuf> {
     ///
     /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
     fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
-        files.push(toc.preface.clone());
+        files.push(toc.summary.clone());
         for item in &toc.items {
             match item {
                 TocItem::File(_name, path) => {

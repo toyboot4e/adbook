@@ -55,7 +55,7 @@ pub struct Toc {
     pub dir: PathBuf,
     pub name: String,
     /// File that describes this directory
-    pub preface: PathBuf,
+    pub summary: PathBuf,
     /// Items
     pub items: Vec<TocItem>,
 }
@@ -173,7 +173,7 @@ impl Toc {
             Self {
                 dir: toc_ron_dir.to_path_buf(),
                 name: toc_ron.summary.0.to_owned(),
-                preface,
+                summary: preface,
                 items,
             },
             errors,
