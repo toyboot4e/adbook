@@ -341,13 +341,16 @@ impl AdocMetadata {
 
         // :attribute: value
         let mut attrs = Vec::with_capacity(10);
-        while let Some(line) = lines.next() {
+        while let Some(line_str) = lines.next() {
             // locate two colons (`:`)
-            let mut colons = line.bytes().enumerate().filter(|(_i, c)| *c == b':');
+            let mut colons = line_str.bytes().enumerate().filter(|(_i, c)| *c == b':');
 
             // first `:`
             match colons.next() {
-                Some(_) => {}
+                // line starting with `:`
+                Some((ix, _c)) if ix == 0 => {}
+                // line not starting with `:`
+                Some((_ix, _c)) => continue,
                 None => break,
             }
 
@@ -357,9 +360,25 @@ impl AdocMetadata {
                 None => continue,
             };
 
+            use std::str::from_utf8;
+            let line = line_str.as_bytes();
+
             // :attribute: value
-            let name = &line[1..pos].trim();
-            let value = &line[pos + 1..].trim();
+            let name = match from_utf8(&line[1..pos]) {
+                Ok(name) => name.trim(),
+                Err(_err) => {
+                    eprintln!("Bug! AdocMetadata error line: {}", line_str);
+                    continue;
+                }
+            };
+
+            let value = match from_utf8(&line[pos + 1..]) {
+                Ok(v) => v.trim(),
+                Err(_err) => {
+                    eprintln!("Bug! AdocMetadata error line: {}", line_str);
+                    continue;
+                }
+            };
 
             if name.starts_with('!') {
                 // :!attribute:
@@ -367,7 +386,7 @@ impl AdocMetadata {
             } else {
                 // :attribute: value
                 let value = acx.replace_placeholder_strings(value);
-                attrs.push(AdocAttr::allow(*name, value));
+                attrs.push(AdocAttr::allow(name, value));
             }
         }
 
