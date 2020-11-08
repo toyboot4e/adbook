@@ -9,5 +9,7 @@ You can nest directories as this!
 include::demos/toc.ron[]
 ----
 
+TIP: Titles can be skipped as this: `File("", "demo.adoc")`. Then it is automatically extracted from the AsciiDoc file.
+
 // Prism.js can't highlight `ron` so I'm using toml instead
 

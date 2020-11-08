@@ -8,9 +8,9 @@ Custom file structure: see https://docs.rs/adbook/latest/adbook/book/config/stru
 
 == Custom Handlebars template
 
-`adbook` converts each `.adoc` file by running `asciidoctor` and then applies a Handlebars template (if it's specified).
+`adbook` converts each `.adoc` file by running `asciidoctor` and then applying a Handlebars template (if it's specified).
 
-All Handlebars templates should be located in one directory, say, `hbs`. Partial files should be under `hbs/partials` and they're loaded before running Handlebars.
+All Handlebars templates should be located in one directory, say, `hbs`. Partial files have to be under the `hbs/partials` and they're loaded before running Handlebars.
 
 === Special document attributes
 
@@ -24,9 +24,11 @@ So we can do this:
 :hbs: theme/hbs/my_cool_template.hbs
 ----
 
+There's no attribute that corresponds to `imagesdir` or `stylesdir`.
+
 === Template data
 
-`HbsData` in https://docs.rs/adbook/latest/adbook/build/convert/hbs.html[hbs.rs] is supplied to Handlebars template.
+https://docs.rs/adbook/latest/adbook/build/convert/hbs/struct.HbsData.html[HbsData] in https://docs.rs/adbook/latest/adbook/build/convert/hbs/index.html[hbs.rs] is supplied to Handlebars template.
 
 More data? Hmm..
 

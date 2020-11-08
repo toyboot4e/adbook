@@ -41,14 +41,12 @@
     {{> sidebar}}
 
     <div id="content" class="article">
-        {{~#if (or a_author a_email a_revdate) ~}}
         <div id="adoc-meta">
             {{#if a_author}}<span id="author" class="author">{{a_author}}</span>{{/if}}
             {{#if a_email}}<span id="email" class="email">{{a_email}}</span>{{/if}}
             {{#if (or a_author a_email)}}<br>{{/if}}
             {{#if a_revdate}}<span id="revdate">{{a_revdate}}</span>{{/if}}
         </div>
-        {{~/if~}}
 
         <!-- Asciidoctor output -->
         {{!-- TODO: indent --}}
