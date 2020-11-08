@@ -362,7 +362,7 @@ Or in `book.ron`:
 // ron is not supported so..
 [source,json]
 --------
-include::../../book.ron[]
+include::../book.ron[]
 --------
 ========
 
