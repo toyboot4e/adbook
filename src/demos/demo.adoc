@@ -144,7 +144,7 @@ This is one of the excellent features of AsciiDoc!
 ----
 ========
 
-=== Admonition blocks (`<details>` in CSS)
+=== Admonition blocks
 
 .One line admonition blocks
 [%collapsible]
