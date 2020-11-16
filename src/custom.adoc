@@ -1,18 +1,20 @@
 = Customizing
 
+== About
+
 Anyone really wants to do it? It's not that ready for now.
 
-== Configuration
+=== Configuration
 
 Custom file structure: see https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon] (and https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html[TocRon]).
 
-== Custom Handlebars template
+=== Custom Handlebars template
 
 `adbook` converts each `.adoc` file by running `asciidoctor` and then applying a Handlebars template (if it's specified).
 
 All Handlebars templates should be located in one directory, say, `hbs`. Partial files have to be under the `hbs/partials` and they're loaded before running Handlebars.
 
-=== Special document attributes
+==== Special document attributes
 
 `adbook` treats `hbs` document attribute as the path to a Handlebars template file relative to the source directory.
 
@@ -26,7 +28,7 @@ So we can do this:
 
 There's no attribute that corresponds to `imagesdir` or `stylesdir`.
 
-=== Template data
+==== Template data
 
 https://docs.rs/adbook/latest/adbook/build/convert/hbs/struct.HbsData.html[HbsData] in https://docs.rs/adbook/latest/adbook/build/convert/hbs/index.html[hbs.rs] is supplied to Handlebars template.
 

@@ -22,7 +22,7 @@
     <div id="header">
         <div id="nav-btn">
             <label for="nav-btn-click">
-                <i class="fa fa-bars"></i>
+                <i class="fa fa-list-ul"></i>
             </label>
         </div><h1>Demo in terminal dark theme</h1>
         </div>
@@ -45,38 +45,28 @@
 </li></ol>
 </nav>
 
-    <div id="content" class="article">
-        <div id="adoc-meta">
-            <span id="author" class="author">toyboot4e</span>
-            <span id="email" class="email">some mail</span>
-            <br>
-            <span id="revdate">Oct 24, 2020</span>
-        </div>
+    
+    <div id="dummy-header"></div>
 
-        <!-- Asciidoctor output -->
+    
+    
+    <div id="adoc-meta">
+        <span id="author" class="author">toyboot4e</span>
+        <span id="email" class="email">some mail</span>
+        <br>
+        <span id="revdate">Oct 24, 2020</span>
+    </div>
+    
+
+    <div id="content" class="article">
         
-        <main><div id="preamble">
+        <main>
+            <!-- Asciidoctor output --><div class="sect1">
+<h2 id="_basics">1. Basics</h2>
 <div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-This theme might not cover all the Asciidoctor features
-</td>
-</tr>
-</table>
-</div>
 <div class="paragraph">
 <p>If you don&#8217;t know <a href="https://asciidoctor.org/">Asciidoctor</a>, let&#8217;s see the features!</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_basics">1. Basics</h2>
-<div class="sectionbody">
 <div class="sect2">
 <h3 id="_paragraphs_and_line_breaks">1.1. Paragraphs and line breaks</h3>
 <div class="paragraph">
@@ -400,7 +390,17 @@ This is good when we want to write a big admonotion block!
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mathjax">2.2. Mathjax</h3>
+<h3 id="_sidenotes">2.2. Sidenotes</h3>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p>あああああああ</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mathjax">2.3. Mathjax</h3>
 <div class="paragraph">
 <p>Use inline/non-inline <code>stem</code> block:</p>
 </div>
@@ -428,7 +428,7 @@ m \frac {\mathrm{d}^2 \mathbb{x}} {\mathrm{d} t^2} = \mathbb{F} \\
 </details>
 </div>
 <div class="sect2">
-<h3 id="_source_code_block">2.3. Source code block</h3>
+<h3 id="_source_code_block">2.4. Source code block</h3>
 <div class="paragraph">
 <p>Code block with "callouts":</p>
 </div>
@@ -468,7 +468,7 @@ Come!!! <i class="conum" data-value="2"></i><b>(2)</b>
 </details>
 </div>
 <div class="sect2">
-<h3 id="_advanced_source_code_blocks">2.4. Advanced source code blocks</h3>
+<h3 id="_advanced_source_code_blocks">2.5. Advanced source code blocks</h3>
 <div class="paragraph">
 <p><a href="https://prismjs.com/">Prism.js</a> extensions:</p>
 </div>

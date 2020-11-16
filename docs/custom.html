@@ -22,7 +22,7 @@
     <div id="header">
         <div id="nav-btn">
             <label for="nav-btn-click">
-                <i class="fa fa-bars"></i>
+                <i class="fa fa-list-ul"></i>
             </label>
         </div><h1>Customizing</h1>
         </div>
@@ -45,42 +45,44 @@
 </li></ol>
 </nav>
 
-    <div id="content" class="article">
-        <div id="adoc-meta">
-            
-            
-            
-            
-        </div>
+    
+    <div id="dummy-header"></div>
 
-        <!-- Asciidoctor output -->
+    
+    
+    <div id="adoc-meta">
         
-        <main><div id="preamble">
+        
+        
+        
+    </div>
+    
+
+    <div id="content" class="article">
+        
+        <main>
+            <!-- Asciidoctor output --><div class="sect1">
+<h2 id="_about">1. About</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Anyone really wants to do it? It&#8217;s not that ready for now.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_configuration">1. Configuration</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_configuration">1.1. Configuration</h3>
 <div class="paragraph">
 <p>Custom file structure: see <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html">BookRon</a> (and <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html">TocRon</a>).</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_custom_handlebars_template">2. Custom Handlebars template</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_custom_handlebars_template">1.2. Custom Handlebars template</h3>
 <div class="paragraph">
 <p><code>adbook</code> converts each <code>.adoc</code> file by running <code>asciidoctor</code> and then applying a Handlebars template (if it&#8217;s specified).</p>
 </div>
 <div class="paragraph">
 <p>All Handlebars templates should be located in one directory, say, <code>hbs</code>. Partial files have to be under the <code>hbs/partials</code> and they&#8217;re loaded before running Handlebars.</p>
 </div>
-<div class="sect2">
-<h3 id="_special_document_attributes">2.1. Special document attributes</h3>
+<div class="sect3">
+<h4 id="_special_document_attributes">Special document attributes</h4>
 <div class="paragraph">
 <p><code>adbook</code> treats <code>hbs</code> document attribute as the path to a Handlebars template file relative to the source directory.</p>
 </div>
@@ -97,13 +99,14 @@
 <p>There&#8217;s no attribute that corresponds to <code>imagesdir</code> or <code>stylesdir</code>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_template_data">2.2. Template data</h3>
+<div class="sect3">
+<h4 id="_template_data">Template data</h4>
 <div class="paragraph">
 <p><a href="https://docs.rs/adbook/latest/adbook/build/convert/hbs/struct.HbsData.html">HbsData</a> in <a href="https://docs.rs/adbook/latest/adbook/build/convert/hbs/index.html">hbs.rs</a> is supplied to Handlebars template.</p>
 </div>
 <div class="paragraph">
 <p>More data? Hmm..</p>
+</div>
 </div>
 </div>
 </div>

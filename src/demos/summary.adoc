@@ -1,5 +1,7 @@
 = Demos
 
+== This is `demos/summary.adoc`
+
 You can nest directories as this!
 
 `toc.ron` in this directory is:

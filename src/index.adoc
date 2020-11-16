@@ -1,12 +1,16 @@
 = adbook
 
+== Welcome
+
 `adbook` is a tool for building book-like webpages. If you like this demo, you might like `adbook`, too.
+
+Scroll right to see a next page; the default theme is using flex layout.
 
 https://github.com/toyboot4e/adbook[Repository]
 
-== Installation
+=== Installation
 
-=== Rust & adbook
+==== Rust & adbook
 
 If you have https://play.rust-lang.org/[Rust], `adbook` is available via Crates.io:
 
@@ -15,7 +19,7 @@ If you have https://play.rust-lang.org/[Rust], `adbook` is available via Crates.
 $ cargo install adbook # -> $HOME/.cargo/bin
 ----
 
-=== Ruby & Asciidoctor
+==== Ruby & Asciidoctor
 
 You need Ruby and some package manager. I recommend https://rvm.io/[RVM] because programs installed with it runed faster than that were with `rbenv` (somehow).
 

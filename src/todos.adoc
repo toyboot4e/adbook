@@ -1,27 +1,29 @@
 = TODOs
 
+== List
+
 :!sectnums:
-== Polish
+=== Polish
 
 * Add `serve` command
 * Add `convert` command
 * Show Handlebars errors
 
 :sectnums:
-== High priority
+=== High priority
 
 * Improve the sidebar style
 ** Highlight current page link
 ** Use inherited index
 
-== Middle priority
+=== Middle priority
 
 * Support Asciidoctor extensions
 ** Show footnote content on mouse hover
 
 * Add print view
 
-== Low priority
+=== Low priority
 
 * Support markdown source files
 

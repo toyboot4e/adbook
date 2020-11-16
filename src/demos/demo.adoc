@@ -3,11 +3,9 @@
 :email: some mail
 :revdate: Oct 24, 2020
 
-WARNING: This theme might not cover all the Asciidoctor features
+== Basics
 
 If you don't know {adoc}, let's see the features!
-
-== Basics
 
 === Paragraphs and line breaks
 
@@ -182,6 +180,13 @@ Footnote here: footnote:[It's nice if you can see this text with mouse hover. Su
 ----
 Footnote here: footnote:[It's nice if you can see this text with mouse hover. Such Asciidoctor extension _should_ exist and I would consider using it.]
 ----
+
+=== Sidenotes
+
+[sidebar]
+--
+あああああああ
+--
 
 === Mathjax
 

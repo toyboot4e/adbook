@@ -2,9 +2,11 @@
 :revdate: Oct 19, 2020
 :author: toyboot4e
 
+== About
+
 Generate diagrams from ascii text!
 
-== Requirements
+=== Requirements
 
 Make sure you have asciidoctor-diagram:
 
