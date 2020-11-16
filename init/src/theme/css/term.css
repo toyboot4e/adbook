@@ -29,33 +29,16 @@
  * -------------------------------------------------------------------------------- */
 
 /* Insert indentations automatically */
-div:not(.ulist) > .paragraph > p {
+:not(li) > .paragraph {
     text-indent: 1em;
 }
 
 :root {
     --sidebar-width: 300px;
     --bg: #2f2f2f;
-    --article-max-width: 960px;
+    --article-max-width: calc(16px * 60);
     --article-pad: 15px;
-}
-
-#nav-btn-click:checked ~ #sidebar {
-    display: none;
-}
-
-/* Show article and nav bar */
-@media only screen and (min-width: 900px) and (max-width: 1590px) {
-    main {
-        margin-left: var(--sidebar-width);
-    }
-}
-
-/* Show article and nav bar (no need to care about each other) */
-@media only screen and (min-width: 1590px) {
-    main {
-        margin: auto;
-    }
+    --header-height: 50px;
 }
 
 /* -------------------------------------------------------------------------------- *
@@ -63,11 +46,41 @@ div:not(.ulist) > .paragraph > p {
  * -------------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------------- *
+ * Conditional
+ */
+
+#nav-btn-click:checked ~ #sidebar {
+    display: none;
+}
+
+/* Show article. Nav bar is over it */
+@media only screen and (max-width: 900px) {
+    #nav-btn-click ~ #content > main > * {
+        width: calc(100vw - 40px);
+    }
+}
+
+/* Show article and nav bar */
+@media only screen and (min-width: 900px) and (max-width: 1590px) {
+    #nav-btn-click:not(:checked) ~ #content {
+        margin-left: calc(var(--sidebar-width));
+    }
+}
+
+/* Show article and nav bar (no need to care about each other) */
+@media only screen and (min-width: 1590px) {
+    #nav-btn-click:not(:checked) ~ #content {
+        margin-left: calc(var(--sidebar-width));
+    }
+}
+
+/* -------------------------------------------------------------------------------- *
  * sidebar
  */
 
 #sidebar {
-    position: fixed;
+    position: absolute;
+    top: 0;
     background-color: rgb(45, 45, 45);
     border-right: 1px solid black;
     width: var(--sidebar-width);
@@ -75,10 +88,8 @@ div:not(.ulist) > .paragraph > p {
     font-size: 15px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-}
-
-.sidebar ol {
-    width: auto;
+    /* for ol */
+    padding-left: 15px;
 }
 
 .sidebar li a {
@@ -86,17 +97,54 @@ div:not(.ulist) > .paragraph > p {
     color: rgb(192, 192, 192);
 }
 
+ol {
+    list-style-type: none;
+    counter-reset: item;
+    margin: 0;
+    padding: 0;
+}
+
+ol > li {
+    display: table;
+    counter-increment: item;
+    margin-bottom: 1em; /* space between sections */
+}
+
+li ol > li {
+    margin: 0.6em; /* space between section items */
+}
+
+/* consider nest items */
+
+ol > li:before {
+    content: counters(item, "-") ". ";
+    display: table-cell;
+    padding-right: 0.6em;
+}
+
+li ol > li:before {
+    content: counters(item, ".") " ";
+}
+
 /* -------------------------------------------------------------------------------- *
  * title
  */
 
 #header {
+    position: absolute;
+    width: 100vw;
+
     border-bottom: 1px solid #d75f5f;
     background-color: var(--bg);
     top: 0px;
-    position: sticky;
     z-index: 1000;
     display: flex;
+}
+
+#sidebar {
+    z-index: 999;
+    margin-top: var(--header-height);
+    padding-top: 10px;
 }
 
 h1 {
@@ -114,12 +162,11 @@ h1 {
     font-size: 32px;
     width: 32px;
     height: 32px;
-    z-index: 1002;
+    z-index: 1001;
 }
 
 #nav-btn i {
-    /* color: #6495ED; */
-    color: rgb(18, 121, 183);
+    color: rgb(200, 200, 50);
 }
 
 #nav-btn-click {
@@ -144,18 +191,77 @@ h1 {
 }
 
 /* -------------------------------------------------------------------------------- *
+ * Scroll bar
+ */
+
+/* TODO: is this working? my firefox doesn't apply this style, so */
+main {
+    scrollbar-width: thin;
+    scrollbar-color: #1eaf90 #555555;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #555555;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1eaf90;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4abfa6;
+}
+
+/* -------------------------------------------------------------------------------- *
  * article
  */
 
+body {
+    overflow: hidden;
+}
+
 /* Wrapper of article */
-div#content {
+#content {
     padding-left: var(--article-pad);
     padding-right: var(--article-pad);
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#dummy-header {
+    width: 100vw;
+    height: var(--header-height);
 }
 
 /* Article, AsciiDoc output */
 main {
+    display: inline-flex;
+    flex-direction: row;
+}
+
+main > * {
     max-width: var(--article-max-width);
+    width: calc(100vw - var(--sidebar-width));
+    height: calc(
+        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
+    );
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+main > div:first-child {
+    padding-left: 20px; /* space from sidebar */
+}
+
+h2 {
+    margin-block-start: 0;
 }
 
 /* author, email and revdate in AsciiDoc word */
@@ -169,6 +275,11 @@ main {
 /* -------------------------------------------------------------------------------- *
  * footer (footnotes)
  */
+
+/* remove horizontal line */
+#footnotes hr:first-child {
+    display: none;
+}
 
 div#footnotes {
     margin-top: 1em;
@@ -474,26 +585,8 @@ div.listingblock > div.content {
     overflow: auto;
 }
 
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #d8d8d8;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
 /* --------------------------------------------------------------------------------
- * [sidebar]
- * --
+ * sidebar
  */
 
 div.sidebarblock {
@@ -518,23 +611,9 @@ div.sidebarblock {
     text-align: center;
 }
 
-/* if the screen is wide enough */
-@media screen and (min-width: 50em) {
-    :not(.freesize) img,
-    video {
-        max-width: 125%;
-        /* force centerizing */
-        margin-left: 50%;
-        transform: translateX(-50%);
-    }
-}
-
-/* if the screen small */
-@media screen and (max-width: 50em) {
-    :not(.freesize) img,
-    video {
-        max-width: 100%;
-    }
+:not(.freesize) img,
+video {
+    max-width: 100%;
 }
 
 /* -------------------------------------------------------------------------------- *
