@@ -248,7 +248,7 @@ main > * {
     max-width: var(--article-max-width);
     width: calc(100vw - var(--sidebar-width));
     height: calc(
-        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
+        100vh - var(--header-height) - 64px /* adoc-meta + scroll bar height */
     );
     overflow-x: hidden;
     overflow-y: auto;
