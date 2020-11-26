@@ -1,6 +1,9 @@
 = adbook demo
+:demo: https://toyboot4e.github.io/adbook/[demo site]
+:book-ron: https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.htmlBookRon[BookRon]
+:toc-ron: https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html[TocRon]
 
-This branch contains the source files for the [demo site](https://toyboot4e.github.io/adbook/).
+This branch contains the source files for the {demo}.
 
 == File structure
 
@@ -11,7 +14,7 @@ Output:
 
 Source files:
 
-* `book.ron`: configuration, maps to [BookRon](https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html)
+* `book.ron`: configuration, maps to {book-ron}
 * `src`: source files of the demo site
-** `toc.ron`: list of files in a directory, maps to [TocRon](https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html)
+** `toc.ron`: list of files in a directory, maps to {toc-ron}
 
