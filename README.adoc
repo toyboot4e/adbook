@@ -1,0 +1,17 @@
+= adbook demo
+
+This branch contains the source files for the [demo site](https://toyboot4e.github.io/adbook/).
+
+== File structure
+
+Output:
+
+* `docs`: html files converted with `adbook`
+* `adbook`: symlink for seeing the demo site in local
+
+Source files:
+
+* `book.ron`: configuration, maps to [BookRon](https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html)
+* `src`: source files of the demo site
+** `toc.ron`: list of files in a directory, maps to [TocRon](https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html)
+
