@@ -6,7 +6,9 @@ The name came from [mdbook](https://rust-lang.github.io/mdBook/), which was insp
 
 ## Demo
 
-Demo site is avaiable [here](https://toyboot4e.github.io/adbook/).
+A demo site is avaiable [here](https://toyboot4e.github.io/adbook/).
+
+The source files of the demo is [here](https://github.com/toyboot4e/adbook/tree/gh-pages).
 
 ## Installation
 
