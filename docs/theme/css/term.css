@@ -85,6 +85,7 @@
     border-right: 1px solid black;
     width: var(--sidebar-width);
     height: 100%;
+    overflow-y: auto;
     font-size: 15px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
@@ -242,13 +243,14 @@ body {
 main {
     display: inline-flex;
     flex-direction: row;
+    max-height: 100%;
 }
 
 main > * {
     max-width: var(--article-max-width);
     width: calc(100vw - var(--sidebar-width));
-    height: calc(
-        100vh - var(--header-height) - 64px /* adoc-meta + scroll bar height */
+    max-height: calc(
+        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
     );
     overflow-x: hidden;
     overflow-y: auto;
@@ -421,7 +423,7 @@ li:last-child {
 
 ul {
     margin-block-start: 0em;
-    margin-block-end: 1.5em;
+    margin-block-end: 1.0em;
 }
 
 /* horizontal line */
