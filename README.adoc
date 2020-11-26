@@ -9,8 +9,8 @@ This branch contains the source files for the {demo}.
 
 Output:
 
-* `docs`: html files converted with `adbook`
-* `adbook`: symlink for seeing the demo site in local
+* `docs`: html files generated with `adbook`
+* `adbook`: symlink for seeing the demo site in local (like `locahost:8000/adbook`)
 
 Source files:
 
