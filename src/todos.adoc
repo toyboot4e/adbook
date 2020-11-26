@@ -12,9 +12,8 @@
 :sectnums:
 === High priority
 
-* Improve the sidebar style
-** Highlight current page link
-** Use inherited index
+* Highlight current page in the sidebar
+* Do not lock the y scroll (so that we can scroll back when we click a footnote link)
 
 === Middle priority
 
