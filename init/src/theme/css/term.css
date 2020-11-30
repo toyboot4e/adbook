@@ -423,7 +423,7 @@ li:last-child {
 
 ul {
     margin-block-start: 0em;
-    margin-block-end: 1.0em;
+    margin-block-end: 1em;
 }
 
 /* horizontal line */
@@ -530,6 +530,14 @@ table > .title {
 
 .halign-left {
     text-align: left;
+}
+
+.valign-top {
+    vertical-align: top;
+}
+
+.valign-bottom {
+    vertical-align: bottom;
 }
 
 table {
