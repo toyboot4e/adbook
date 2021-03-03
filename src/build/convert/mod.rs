@@ -1,26 +1,35 @@
-//! Converts AsciiDoc files using `asciidoctor` and Handlebars
-//!
-//! # Placeholder strings for `asciidoctor` options
-//!
-//! In `adbook`, `asciidoctor` options are supplied with the following placeholder strings:
-//!
-//! * `{base_url}`: base url in this form: `/base/url`. useful when supplying absolute path
-//! * `{src_dir}`: source directory
-//! * `{dst_dir}`: destination directory
-//!
-//! So we can fully specify `stylesdir`, `imagesdir` and `imagesoutdir` attributes!
-//!
-//! # Handlebars attribute
-//!
-//! `adbook` specially treats `hbs` AsciiDoc attribute as the path to a Handlebars template file:
-//!
-//! ```adoc
-//! = Simple article
-//! :hbs: theme/hbs/simple.hbs
-//! // translated as: {src_dir}/theme/hbs/simple.hbs
-//! ```
-//!
-//! `hbs` is always relative to the source directory and no base directory is supplied.
+/*!
+Converts AsciiDoc files using `asciidoctor` and Handlebars
+
+# Placeholder strings for `asciidoctor` options
+
+In `adbook`, `asciidoctor` options are supplied with the following placeholder strings:
+
+* `{base_url}`: base url in this form: `/base/url`. useful when supplying absolute path
+* `{src_dir}`: path to source directory
+* `{dst_dir}`: path to destination directory
+
+We can use them for document attributes:
+
+```adoc
+:imagesdir: {base_url}/static/img
+:imagesoutdir: {src_dir}/static/img
+```
+
+Usually those paths are globally specified in `book.ron`.
+
+# Handlebars attribute
+
+`adbook` specially treats `hbs` AsciiDoc attribute as the path to a Handlebars template file:
+
+```adoc
+= Simple article
+:hbs: theme/hbs/simple.hbs
+// translated to: {src_dir}/theme/hbs/simple.hbs
+```
+
+`hbs` is always relative to the source directory and no base directory is supplied.
+*/
 
 mod adoc;
 pub mod hbs;

@@ -1,20 +1,23 @@
-//! Command line interface
-//!
-//! Built on top of clap ver.3 beta.
-//!
-//! # Example
-//!
-//! `main.rs`:
-//!
-//! ```no_run
-//! use {adbook::cli::Cli, anyhow::*, clap::Clap};
-//!
-//! fn main() -> Result<()> {
-//!     // initialize your `log` implemetation
-//!     // then run!
-//!     Cli::parse().run()
-//! }
-//! ```
+/*!
+Command line interface
+
+Built on top of clap ver.3 beta.
+
+# Example
+
+`main.rs`:
+
+```no_run
+use {adbook::cli::Cli, anyhow::*, clap::Clap};
+
+fn main() -> Result<()> {
+    // initialize your `log` implemetation
+    // env_logger::init();
+    // then run!
+    Cli::parse().run()
+}
+```
+*/
 
 use {
     anyhow::*,
@@ -81,11 +84,12 @@ impl Build {
     pub fn run(&mut self) -> Result<()> {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
 
-        info!("===> Loading book structure");
+        trace!("---- Loading book structure");
         let book = BookStructure::from_dir(&dir)?;
 
         info!("===> Building the book");
         crate::build::build_book(&book)?;
+        info!("<==> Finished bulding");
 
         Ok(())
     }

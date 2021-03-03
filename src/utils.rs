@@ -40,11 +40,11 @@ fn print_items(items: &Vec<impl std::fmt::Display>, kind_name: &str, header_text
 
 /// Copies items in one directory to another recursively
 pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
-    log::trace!(
-        "Recursive copy: `{}` -> `{}`",
-        src_dir.display(),
-        dst_dir.display(),
-    );
+    // log::trace!(
+    //     "Recursive copy: `{}` -> `{}`",
+    //     src_dir.display(),
+    //     dst_dir.display(),
+    // );
 
     ensure!(
         src_dir != dst_dir,
@@ -81,20 +81,20 @@ fn copy_items_rec_impl(src_dir: &Path, dst_dir: &Path) -> Result<()> {
 
         if src_path.is_file() {
             // case 1. file: just copy
-            log::trace!(
-                "* file: `{}` -> `{}`",
-                src_path.display(),
-                dst_path.display()
-            );
+            // log::trace!(
+            //     "- copy file: `{}` -> `{}`",
+            //     src_path.display(),
+            //     dst_path.display()
+            // );
 
             fs::copy(&src_path, &dst_path)?;
         } else if src_path.is_dir() {
             // case 2. directory: recursive copy
-            log::trace!(
-                "* dir: `{}` -> `{}`",
-                src_path.display(),
-                dst_path.display()
-            );
+            // log::trace!(
+            //     "- copy dir: `{}` -> `{}`",
+            //     src_path.display(),
+            //     dst_path.display()
+            // );
 
             if !dst_path.exists() {
                 fs::create_dir(&dst_path)

@@ -1,21 +1,31 @@
-//! Implementation of [`crate::book::walk::BookVisitor`]
+/*!
+Implementation of [`crate::book::walk::BookVisitor`]
+
+Maybe support more kinds of source files in the future?
+*/
 
 use {
     anyhow::{Context, Error, Result},
     std::{
         fs,
+        io::prelude::*,
         path::{Path, PathBuf},
     },
 };
 
 use crate::{
     book::{walk::BookVisitor, BookStructure},
-    build::convert::{hbs::HbsContext, AdocRunContext},
+    build::{
+        cache::CacheDiff,
+        convert::{hbs::HbsContext, AdocRunContext},
+    },
 };
 
 /// An `adbook` builder based on `asciidoctor`
 #[derive(Debug, Clone)]
 pub struct AdocBookVisitor {
+    book: BookStructure,
+    pub cache: CacheDiff,
     buf: String,
     // context to run `asciidoctor` and Handlebars
     acx: AdocRunContext,
@@ -28,10 +38,12 @@ pub struct AdocBookVisitor {
 impl AdocBookVisitor {
     pub fn from_book(book: &BookStructure, dst_dir: &Path) -> (Self, Vec<Error>) {
         let (hcx, errors) = HbsContext::from_book(book);
-        trace!("hcx created: {:#?}", hcx);
+        trace!("handlebars context created");
+        // trace!("{:#?}", hcx);
 
         let acx = AdocRunContext::from_book(book, dst_dir);
-        trace!("acx created: {:#?}", acx);
+        trace!("asciidoc context created");
+        // trace!("{:#?}", acx);
 
         (
             Self {

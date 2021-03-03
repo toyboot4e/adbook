@@ -15,7 +15,7 @@ use crate::{
     build::visit::AdocBookVisitor,
 };
 
-/// Builds an `adbook` structure into a site directory
+/// Builds an `adbook` structure into a site directory, making use of caches and parallelization
 ///
 /// book -> tmp -> site
 pub fn build_book(book: &BookStructure) -> Result<()> {
