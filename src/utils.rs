@@ -1,4 +1,6 @@
-//! Internal utilities
+/*!
+Internal utilities
+*/
 
 use {
     anyhow::{Context, Result},
@@ -130,6 +132,26 @@ pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool
                 "clear: skipping unexpected kind of item: {}",
                 path.display()
             );
+        }
+    }
+
+    Ok(())
+}
+
+/// Recursively runs given procedure to files under a directory
+///
+/// Stops when any error is found.
+pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let entry_path = entry.path();
+
+        if entry_path.is_file() {
+            f(&entry_path)?;
+        } else if entry_path.is_dir() {
+            self::visit_files_rec(&entry_path, f)?;
+        } else {
+            log::trace!("Skipping unexpected kind of file: {}", entry_path.display());
         }
     }
 

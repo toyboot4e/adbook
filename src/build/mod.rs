@@ -1,5 +1,6 @@
 //! Book builder
 
+pub mod cache;
 pub mod convert;
 pub mod visit;
 
