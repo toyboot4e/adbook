@@ -160,11 +160,11 @@ pub fn run_asciidoctor(
     dummy_dst_name: &str,
     acx: &AdocRunContext,
 ) -> Result<std::process::Output> {
-    trace!(
-        "Converting adoc: `{}` -> `{}`",
-        src_file.display(),
-        dummy_dst_name,
-    );
+    // trace!(
+    //     "Converting adoc: `{}` -> `{}`",
+    //     src_file.display(),
+    //     dummy_dst_name,
+    // );
 
     let mut cmd =
         self::asciidoctor(src_file, acx).context("when setting up `asciidoctor` options")?;

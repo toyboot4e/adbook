@@ -76,7 +76,7 @@ impl Toc {
         let mut errors = vec![];
         let mut items = vec![];
 
-        trace!("parsing toc.ron at directory `{}`", toc_ron_dir.display());
+        // trace!("parsing toc.ron at directory `{}`", toc_ron_dir.display());
 
         let preface = {
             let file = toc_ron_dir.join(&toc_ron.summary.1);

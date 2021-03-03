@@ -16,8 +16,8 @@ An adbook project has such a file structure:
 └── src       # source files
 ```
 
-`book.ron` maps to [`BookRon`]. It indicates a root directory and provides some configuration such
-as the book name and the author name.
+`book.ron` maps to [`BookRon`]. It indicates a root directory and metadata such as the book name and
+the author name.
 
 [`BookRon`]: crate::book::config::BookRon
 
@@ -93,7 +93,7 @@ impl BookStructure {
     /// Tries to find `book.ron` going up the directories and parses it into a file structure
     pub fn from_dir(path: impl AsRef<Path>) -> Result<Self> {
         let book_ron_path = self::find_root_book_ron(path)?;
-        info!("book.ron located at: {}", book_ron_path.display());
+        trace!("book.ron located at: {}", book_ron_path.display());
 
         let root = book_ron_path
             .parent()
@@ -119,7 +119,9 @@ impl BookStructure {
                 format!("Failed to load book.ron at: {}", book_ron_path.display())
             })?
         };
-        trace!("root `book.ron` loaded: {:?}", book_ron);
+
+        log::trace!("root `book.ron` loaded");
+        // log::trace!("{:?}", book_ron);
 
         let src_dir = root.join(&book_ron.src_dir);
 
@@ -131,13 +133,16 @@ impl BookStructure {
 
             let toc_ron: TocRon = ron::from_str(&toc_str)
                 .with_context(|| format!("Failed to parse `toc.ron` at: {}", toc_path.display()))?;
-            trace!("root toc.ron loaded: {:?}", toc_ron);
+            log::trace!("root toc.ron loaded");
+            // log::trace!("{:?}", toc_ron);
 
             // Here we actually load a root `toc.ron`
-            trace!("loading toc.ron");
+            log::trace!("loading toc.ron");
             Toc::from_toc_ron_recursive(&toc_ron, &src_dir)?
         };
-        trace!("toc.ron loaded: {:#?}", toc);
+
+        log::trace!("toc.ron loaded");
+        // trace!("{:#?}", toc);
 
         crate::utils::print_errors(&toc_errors, "while parsing toc.ron");
 

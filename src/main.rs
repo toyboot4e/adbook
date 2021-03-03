@@ -33,6 +33,8 @@ fn configure_log() -> Result<()> {
     let level = match env::var("ADBOOK_LOG")
         .as_ref()
         .map(|s| s.as_str())
+        // users would not want to see `trace` log.
+        // developers should set ADBOOK_LOG` to `TRACE`
         .unwrap_or("info")
     {
         "error" | "Error" | "ERROR" => LevelFilter::Error,

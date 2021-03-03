@@ -1,16 +1,20 @@
-/*! `adbook` is a tool for building book-like web pages
+/*!
+`adbook` is a simple SSG powered by [asciidoctor]
 
-The name came from [mdbook], which was inspired by [GitBook].
+The name came from [mdBook], which was inspired by [GitBook].
 
-[mdbook]: https://rust-lang.github.io/mdBook/
+[asciidoctor]: https://asciidoctor.org/
+[mdBook]: https://rust-lang.github.io/mdBook/
 [GitBook]: https://www.gitbook.com/
 !*/
 
-// Globally importing macros: `info!`, `warn!`, etc.
+// Importing macros globally in this crate:
+
+// `info!`, `warn!`, etc.
 #[macro_use]
 extern crate log;
 
-// Globally importing macros: `anyhow!`, `bail!` and `ensure!`
+// `anyhow!`, `bail!` and `ensure!`
 #[macro_use]
 extern crate anyhow;
 

@@ -1,4 +1,6 @@
-//! Internal utilities
+/*!
+Internal utilities
+*/
 
 use {
     anyhow::{Context, Result},
@@ -38,11 +40,11 @@ fn print_items(items: &Vec<impl std::fmt::Display>, kind_name: &str, header_text
 
 /// Copies items in one directory to another recursively
 pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
-    log::trace!(
-        "Recursive copy: `{}` -> `{}`",
-        src_dir.display(),
-        dst_dir.display(),
-    );
+    // log::trace!(
+    //     "Recursive copy: `{}` -> `{}`",
+    //     src_dir.display(),
+    //     dst_dir.display(),
+    // );
 
     ensure!(
         src_dir != dst_dir,
@@ -79,20 +81,20 @@ fn copy_items_rec_impl(src_dir: &Path, dst_dir: &Path) -> Result<()> {
 
         if src_path.is_file() {
             // case 1. file: just copy
-            log::trace!(
-                "* file: `{}` -> `{}`",
-                src_path.display(),
-                dst_path.display()
-            );
+            // log::trace!(
+            //     "- copy file: `{}` -> `{}`",
+            //     src_path.display(),
+            //     dst_path.display()
+            // );
 
             fs::copy(&src_path, &dst_path)?;
         } else if src_path.is_dir() {
             // case 2. directory: recursive copy
-            log::trace!(
-                "* dir: `{}` -> `{}`",
-                src_path.display(),
-                dst_path.display()
-            );
+            // log::trace!(
+            //     "- copy dir: `{}` -> `{}`",
+            //     src_path.display(),
+            //     dst_path.display()
+            // );
 
             if !dst_path.exists() {
                 fs::create_dir(&dst_path)
@@ -130,6 +132,27 @@ pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool
                 "clear: skipping unexpected kind of item: {}",
                 path.display()
             );
+        }
+    }
+
+    Ok(())
+}
+
+/// Recursively runs given procedure to files under a directory
+///
+/// The user procedure takes absolute path as a parameter. Stops immediately when any error is
+/// found.
+pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let entry_path = dir.join(entry.path());
+
+        if entry_path.is_file() {
+            f(&entry_path)?;
+        } else if entry_path.is_dir() {
+            self::visit_files_rec(&entry_path, f)?;
+        } else {
+            log::trace!("Skipping unexpected kind of file: {}", entry_path.display());
         }
     }
 
