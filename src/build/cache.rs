@@ -31,7 +31,7 @@ pub struct CacheData {
 }
 
 impl CacheData {
-    pub fn load(book: &BookStructure) -> Result<Option<Self>> {
+    pub fn load_last_cache(book: &BookStructure) -> Result<Option<Self>> {
         let cache_file_path = self::cache_path(book);
 
         if !cache_file_path.exists() {
@@ -47,13 +47,13 @@ impl CacheData {
     }
 
     /// Create s cache from the source directory of a book
-    pub fn create(book: &BookStructure) -> Result<CacheData> {
+    pub fn create_new_cache(book: &BookStructure) -> Result<CacheData> {
         let src_dir = book.src_dir_path();
         let mut entries = Vec::new();
-        crate::utils::visit_files_rec(&src_dir, &mut |f| {
-            let rel_path = src_dir.strip_prefix(&src_dir).unwrap();
+        crate::utils::visit_files_rec(&src_dir, &mut |src_file| {
+            let rel_path = src_file.strip_prefix(&src_dir).unwrap();
             let last_modified = {
-                let metadata = fs::metadata(f)?;
+                let metadata = fs::metadata(src_file)?;
                 metadata.modified()?
             };
             entries.push(CacheEntry {
@@ -90,28 +90,35 @@ pub struct CacheDiff {
 
 impl CacheDiff {
     pub fn load(book: &BookStructure) -> Result<Self> {
-        let last = CacheData::load(book)?;
-        let now = CacheData::create(book)?;
+        let last = CacheData::load_last_cache(book)?;
+        let now = CacheData::create_new_cache(book)?;
         Ok(Self { last, now })
     }
 
+    pub fn save(&self, book: &BookStructure) -> Result<()> {
+        self.now.write(book)?;
+        Ok(())
+    }
+
     /// If the file needs to be rebuilt
-    pub fn need_build(&self, book: &BookStructure, path: &Path) -> bool {
-        let rel_path = if path.is_absolute() {
-            &path.strip_prefix(book.src_dir_path()).unwrap()
+    ///
+    /// * `src_path`: Either absolute path or relative path from the source directory
+    pub fn need_build(&self, book: &BookStructure, src_path: &Path) -> bool {
+        let rel_path = if src_path.is_absolute() {
+            &src_path.strip_prefix(book.src_dir_path()).unwrap()
         } else {
-            path
+            src_path
         };
 
-        let current_entry = match self.now.find_cache(rel_path) {
-            Some(cache) => cache,
-            None => panic!("Given non-existing file path in cache"),
-        };
+        let current_entry = self
+            .now
+            .find_cache(rel_path)
+            .unwrap_or_else(|| panic!("given non-existing file in source directory"));
 
         let last_entry = {
             let last = match self.last.as_ref() {
                 Some(cache) => cache,
-                None => return false,
+                None => return true,
             };
 
             match last.find_cache(rel_path) {

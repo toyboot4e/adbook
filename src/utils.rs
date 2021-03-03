@@ -140,11 +140,12 @@ pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool
 
 /// Recursively runs given procedure to files under a directory
 ///
-/// Stops when any error is found.
+/// The user procedure takes absolute path as a parameter. Stops immediately when any error is
+/// found.
 pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> Result<()> {
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
-        let entry_path = entry.path();
+        let entry_path = dir.join(entry.path());
 
         if entry_path.is_file() {
             f(&entry_path)?;
