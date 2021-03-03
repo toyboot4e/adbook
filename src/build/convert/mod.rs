@@ -60,13 +60,10 @@ pub fn convert_adoc(
 /// Converts an AsciiDoc file to an html string and then applies a Handlebars template
 ///
 /// Be sure that the `buf` is always cleared.
-///
-/// * `dummy_dst_name`: used for debug log
-/// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc_buf(
     buf: &mut String,
     src_file: &Path,
-    dummy_dst_name: &str,
+    dst_name_for_debug: &str,
     acx: &AdocRunContext,
     hcx: &HbsContext,
 ) -> Result<()> {
@@ -90,7 +87,7 @@ pub fn convert_adoc_buf(
 
     // run `asciidoctor` and write the output to `buf`
     buf.clear();
-    adoc::run_asciidoctor_buf(buf, src_file, dummy_dst_name, &acx)?;
+    adoc::run_asciidoctor_buf(buf, src_file, dst_name_for_debug, &acx)?;
 
     // maybe apply Handlebars template
     if let Some(hbs_attr) = metadata.find_attr("hbs") {

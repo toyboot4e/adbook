@@ -12,16 +12,21 @@ use crate::book::{
 
 /// Converts each file in book
 pub trait BookVisitor: Clone + Send + Sync {
-    fn visit_file(&mut self, file: &Path) -> Result<()>;
+    /// Needs rebuild or we can just copy?
+    fn can_skip_build(&self, src_file: &Path) -> bool;
+    /// Build or just copy the source file.
+    ///
+    /// * `src_file`: absolute path to a source file
+    fn visit_file(&mut self, src_file: &Path) -> Result<()>;
 }
 
-fn pull_book_files(book: &BookStructure) -> Vec<PathBuf> {
+fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
     // note that paths in `Toc` are already canonicalized (can can be passed to visitors directly)
 
     /// [Depth-first] iteration
     ///
     /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
-    fn pull_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
+    fn list_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
         files.push(toc.summary.clone());
         for item in &toc.items {
             match item {
@@ -29,7 +34,7 @@ fn pull_book_files(book: &BookStructure) -> Vec<PathBuf> {
                     files.push(path.clone());
                 }
                 TocItem::Dir(toc) => {
-                    pull_files_rec(toc, files);
+                    list_files_rec(toc, files);
                 }
             };
         }
@@ -45,14 +50,14 @@ fn pull_book_files(book: &BookStructure) -> Vec<PathBuf> {
     }
 
     // `toc.ron` files
-    pull_files_rec(&book.toc, &mut files);
+    list_files_rec(&book.toc, &mut files);
 
     files
 }
 
 /// Walks a root [`Toc`] and converts files one by one
 pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
-    let files = self::pull_book_files(&book);
+    let files = self::list_src_files(&book);
     let results = files.iter().map(|file| v.visit_file(file));
 
     let errors: Vec<_> = results
@@ -67,22 +72,33 @@ pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
 
 /// Walks a root [`Toc`] and converts files in parallel
 pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure) {
-    let files = self::pull_book_files(&book);
+    let src_files = self::list_src_files(&book);
 
     // collect `Future`s
-    let xs = files.into_iter().map(|file| {
-        let mut v = v.clone();
-        // async move { v.visit_file(&file, &vcx) }
-        async_std::task::spawn(async move { v.visit_file(&file) })
-    });
+    let mut errors = Vec::with_capacity(16);
+    let xs = src_files
+        .into_iter()
+        .filter_map(|src_file| {
+            if v.can_skip_build(&src_file) {
+                if let Err(err) = v.visit_file(&src_file) {
+                    errors.push(err);
+                }
+                None
+            } else {
+                // TODO: maybe don't clone?
+                let mut v = v.clone();
+                Some(async_std::task::spawn(
+                    async move { v.visit_file(&src_file) },
+                ))
+            }
+        })
+        .collect::<Vec<_>>();
 
     let results = futures::future::join_all(xs).await;
 
-    let errors: Vec<_> = results
-        .into_iter()
-        .filter(|x| x.is_err())
-        .map(|x| x.unwrap_err())
-        .collect();
+    for err in results.into_iter().filter_map(|x| x.err()) {
+        errors.push(err);
+    }
 
     crate::utils::print_errors(&errors, "while building the book");
 }

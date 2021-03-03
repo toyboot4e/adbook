@@ -30,16 +30,18 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     }
 
     // create temporary directory if there's not
+    // TODO: maybe use OS tmp dir
     let tmp_dir = book.site_dir_path().join("__adbook_tmp__");
     self::validate_tmp_dir(&tmp_dir).context("Unable to validate temporary output directory")?;
 
-    // now let's build the project!
-    let (mut v, errors) = AdocBookVisitor::from_book(book, &tmp_dir);
+    // 1. build the project
+    let (mut v, errors) = AdocBookVisitor::from_book(book, &tmp_dir)?;
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
-
+    info!("---- Running builders");
     block_on(walk_book_async(&mut v, &book));
 
-    info!("===> Copying output files to site directory");
+    // 2. copy the build files to the site directory
+    info!("---- Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
         let res = self::overwrite_site_with_temporary_outputs(book, &tmp_dir, &mut errors);
@@ -47,8 +49,13 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
         res?;
     }
 
+    // 3. update the cache
+    info!("---- Updating build cache");
+    v.cache.save(book)?;
+
+    // 4. clean up temporary output
     info!(
-        "===> Removing the temporary output directory: {}",
+        "---- Removing the temporary output directory: {}",
         tmp_dir.display()
     );
 
@@ -62,6 +69,7 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     Ok(())
 }
 
+/// Create temporary directory at a path
 fn validate_tmp_dir(out_dir: &Path) -> Result<()> {
     // make sure we have an available temporary output directory
     if out_dir.exists() {
@@ -202,7 +210,7 @@ fn overwrite_site_with_temporary_outputs(
         }
     }
 
-    // copy the output files to site directory
+    // copy the output files to the site directory
     for entry in fs::read_dir(&out_dir).context("Unable to `read_dir` the tmp directory")? {
         let entry = entry.context("Unable to read some entry when reading tmp directory item")?;
 
@@ -211,7 +219,11 @@ fn overwrite_site_with_temporary_outputs(
         let dst_path = site_dir.join(rel_path);
 
         if src_path.is_file() {
-            trace!("* `{}` -> `{}`", src_path.display(), dst_path.display());
+            trace!(
+                "- copy `{}` -> `{}`",
+                src_path.display(),
+                dst_path.display()
+            );
             fs::copy(&src_path, &dst_path)?;
         } else if src_path.is_dir() {
             crate::utils::copy_items_rec(&src_path, &dst_path)?;
