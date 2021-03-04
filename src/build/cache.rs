@@ -13,10 +13,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::book::BookStructure;
 
-fn cache_path(book: &BookStructure) -> PathBuf {
-    book.root.join(".adbook-cache")
-}
-
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CacheEntry {
     last_modified: SystemTime,
@@ -30,24 +26,15 @@ pub struct CacheData {
     entries: Vec<CacheEntry>,
 }
 
-impl CacheData {
-    pub fn load_last_cache(book: &BookStructure) -> Result<Option<Self>> {
-        let cache_file_path = self::cache_path(book);
-
-        if !cache_file_path.exists() {
-            Ok(None)
-        } else if cache_file_path.is_file() {
-            // load
-            let cache = ron::de::from_reader(File::open(cache_file_path)?)
-                .with_context(|| "cannot deserialize adbook cache file")?;
-            Ok(Some(cache))
-        } else {
-            bail!("cannot create adbook cache file");
-        }
+impl Default for CacheData {
+    fn default() -> Self {
+        Self { entries: vec![] }
     }
+}
 
+impl CacheData {
     /// Create s cache from the source directory of a book
-    pub fn create_new_cache(book: &BookStructure) -> Result<CacheData> {
+    pub fn create_new_cache(book: &BookStructure) -> Result<Self> {
         let src_dir = book.src_dir_path();
         let mut entries = Vec::new();
         crate::utils::visit_files_rec(&src_dir, &mut |src_file| {
@@ -65,13 +52,6 @@ impl CacheData {
         Ok(CacheData { entries })
     }
 
-    pub fn write(&self, book: &BookStructure) -> Result<()> {
-        let s = ron::ser::to_string(self)?;
-        let path = self::cache_path(book);
-        fs::write(path, s)?;
-        Ok(())
-    }
-
     pub fn find_cache(&self, rel_path: &Path) -> Option<&CacheEntry> {
         for e in &self.entries {
             if e.path == rel_path {
@@ -84,20 +64,21 @@ impl CacheData {
 
 #[derive(Debug, Clone)]
 pub struct CacheDiff {
-    last: Option<CacheData>,
-    now: CacheData,
+    old: Option<CacheData>,
+    new: CacheData,
 }
 
 impl CacheDiff {
-    pub fn load(book: &BookStructure) -> Result<Self> {
-        let last = CacheData::load_last_cache(book)?;
+    fn create(book: &BookStructure, old_cache: Option<CacheData>) -> Result<Self> {
         let now = CacheData::create_new_cache(book)?;
-        Ok(Self { last, now })
+        Ok(Self {
+            old: old_cache,
+            new: now,
+        })
     }
 
-    pub fn save(&self, book: &BookStructure) -> Result<()> {
-        self.now.write(book)?;
-        Ok(())
+    pub fn into_new_cache_data(self) -> CacheData {
+        self.new
     }
 
     /// If the file needs to be rebuilt
@@ -111,12 +92,12 @@ impl CacheDiff {
         };
 
         let current_entry = self
-            .now
+            .new
             .find_cache(rel_path)
             .unwrap_or_else(|| panic!("given non-existing file in source directory"));
 
         let last_entry = {
-            let last = match self.last.as_ref() {
+            let last = match self.old.as_ref() {
                 Some(cache) => cache,
                 None => return true,
             };
@@ -128,5 +109,75 @@ impl CacheDiff {
         };
 
         last_entry.last_modified != current_entry.last_modified
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+pub struct CacheIndex {
+    cache: CacheData,
+}
+
+impl CacheIndex {
+    fn locate_cache_root(book: &BookStructure) -> PathBuf {
+        let cache_dir = book.root.join(".adbook-cache/");
+        crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
+        cache_dir
+    }
+
+    fn locate_index(book: &BookStructure) -> PathBuf {
+        let cache_dir = book.root.join(".adbook-cache/");
+        crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
+        cache_dir.join("index")
+    }
+
+    pub fn load(book: &BookStructure) -> Result<Self> {
+        let index = Self::locate_index(book);
+        if !index.is_file() {
+            Ok(Default::default())
+        } else {
+            let me = ron::de::from_reader(File::open(&index)?)?;
+            Ok(me)
+        }
+    }
+
+    pub fn create_diff(&self, book: &BookStructure) -> Result<CacheDiff> {
+        if self.cache.entries.is_empty() {
+            CacheDiff::create(book, None)
+        } else {
+            CacheDiff::create(book, Some(self.cache.clone()))
+        }
+    }
+
+    /// `.cache_dir/a`; old files will be here
+    pub fn locate_old_cache_dir(book: &BookStructure) -> Result<PathBuf> {
+        let cache_dir = Self::locate_cache_root(book);
+        let tmp_dir = cache_dir.join("a");
+        crate::utils::validate_dir(&tmp_dir)?;
+        Ok(tmp_dir)
+    }
+
+    /// `.cache_dir/b`; create new files here
+    pub fn locate_new_cache_dir(book: &BookStructure) -> Result<PathBuf> {
+        let cache_dir = Self::locate_cache_root(book);
+        let tmp_dir = cache_dir.join("b");
+        crate::utils::validate_dir(&tmp_dir)?;
+        Ok(tmp_dir)
+    }
+
+    /// Cleans up the temporary directory and
+    pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheData) -> Result<()> {
+        // copy htlm files
+        let old = Self::locate_old_cache_dir(book)?;
+        let new = Self::locate_new_cache_dir(book)?;
+        // rm -rf old
+        fs::remove_dir_all(&old)?;
+        // mv new old
+        fs::rename(new, &old)?;
+
+        // save cacke
+        let index = Self::locate_index(book);
+        let ron = ron::ser::to_string(&Self { cache: new_cache })?;
+        fs::write(&index, ron.as_bytes())?;
+        Ok(())
     }
 }

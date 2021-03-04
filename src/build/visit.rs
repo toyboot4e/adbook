@@ -16,7 +16,7 @@ use {
 use crate::{
     book::{walk::BookVisitor, BookStructure},
     build::{
-        cache::CacheDiff,
+        cache::{CacheDiff, CacheIndex},
         convert::{hbs::HbsContext, AdocRunContext},
     },
 };
@@ -25,7 +25,7 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct AdocBookVisitor {
     book: BookStructure,
-    pub cache: CacheDiff,
+    pub(crate) cache_diff: CacheDiff,
     buf: String,
     // context to run `asciidoctor` and Handlebars
     acx: AdocRunContext,
@@ -36,9 +36,11 @@ pub struct AdocBookVisitor {
 }
 
 impl AdocBookVisitor {
-    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Result<(Self, Vec<Error>)> {
-        let cache = CacheDiff::load(book)?;
-
+    pub fn from_book(
+        book: &BookStructure,
+        cache_diff: CacheDiff,
+        dst_dir: &Path,
+    ) -> (Self, Vec<Error>) {
         let (hcx, errors) = HbsContext::from_book(book);
         trace!("handlebars context created");
         // trace!("{:#?}", hcx);
@@ -47,10 +49,10 @@ impl AdocBookVisitor {
         trace!("asciidoc context created");
         // trace!("{:#?}", acx);
 
-        Ok((
+        (
             Self {
                 book: book.clone(),
-                cache,
+                cache_diff,
                 buf: String::with_capacity(1024 * 5),
                 acx,
                 hcx,
@@ -58,10 +60,10 @@ impl AdocBookVisitor {
                 dst_dir: dst_dir.to_path_buf(),
             },
             errors,
-        ))
+        )
     }
 
-    fn create_dst_file(&mut self, src_file: &Path) -> Result<PathBuf> {
+    fn src_file_to_dst_file(&self, src_file: &Path) -> Result<PathBuf> {
         // filter files by extension
         match src_file.extension().and_then(|o| o.to_str()) {
             Some("adoc") => {}
@@ -87,7 +89,11 @@ impl AdocBookVisitor {
             .strip_prefix(&self.src_dir)
             .with_context(|| format!("File not in source directly: {}", src_file.display()))?;
 
-        let dst_file = self.dst_dir.join(&rel).with_extension("html");
+        Ok(self.dst_dir.join(&rel).with_extension("html"))
+    }
+
+    fn create_dst_file(&mut self, src_file: &Path) -> Result<PathBuf> {
+        let dst_file = self.src_file_to_dst_file(src_file)?;
 
         let dst_dir = dst_file.parent().with_context(|| {
             format!(
@@ -128,7 +134,7 @@ unsafe impl Send for AdocBookVisitor {}
 impl BookVisitor for AdocBookVisitor {
     /// Needs rebuild or we can just copy?
     fn can_skip_build(&self, src_file: &Path) -> bool {
-        !self.cache.need_build(&self.book, src_file)
+        !self.cache_diff.need_build(&self.book, src_file)
     }
 
     /// Build or just copy the source file.
@@ -138,8 +144,16 @@ impl BookVisitor for AdocBookVisitor {
         let dst_file = self.create_dst_file(src_file)?;
         if self.can_skip_build(src_file) {
             // just copy
+            let src_dir = self.book.src_dir_path();
+            let rel_path = src_file.strip_prefix(&src_dir)?;
+            let cache_dir = CacheIndex::locate_old_cache_dir(&self.book)?;
+            // FIXME: hard-coded
+            let cached_file = cache_dir.join(rel_path).with_extension("html");
+
             self.buf.clear();
-            let mut f = fs::File::open(src_file)?;
+            let mut f = fs::File::open(&cached_file).with_context(|| {
+                format!("Unable to locate cached file at {}", cached_file.display())
+            })?;
             // log::trace!("- skip: {}", src_file.display());
             f.read_to_string(&mut self.buf)?;
         } else {

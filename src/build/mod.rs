@@ -12,30 +12,23 @@ use {
 
 use crate::{
     book::{walk::walk_book_async, BookStructure},
-    build::visit::AdocBookVisitor,
+    build::{cache::CacheIndex, visit::AdocBookVisitor},
 };
 
 /// Builds an `adbook` structure into a site directory, making use of caches and parallelization
 ///
 /// book -> tmp -> site
 pub fn build_book(book: &BookStructure) -> Result<()> {
-    // create site (destination) directory if there's not
-    {
-        let site = book.site_dir_path();
-        if !site.exists() {
-            fs::create_dir(&site).with_context(|| {
-                format!("Failed to create site directory at: {}", site.display())
-            })?;
-        }
-    }
+    let site_dir = book.site_dir_path();
+    crate::utils::validate_dir(&site_dir)
+        .with_context(|| format!("Failed to create site directory at: {}", site_dir.display()))?;
 
-    // create temporary directory if there's not
-    // TODO: maybe use OS tmp dir
-    let tmp_dir = book.site_dir_path().join("__adbook_tmp__");
-    self::validate_tmp_dir(&tmp_dir).context("Unable to validate temporary output directory")?;
+    let index = cache::CacheIndex::load(book)?;
+    let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
 
     // 1. build the project
-    let (mut v, errors) = AdocBookVisitor::from_book(book, &tmp_dir)?;
+    let (mut v, errors) =
+        AdocBookVisitor::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
     info!("---- Running builders");
     block_on(walk_book_async(&mut v, &book));
@@ -44,74 +37,14 @@ pub fn build_book(book: &BookStructure) -> Result<()> {
     info!("---- Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
-        let res = self::overwrite_site_with_temporary_outputs(book, &tmp_dir, &mut errors);
+        let res = self::overwrite_site_with_temporary_outputs(book, &new_cache_dir, &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
 
-    // 3. update the cache
+    // 3. clean up and save cache
     info!("---- Updating build cache");
-    v.cache.save(book)?;
-
-    // 4. clean up temporary output
-    info!(
-        "---- Removing the temporary output directory: {}",
-        tmp_dir.display()
-    );
-
-    fs::remove_dir_all(&tmp_dir).with_context(|| {
-        format!(
-            "Unexpected error when removing the temporary output directory at: {}",
-            tmp_dir.display()
-        )
-    })?;
-
-    Ok(())
-}
-
-/// Create temporary directory at a path
-fn validate_tmp_dir(out_dir: &Path) -> Result<()> {
-    // make sure we have an available temporary output directory
-    if out_dir.exists() {
-        ensure!(
-            out_dir.is_dir(),
-            "There's something that prevents `adbook` from making a temporary output directory at: {}",
-            out_dir.display()
-        );
-
-        // OK, we'll remove the directory anyway
-        trace!(
-            "Removing the existing temporary output directory at: {}",
-            out_dir.display()
-        );
-
-        fs::remove_dir_all(&out_dir).with_context(|| {
-            format!(
-                "Unexpected error while clearing an output directory for `adbook`: {}",
-                out_dir.display()
-            )
-        })?;
-    }
-
-    // now `out_dir` must NOT exist
-    assert!(
-        !out_dir.exists(),
-        "Fatal error: adbook must have ensured that temporary output directory doesn't exist at: {}",
-        out_dir.display()
-    );
-
-    // create the temporary outputting directory
-    fs::create_dir(&out_dir).with_context(|| {
-        format!(
-            "Failed to temporary output directory at: {}",
-            out_dir.display()
-        )
-    })?;
-
-    trace!(
-        "Created a new temporary output directly at: {}",
-        out_dir.display()
-    );
+    index.clean_up_and_save(book, v.cache_diff.into_new_cache_data())?;
 
     Ok(())
 }

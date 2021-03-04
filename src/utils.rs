@@ -158,3 +158,15 @@ pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> R
 
     Ok(())
 }
+
+/// Create a directory
+pub fn validate_dir(dir: &Path) -> Result<()> {
+    if !dir.exists() {
+        fs::create_dir(dir)
+            .with_context(|| format!("Unable to create site directory at: {}", dir.display()))?;
+    } else if !dir.is_dir() {
+        bail!("Unexpected item at {}", dir.display());
+    }
+
+    Ok(())
+}
