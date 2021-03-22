@@ -21,7 +21,7 @@ $ cargo install adbook # -> $HOME/.cargo/bin
 
 ==== Ruby & Asciidoctor
 
-You need Ruby and some package manager. I recommend https://rvm.io/[RVM] because programs installed with it runed faster than that were with `rbenv` (somehow).
+You need Ruby and some package manager. I recommend https://rvm.io/[RVM] because programs installed with it ran faster than that were with `rbenv` (somehow).
 
 Then let's get Asciidoctor gems:
 
@@ -116,7 +116,7 @@ The well-written manual.
 
 * http://www.seinan-gu.ac.jp/~shito/asciidoctor/html_chunk/[Asciidoctor User Manual (unofficial chunked version)]
 +
-Chunked version of the manual enerated with https://github.com/wshito/asciidoctor-chunker[asciidoctor-chunker]
+Chunked version of the manual generated with https://github.com/wshito/asciidoctor-chunker[asciidoctor-chunker]
 
 * https://asciidoctor-docs.netlify.app[Asciidoctor Documentation :: The Docs @ Asciidoctor]
 +
