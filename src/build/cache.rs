@@ -33,6 +33,10 @@ impl Default for CacheData {
 }
 
 impl CacheData {
+    pub fn empty() -> Self {
+        Self{entries:vec![]}
+    }
+
     /// Create s cache from the source directory of a book
     pub fn create_new_cache(book: &BookStructure) -> Result<Self> {
         let src_dir = book.src_dir_path();
@@ -128,6 +132,12 @@ impl CacheIndex {
         let cache_dir = book.root.join(".adbook-cache/");
         crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
         cache_dir.join("index")
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            cache: CacheData::empty(),
+        }
     }
 
     pub fn load(book: &BookStructure) -> Result<Self> {

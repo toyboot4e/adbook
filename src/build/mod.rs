@@ -18,12 +18,17 @@ use crate::{
 /// Builds an `adbook` structure into a site directory, making use of caches and parallelization
 ///
 /// book -> tmp -> site
-pub fn build_book(book: &BookStructure) -> Result<()> {
+pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
     let site_dir = book.site_dir_path();
     crate::utils::validate_dir(&site_dir)
         .with_context(|| format!("Failed to create site directory at: {}", site_dir.display()))?;
 
-    let index = cache::CacheIndex::load(book)?;
+    let index = if force_rebuild {
+        CacheIndex::empty()
+    } else {
+        cache::CacheIndex::load(book)?
+    };
+
     let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
 
     // 1. build the project

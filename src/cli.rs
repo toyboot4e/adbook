@@ -34,7 +34,7 @@ use crate::book::BookStructure;
 // `adbook`
 #[derive(Clap, Debug)]
 #[clap(
-    name = "adbook creates a book from AsciiDoc files",
+    name = "adbook is a SSG based on asciidoctor",
     setting = clap::AppSettings::ColoredHelp
 )]
 pub struct Cli {
@@ -78,6 +78,8 @@ impl SubCommand {
 #[derive(Clap, Debug)]
 pub struct Build {
     pub dir: Option<String>,
+    #[clap(short, long = "force")]
+    pub force_rebuild: bool,
 }
 
 impl Build {
@@ -88,7 +90,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         info!("===> Building the book");
-        crate::build::build_book(&book)?;
+        crate::build::build_book(&book, self.force_rebuild)?;
         info!("<==> Finished bulding");
 
         Ok(())
