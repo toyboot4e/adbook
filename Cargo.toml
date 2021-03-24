@@ -15,18 +15,22 @@ log = "0.4.11"
 anyhow = "1.0.33"
 thiserror = "1.0.21"
 
-# for implementation
+# implementation
+async-std = "1.6.5"
+colored = "2.0.0"
+futures = { version = "0.3.7", features = [] }
+handlebars = "3.5.0"
 serde = { version = "1.0.116", features = ["derive"] }
 ron = "0.6.2"
-colored = "2.0.0"
-handlebars = "3.5.0"
-futures = { version = "0.3.7", features = [] }
-async-std = "1.6.5"
 
-# for `cli` module
+# CLI
 clap = "3.0.0-beta.2"
 
-# for `main.rs`
+# main
 fern = { version = "0.6.0", features = ["colored"] }
 chrono = "0.4.19"
+
+# progress bar
+indicatif = "0.15.0"
+rayon = "1.5.0"
 

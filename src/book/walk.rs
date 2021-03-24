@@ -2,7 +2,11 @@
 
 use {
     anyhow::Result,
-    std::path::{Path, PathBuf},
+    indicatif::{ProgressBar, ProgressStyle},
+    std::{
+        path::{Path, PathBuf},
+        sync::{Arc, Mutex},
+    },
 };
 
 use crate::book::{
@@ -55,20 +59,20 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
     files
 }
 
-/// Walks a root [`Toc`] and converts files one by one
-pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
-    let files = self::list_src_files(&book);
-    let results = files.iter().map(|file| v.visit_file(file));
-
-    let errors: Vec<_> = results
-        .into_iter()
-        .filter(|x| x.is_err())
-        .map(|x| x.unwrap_err())
-        .collect();
-
-    // print errors if any
-    crate::utils::print_errors(&errors, "while building the book");
-}
+// /// Walks a root [`Toc`] and converts files one by one
+// pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
+//     let files = self::list_src_files(&book);
+//     let results = files.iter().map(|file| v.visit_file(file));
+//
+//     let errors: Vec<_> = results
+//         .into_iter()
+//         .filter(|x| x.is_err())
+//         .map(|x| x.unwrap_err())
+//         .collect();
+//
+//     // print errors if any
+//     crate::utils::print_errors(&errors, "while building the book");
+// }
 
 /// Walks a root [`Toc`] and converts files in parallel
 pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure) {
@@ -76,21 +80,43 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
 
     // collect `Future`s
     let mut errors = Vec::with_capacity(16);
-    let xs = src_files
+
+    let filtered = src_files
         .into_iter()
-        .filter_map(|src_file| {
+        .filter(|src_file| {
+            // TODO: maybe don't clone?
+            let mut v = v.clone();
             if v.can_skip_build(&src_file) {
                 if let Err(err) = v.visit_file(&src_file) {
                     errors.push(err);
                 }
-                None
+                false
             } else {
-                // TODO: maybe don't clone?
-                let mut v = v.clone();
-                Some(async_std::task::spawn(
-                    async move { v.visit_file(&src_file) },
-                ))
+                true
             }
+        })
+        .collect::<Vec<_>>();
+
+    // progress bar
+    let pb = ProgressBar::new(filtered.len() as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("[{elapsed}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
+            .progress_chars("##-"),
+    );
+
+    let pb = Arc::new(Mutex::new(pb));
+    let xs = filtered
+        .into_iter()
+        .map(|src_file| {
+            // TODO: maybe don't clone?
+            let mut v = v.clone();
+            let pb = Arc::clone(&pb);
+            async_std::task::spawn(async move {
+                let res = v.visit_file(&src_file);
+                pb.lock().expect("unable to get progress bar").inc(1);
+                res
+            })
         })
         .collect::<Vec<_>>();
 

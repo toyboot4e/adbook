@@ -1,7 +1,8 @@
 (
-    summary: ("About", "index.adoc"),
+    summary: ("", "index.adoc"),
+    // NOTE: using the first argument, the name can optionally be overriden
     items: [
-        File("Article", "article.adoc"),
+        File("", "article.adoc"),
         // Dir("path"),
     ],
 )
