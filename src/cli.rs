@@ -59,7 +59,7 @@ pub enum SubCommand {
     /// Prints one of the preset files: `article.adoc`, `book.ron` or `toc.ron`
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
-    /// Clears site directory contents
+    /// Clears site directory contents and build cache
     Clean(Clean),
 }
 
@@ -191,6 +191,9 @@ impl Clean {
 
         info!("===> Clearing the site directory");
         crate::utils::clear_directory_items(&book.site_dir_path(), is_path_to_keep)?;
+
+        info!("===> Clearing build cache");
+        crate::build::cache::clear_cache(&book)?;
 
         Ok(())
     }

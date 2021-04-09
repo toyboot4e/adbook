@@ -4,6 +4,7 @@ Skip running `asciidoctor` if a file is not modofied since the last run
 
 use std::{
     fs::{self, File},
+    io,
     path::{Path, PathBuf},
     time::SystemTime,
 };
@@ -12,6 +13,15 @@ use anyhow::*;
 use serde::{Deserialize, Serialize};
 
 use crate::book::BookStructure;
+
+pub fn clear_cache(book: &BookStructure) -> io::Result<()> {
+    let root = CacheIndex::locate_cache_root(book);
+    if !root.is_dir() {
+        return Ok(());
+    }
+    fs::remove_dir_all(root)?;
+    Ok(())
+}
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CacheEntry {
@@ -34,7 +44,7 @@ impl Default for CacheData {
 
 impl CacheData {
     pub fn empty() -> Self {
-        Self{entries:vec![]}
+        Self { entries: vec![] }
     }
 
     /// Create s cache from the source directory of a book
@@ -174,7 +184,7 @@ impl CacheIndex {
         Ok(tmp_dir)
     }
 
-    /// Cleans up the temporary directory and
+    /// Cleans up the temporary directory and saves build cache
     pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheData) -> Result<()> {
         // copy htlm files
         let old = Self::locate_old_cache_dir(book)?;
