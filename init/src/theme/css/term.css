@@ -112,32 +112,32 @@ html {
     color: rgb(192, 192, 192);
 }
 
-ol {
+.sidebar ol {
     list-style-type: none;
     counter-reset: item;
     margin: 0;
     padding: 0;
 }
 
-ol > li {
+.sidebar ol > li {
     display: table;
     counter-increment: item;
     margin-bottom: 1em; /* space between sections */
 }
 
-li ol > li {
+.sidebar li ol > li {
     margin: 0.6em; /* space between section items */
 }
 
 /* consider nest items */
 
-ol > li:before {
+.sidebar ol > li:before {
     content: counters(item, "-") ". ";
     display: table-cell;
     padding-right: 0.6em;
 }
 
-li ol > li:before {
+.sidebar li ol > li:before {
     content: counters(item, ".") " ";
 }
 
@@ -428,8 +428,8 @@ strong {
 }
 
 li {
-    margin-top: 0.5em;
-    margin-bottom: 0.8em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
 }
 
 li:last-child {
