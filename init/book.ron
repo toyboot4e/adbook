@@ -6,13 +6,18 @@
     authors: ["adbook"],
     title: "adbook demo site",
 
+    // whether we copy and use the builtin `src/theme` directory or not
+    use_default_theme: true,
+
+    // files copied to `site` directory
     includes: [
-        "static/img",
-        "theme/css",
-        "theme/js",
-        "theme/favicon.svg",
+        // "static/img",
+        // "theme/css",
+        // "theme/js",
+        // "theme/favicon.svg",
     ],
 
+    // files converted to `site` directory without being added to sidebar
     converts: [
         // "404.adoc",
     ],

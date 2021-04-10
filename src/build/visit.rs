@@ -123,6 +123,7 @@ impl AdocBookVisitor {
             &dst_name_for_debug,
             &self.acx,
             &self.hcx,
+            &self.book,
         )?;
 
         Ok(())

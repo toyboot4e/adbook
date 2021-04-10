@@ -40,7 +40,9 @@ use {
 };
 
 pub use self::adoc::AdocRunContext;
-use self::hbs::HbsContext;
+use self::hbs::{HbsContext, HbsInput};
+
+use crate::book::BookStructure;
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///
@@ -51,9 +53,10 @@ pub fn convert_adoc(
     dummy_dst_name: &str,
     acx: &AdocRunContext,
     hcx: &HbsContext,
+    book: &BookStructure,
 ) -> Result<String> {
     let mut buf = String::with_capacity(5 * 1024);
-    self::convert_adoc_buf(&mut buf, src_file, dummy_dst_name, acx, hcx)?;
+    self::convert_adoc_buf(&mut buf, src_file, dummy_dst_name, acx, hcx, book)?;
     Ok(buf)
 }
 
@@ -66,6 +69,7 @@ pub fn convert_adoc_buf(
     dst_name_for_debug: &str,
     acx: &AdocRunContext,
     hcx: &HbsContext,
+    book: &BookStructure,
 ) -> Result<()> {
     ensure!(
         src_file.is_file(),
@@ -91,7 +95,7 @@ pub fn convert_adoc_buf(
 
     // maybe apply Handlebars template
     if let Some(hbs_attr) = metadata.find_attr("hbs") {
-        let src_name = format!("{}", src_file.display());
+        let src_file_name = format!("{}", src_file.display());
 
         let hbs_file_path = {
             let hbs_name = hbs_attr
@@ -101,10 +105,16 @@ pub fn convert_adoc_buf(
         };
 
         // `.hbs` files are always located just under `hbs_dir`
-        let output = {
-            let hbs_dir = hbs_file_path.parent().unwrap();
-            let mut hbs = hbs::init_hbs(&hbs_dir)?;
-            hbs::render_hbs(buf, &src_name, &metadata, &mut hbs, &hbs_file_path, hcx)?
+        let output = if book.book_ron.use_default_theme {
+            // use default theme
+            let mut hbs = hbs::init_hbs_default()?;
+            let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
+            hbs::render_hbs_default(&mut hbs, &hbs_input, &src_file_name)?
+        } else {
+            // use user theme
+            let mut hbs = hbs::init_hbs_user(hbs_file_path.parent().unwrap())?;
+            let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
+            hbs::render_hbs_user(&mut hbs, &hbs_input, &src_file_name, &hbs_file_path)?
         };
 
         buf.clear();
