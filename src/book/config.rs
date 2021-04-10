@@ -20,6 +20,8 @@ pub struct BookRon {
     pub title: String,
     /// Files or directories copied to site directory
     pub includes: Vec<PathBuf>,
+    /// Whether we copy and use the default `src/theme` directory or not
+    pub use_default_theme: bool,
     /// Files to convert but not in sidebar. Typically `404.adoc`
     pub converts: Vec<PathBuf>,
     /// Additional options for `asciidoctor` command

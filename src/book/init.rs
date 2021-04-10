@@ -1,8 +1,10 @@
-//! Files/directories that are created when initializing a book directory
-//!
-//! I wanted to do it automatically, but not sure how to do it.
+/*!
+Files/directories that are created when initializing a book directory
 
-use std::path::Path;
+TODO: Do it automatically. See also: `hbs.rs`
+*/
+
+use std::{fs, io, path::Path};
 
 pub mod files {
     //! Init files in bytes
@@ -51,12 +53,9 @@ pub mod files {
     }
 }
 
-/// List of init files
-pub static LIST: &[(&str, &[u8]); 24] = {
-    use files::src::{
-        self,
-        theme::{self, css, hbs, js},
-    };
+/// List of init files relative to root directory
+static LIST: &[(&str, &[u8]); 8] = {
+    use files::src;
 
     &[
         // 3
@@ -70,62 +69,91 @@ pub static LIST: &[(&str, &[u8]); 24] = {
         ("src/toc.ron", src::TOC),
         ("src/index.adoc", src::INDEX),
         ("src/article.adoc", src::ARTICLE),
-        // 2
-        ("src/static", &[]),
-        ("src/static/img", &[]),
-        // 2
-        ("src/theme", &[]),
-        ("src/theme/favicon.svg", theme::FAVICON),
-        // 5
-        ("src/theme/hbs", &[]),
-        ("src/theme/hbs/article.hbs", hbs::ARTICLE),
-        ("src/theme/hbs/partials", &[]),
-        ("src/theme/hbs/partials/sidebar.hbs", hbs::partials::SIDEBAR),
-        (
-            "src/theme/hbs/partials/sidebar_item.hbs",
-            hbs::partials::SIDEBAR_ITEM,
-        ),
-        // 5
-        ("src/theme/css", &[]),
-        ("src/theme/css/term.css", css::TERM),
-        ("src/theme/css/partials", &[]),
-        ("src/theme/css/partials/term_adoc.css", css::partials::TERM_ADOC),
-        (
-            "src/theme/css/partials/prism_okidia.css",
-            css::partials::PRISM_OKIDIA,
-        ),
-        // 2
-        ("src/theme/js", &[]),
-        ("src/theme/js/prism.js", js::PRISM),
     ]
 };
 
-/// Generates init file structure
+/// List of theme files relative to `src` directory
+static THEME_ITEMS: &[(&str, &[u8]); 14] = {
+    use files::src::theme::{self, css, hbs, js};
+
+    &[
+        // 2
+        ("theme", &[]),
+        ("theme/favicon.svg", theme::FAVICON),
+        // 5
+        ("theme/hbs", &[]),
+        ("theme/hbs/article.hbs", hbs::ARTICLE),
+        ("theme/hbs/partials", &[]),
+        ("theme/hbs/partials/sidebar.hbs", hbs::partials::SIDEBAR),
+        (
+            "theme/hbs/partials/sidebar_item.hbs",
+            hbs::partials::SIDEBAR_ITEM,
+        ),
+        // 5
+        ("theme/css", &[]),
+        ("theme/css/term.css", css::TERM),
+        ("theme/css/partials", &[]),
+        ("theme/css/partials/term_adoc.css", css::partials::TERM_ADOC),
+        (
+            "theme/css/partials/prism_okidia.css",
+            css::partials::PRISM_OKIDIA,
+        ),
+        // 2
+        ("theme/js", &[]),
+        ("theme/js/prism.js", js::PRISM),
+    ]
+};
+
+/// Non-recursive directory creation
+fn gen_dir(path: &Path) -> io::Result<bool> {
+    if !path.exists() {
+        fs::create_dir(path)?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
+
+fn gen_file(path: &Path, bytes: impl AsRef<[u8]>) -> io::Result<bool> {
+    if !path.exists() {
+        fs::write(path, bytes)?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
+
+/// Generates initial file structure
 pub fn gen_init_files(base_dir: &Path) -> std::io::Result<()> {
-    use std::{fs, io};
-
-    // helpers
-    fn gen_dir(path: &Path) -> io::Result<bool> {
-        if !path.exists() {
-            fs::create_dir(path)?;
-            Ok(true)
-        } else {
-            Ok(false)
-        }
-    }
-
-    fn gen_file(path: &Path, bytes: impl AsRef<[u8]>) -> io::Result<bool> {
-        if !path.exists() {
-            fs::write(path, bytes)?;
-            Ok(true)
-        } else {
-            Ok(false)
-        }
-    }
-
-    for (rel_path_src, bytes) in LIST.iter() {
-        let path = base_dir.join(rel_path_src);
+    for (rel_path, bytes) in LIST.iter() {
+        let path = base_dir.join(rel_path);
         log::trace!("{}", path.display());
+
+        if bytes.is_empty() {
+            gen_dir(&path)?;
+        } else {
+            gen_file(&path, bytes)?;
+        }
+    }
+
+    // create `src/static/img`
+    let path = base_dir.join("src/static");
+    gen_dir(&path)?;
+    let path = base_dir.join("src/static/img");
+    gen_dir(&path)?;
+
+    Ok(())
+}
+
+pub fn copy_default_theme(target_dir: &Path) -> std::io::Result<()> {
+    // create `theme` directory
+    let path = target_dir.join("theme");
+    gen_dir(&path)?;
+
+    for (rel_path, bytes) in THEME_ITEMS.iter() {
+        let path = target_dir.join(rel_path);
+        log::trace!("copy builtin theme item {}", path.display());
+
         if bytes.is_empty() {
             gen_dir(&path)?;
         } else {

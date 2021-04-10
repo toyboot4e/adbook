@@ -47,7 +47,13 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
         res?;
     }
 
-    // 3. clean up and save cache
+    // 3. copy default theme
+    if book.book_ron.use_default_theme {
+        info!("---- Copying default theme");
+        crate::book::init::copy_default_theme(&site_dir)?;
+    }
+
+    // 4. clean up and save cache
     info!("---- Updating build cache");
     index.clean_up_and_save(book, v.cache_diff.into_new_cache_data())?;
 

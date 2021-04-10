@@ -165,7 +165,7 @@ impl Sidebar {
 
 /// Variables directly supplied to Handlebars templates
 #[derive(Serialize, Debug, Clone)]
-pub struct HbsData<'a> {
+pub struct HbsInput<'a> {
     pub base_url: String,
     /// html data
     pub h_title: String,
@@ -181,7 +181,7 @@ pub struct HbsData<'a> {
     pub sidebar_items: Vec<SidebarItem>,
 }
 
-impl<'a> HbsData<'a> {
+impl<'a> HbsInput<'a> {
     /// WARN: be sure to set `sidebar_items` later
     pub fn new(html: &'a str, meta: &AdocMetadata, base_url: &str, sidebar: Sidebar) -> Self {
         fn attr(name: &str, metadata: &AdocMetadata) -> Option<String> {
@@ -199,7 +199,7 @@ impl<'a> HbsData<'a> {
             }
         });
 
-        HbsData {
+        HbsInput {
             base_url: base_url.to_string(),
             // TODO: supply html title via `book.ron` using placeholder sutring
             h_title: meta.title.clone().unwrap_or("".into()),
@@ -220,12 +220,11 @@ impl<'a> HbsData<'a> {
 // --------------------------------------------------------------------------------
 // Procedure
 
-/// Sets up [`Handlebars`] with partials (`.hbs` files that can be included from other `.hbs`
-/// files)
-pub fn init_hbs(hbs_dir: &Path) -> Result<Handlebars> {
+/// Setup [`Handlebars`] with user theme files
+pub fn init_hbs_user(hbs_dir: &Path) -> Result<Handlebars> {
     ensure!(
         hbs_dir.is_dir(),
-        "Unable to find `hbs` directory in source directory"
+        "Unable to find handlebars directory in source directory"
     );
 
     let mut hbs = Handlebars::new();
@@ -234,7 +233,7 @@ pub fn init_hbs(hbs_dir: &Path) -> Result<Handlebars> {
     let partials_dir = hbs_dir.join("partials");
     ensure!(
         partials_dir.is_dir(),
-        "Unable to find `hbs` partials directory at: {}",
+        "Unable to find handlebars partials directory at: {}",
         partials_dir.display(),
     );
 
@@ -261,23 +260,52 @@ pub fn init_hbs(hbs_dir: &Path) -> Result<Handlebars> {
     Ok(hbs)
 }
 
-pub fn render_hbs<'a>(
-    html: &str,
-    src_name: &str,
-    metadata: &AdocMetadata,
+/// Setup [`Handlebars`] with default theme files
+pub fn init_hbs_default() -> Result<Handlebars<'static>> {
+    let mut hbs = Handlebars::new();
+    hbs.set_strict_mode(true);
+
+    use crate::book::init::files::src::theme::hbs;
+
+    let text = std::str::from_utf8(hbs::partials::SIDEBAR)?;
+    hbs.register_partial("sidebar.hbs", &text)?;
+    let text = std::str::from_utf8(hbs::partials::SIDEBAR_ITEM)?;
+    hbs.register_partial("sidebar_item.hbs", &text)?;
+
+    Ok(hbs)
+}
+
+pub fn render_hbs_user<'a>(
     hbs: &mut Handlebars,
+    hbs_input: &HbsInput,
+    src_file_name: &str,
     hbs_file: &Path,
-    hcx: &HbsContext,
 ) -> Result<String> {
     let key = format!("{}", hbs_file.display());
     hbs.register_template_file(&key, hbs_file)
         .with_context(|| format!("Error when loading hbs file: {}", hbs_file.display()))?;
 
-    let hbs_data = HbsData::new(html, metadata, &hcx.base_url, hcx.sidebar.clone());
+    let output = hbs
+        .render(&key, &hbs_input)
+        .with_context(|| format!("Error when converting file {}", src_file_name))?;
+
+    Ok(output)
+}
+
+pub fn render_hbs_default<'a>(
+    hbs: &mut Handlebars,
+    hbs_input: &HbsInput,
+    src_file_name: &str,
+) -> Result<String> {
+    use crate::book::init::files::src::theme::hbs;
+    let key = "ARTICLE";
+
+    hbs.register_template_string(key, std::str::from_utf8(hbs::ARTICLE).unwrap())
+        .with_context(|| format!("Error when loading builtin hbs template"))?;
 
     let output = hbs
-        .render(&key, &hbs_data)
-        .with_context(|| format!("Error when converting file {}", src_name))?;
+        .render(&key, &hbs_input)
+        .with_context(|| format!("Error when converting file {}", src_file_name))?;
 
     Ok(output)
 }
