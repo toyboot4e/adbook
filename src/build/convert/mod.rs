@@ -105,15 +105,14 @@ pub fn convert_adoc_buf(
         };
 
         // `.hbs` files are always located just under `hbs_dir`
+        let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
         let output = if book.book_ron.use_default_theme {
             // use default theme
             let mut hbs = hbs::init_hbs_default()?;
-            let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
             hbs::render_hbs_default(&mut hbs, &hbs_input, &src_file_name)?
         } else {
             // use user theme
             let mut hbs = hbs::init_hbs_user(hbs_file_path.parent().unwrap())?;
-            let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
             hbs::render_hbs_user(&mut hbs, &hbs_input, &src_file_name, &hbs_file_path)?
         };
 

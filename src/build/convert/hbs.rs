@@ -246,11 +246,13 @@ pub fn init_hbs_user(hbs_dir: &Path) -> Result<Handlebars> {
             continue;
         }
 
-        // register the hbs file as a partial
+        // NOTE: the name is used as key to specify partial files!
         let name = partial
             .file_stem()
             .and_then(|s| s.to_str())
             .context("Unable to stringify partial hbs file path")?;
+
+        // register the hbs file as a partial
         let text = fs::read_to_string(&partial)
             .with_context(|| format!("Unable to load partial hbs file: {}", partial.display()))?;
 
@@ -267,10 +269,11 @@ pub fn init_hbs_default() -> Result<Handlebars<'static>> {
 
     use crate::book::init::files::src::theme::hbs;
 
+    // NOTE: the name is used as key to specify partial files!
     let text = std::str::from_utf8(hbs::partials::SIDEBAR)?;
-    hbs.register_partial("sidebar.hbs", &text)?;
+    hbs.register_partial("sidebar", &text)?;
     let text = std::str::from_utf8(hbs::partials::SIDEBAR_ITEM)?;
-    hbs.register_partial("sidebar_item.hbs", &text)?;
+    hbs.register_partial("sidebar_item", &text)?;
 
     Ok(hbs)
 }
