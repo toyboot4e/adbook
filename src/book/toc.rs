@@ -1,6 +1,8 @@
-//! Table of contents, list of items in a directory
-//!
-//! It's recursive and makes up a book file structure.
+/*!
+Table of contents, list of items in a directory
+
+It's recursive and makes up a book file structure.
+*/
 
 use {
     std::{

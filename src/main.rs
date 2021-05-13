@@ -1,9 +1,11 @@
-//! `adbook`
-//!
-//! # TODOs
-//!
-//! * refactor book loading
-//! * setup convert sub command: consider if the file is in site directory or not
+/*!
+`adbook`
+
+# TODOs
+
+* refactor book loading
+* setup convert sub command: consider if the file is in site directory or not
+*/
 
 use {
     adbook::cli::Cli,

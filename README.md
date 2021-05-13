@@ -20,11 +20,11 @@ After installing [Rust](https://www.rust-lang.org/), `adbook` is avaiable via cr
 $ cargo install adbook # -> `$HOME/.cargo/bin`
 ```
 
-> Be sure to set your `PATH` to `$HOME/.cargo/bin`
+> Make sure `$HOME/.cargo/bin` is added to your `PATH`
 
-### Ruby & Asciidoctor
+### Ruby, Asciidoctor and Asciidoctor extensions
 
-You need [Ruby](https://www.ruby-lang.org/en/) and some package manager. I recommend [RVM](https://rvm.io/) for its speed.
+You need [Ruby](https://www.ruby-lang.org/en/) and some package manager. I'd recommend [RVM](https://rvm.io/).
 
 [asciidoctor](https://asciidoctor.org) and [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) can be installed as gems:
 

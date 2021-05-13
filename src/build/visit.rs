@@ -5,7 +5,7 @@ Maybe support more kinds of source files in the future?
 */
 
 use {
-    anyhow::{Context, Error, Result},
+    anyhow::*,
     std::{
         fs,
         io::prelude::*,
@@ -42,12 +42,12 @@ impl AdocBookVisitor {
         dst_dir: &Path,
     ) -> (Self, Vec<Error>) {
         let (hcx, errors) = HbsContext::from_book(book);
-        trace!("handlebars context created");
-        // trace!("{:#?}", hcx);
+        log::trace!("handlebars context created");
+        // log::trace!("{:#?}", hcx);
 
         let acx = AdocRunContext::from_book(book, dst_dir);
-        trace!("asciidoc context created");
-        // trace!("{:#?}", acx);
+        log::trace!("asciidoc context created");
+        // log::trace!("{:#?}", acx);
 
         (
             Self {

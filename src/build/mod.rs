@@ -1,11 +1,13 @@
-//! Book builder
+/*!
+Book builder
+*/
 
 pub mod cache;
 pub mod convert;
 pub mod visit;
 
 use {
-    anyhow::{Context, Error, Result},
+    anyhow::*,
     futures::executor::block_on,
     std::{fs, path::Path},
 };
@@ -35,11 +37,11 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
     let (mut v, errors) =
         AdocBookVisitor::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
-    info!("---- Running builders");
+    log::info!("---- Running builders");
     block_on(walk_book_async(&mut v, &book));
 
     // 2. copy the build files to the site directory
-    info!("---- Copying output files to site directory");
+    log::info!("---- Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
         let res = self::overwrite_site_with_temporary_outputs(book, &new_cache_dir, &mut errors);
@@ -49,12 +51,12 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
 
     // 3. copy default theme
     if book.book_ron.use_default_theme {
-        info!("---- Copying default theme");
+        log::info!("---- Copying default theme");
         crate::book::init::copy_default_theme(&site_dir)?;
     }
 
     // 4. clean up and save cache
-    info!("---- Updating build cache");
+    log::info!("---- Updating build cache");
     index.clean_up_and_save(book, v.cache_diff.into_new_cache_data())?;
 
     Ok(())
@@ -69,7 +71,7 @@ fn overwrite_site_with_temporary_outputs(
     let site_dir = book.site_dir_path();
 
     // clear most files in site directory
-    trace!("remove files in site directory");
+    log::trace!("remove files in site directory");
     crate::utils::clear_directory_items(&site_dir, |path| {
         if path == out_dir {
             return true;
@@ -163,7 +165,7 @@ fn overwrite_site_with_temporary_outputs(
         let dst_path = site_dir.join(rel_path);
 
         if src_path.is_file() {
-            trace!(
+            log::trace!(
                 "- copy `{}` -> `{}`",
                 src_path.display(),
                 dst_path.display()

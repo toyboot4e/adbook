@@ -35,7 +35,7 @@ mod adoc;
 pub mod hbs;
 
 use {
-    anyhow::{Context, Result},
+    anyhow::*,
     std::{fmt::Write, fs, path::Path},
 };
 

@@ -1,7 +1,9 @@
-//! [`BookVisitor`] and a driving procedure of it
+/*!
+[`BookVisitor`] and a driving procedure of it
+*/
 
 use {
-    anyhow::Result,
+    anyhow::*,
     indicatif::{ProgressBar, ProgressStyle},
     std::{
         path::{Path, PathBuf},

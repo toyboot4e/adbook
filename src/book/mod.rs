@@ -46,7 +46,7 @@ pub mod toc;
 pub mod walk;
 
 use {
-    anyhow::{Context, Result},
+    anyhow::*,
     std::{
         fs,
         path::{Path, PathBuf},
@@ -93,7 +93,7 @@ impl BookStructure {
     /// Tries to find `book.ron` going up the directories and parses it into a file structure
     pub fn from_dir(path: impl AsRef<Path>) -> Result<Self> {
         let book_ron_path = self::find_root_book_ron(path)?;
-        trace!("book.ron located at: {}", book_ron_path.display());
+        log::trace!("book.ron located at: {}", book_ron_path.display());
 
         let root = book_ron_path
             .parent()

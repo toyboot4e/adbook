@@ -1,9 +1,9 @@
-//! `asciidoctor` runner and metadata extracter
-//!
-//! Where placeholder strings in `book.ron` (or attribuets) are considered.
+/*!
+`asciidoctor` runner and metadata extracter
+*/
 
 use {
-    anyhow::{Context, Result},
+    anyhow::*,
     std::{
         path::{Path, PathBuf},
         process::Command,

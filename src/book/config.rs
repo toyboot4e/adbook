@@ -1,4 +1,6 @@
-//! Configuration types deserialized from `.ron` files
+/*!
+Configuration types deserialized from `.ron` files
+*/
 
 use {
     serde::{Deserialize, Serialize},

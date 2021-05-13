@@ -1,6 +1,8 @@
-//! Handlebars application
-//!
-//! Temlates are supplied [`HbsData`].
+/*!
+Handlebars application
+
+HBS templates are supplied [`HbsData`].
+*/
 
 use {
     anyhow::*,

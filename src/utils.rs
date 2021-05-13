@@ -3,42 +3,41 @@ Internal utilities
 */
 
 use {
-    anyhow::{Context, Result},
+    anyhow::*,
     colored::*,
-    std::{fs, path::Path},
+    std::{fmt, fs, path::Path},
 };
 
-/// Prints printables as errors with a header
-pub fn print_errors(errors: &Vec<impl std::fmt::Display>, header_text: &str) {
-    self::print_items(errors, "error", header_text);
+/// "N errors <header text>:"
+pub fn print_errors(errs: &[impl fmt::Display], header: &str) {
+    self::print_items("error", errs, header);
 }
 
-/// Prints printables as errors with a header
-pub fn print_warnings(warnings: &Vec<impl std::fmt::Display>, header_text: &str) {
-    self::print_items(warnings, "warnings", header_text);
+/// "N warnings <header text>:"
+pub fn print_warnings(warns: &[impl fmt::Display], header: &str) {
+    self::print_items("warning", warns, header);
 }
 
-fn print_items(items: &Vec<impl std::fmt::Display>, kind_name: &str, header_text: &str) {
+fn print_items(kind: &str, items: &[impl fmt::Display], header: &str) {
     if items.is_empty() {
         return;
     }
 
-    // header string: "<n> error[s] <header_text>"
-    let kind_name = if items.len() == 1 {
-        kind_name.to_string()
+    let kind = if items.len() == 1 {
+        kind.to_string()
     } else {
-        format!("{}s", kind_name)
+        format!("{}s", kind)
     };
 
-    let text = format!("{} {} {}:", items.len(), kind_name, header_text);
-    eprintln!("{}", text.red().bold());
+    let h = format!("{} {} {}:", items.len(), kind, header);
+    eprintln!("{}", h.red().bold());
 
     for item in items {
         eprintln!("- {}", item);
     }
 }
 
-/// Copies items in one directory to another recursively
+/// Copies all items in one directory to another recursively
 pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
     // log::trace!(
     //     "Recursive copy: `{}` -> `{}`",
@@ -114,12 +113,13 @@ fn copy_items_rec_impl(src_dir: &Path, dst_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool) -> Result<()> {
+/// Clears items just under the directory
+pub fn clear_directory_items(dir: &Path, should_keep: impl Fn(&Path) -> bool) -> Result<()> {
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
 
-        if is_path_to_keep(&path) {
+        if should_keep(&path) {
             continue;
         }
 
@@ -128,7 +128,7 @@ pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool
         } else if path.is_dir() {
             fs::remove_dir_all(&path)?;
         } else {
-            debug!(
+            log::debug!(
                 "clear: skipping unexpected kind of item: {}",
                 path.display()
             );
@@ -138,19 +138,20 @@ pub fn clear_directory_items(dir: &Path, is_path_to_keep: impl Fn(&Path) -> bool
     Ok(())
 }
 
-/// Recursively runs given procedure to files under a directory
+/// Recursively runs given procedure to files just under the directory
 ///
-/// The user procedure takes absolute path as a parameter. Stops immediately when any error is
-/// found.
-pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> Result<()> {
+/// The user procedure takes an absolute path as a parameter.
+///
+/// Stops immediately when any error is found.
+pub fn visit_files_rec(dir: &Path, proc: &mut impl FnMut(&Path) -> Result<()>) -> Result<()> {
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let entry_path = dir.join(entry.path());
 
         if entry_path.is_file() {
-            f(&entry_path)?;
+            proc(&entry_path)?;
         } else if entry_path.is_dir() {
-            self::visit_files_rec(&entry_path, f)?;
+            self::visit_files_rec(&entry_path, proc)?;
         } else {
             log::trace!("Skipping unexpected kind of file: {}", entry_path.display());
         }
@@ -159,13 +160,13 @@ pub fn visit_files_rec(dir: &Path, f: &mut impl FnMut(&Path) -> Result<()>) -> R
     Ok(())
 }
 
-/// Create a directory
+/// Creates or makes sure there's a directory
 pub fn validate_dir(dir: &Path) -> Result<()> {
     if !dir.exists() {
         fs::create_dir(dir)
-            .with_context(|| format!("Unable to create site directory at: {}", dir.display()))?;
-    } else if !dir.is_dir() {
-        bail!("Unexpected item at {}", dir.display());
+            .with_context(|| format!("Unable to create directory at: {}", dir.display()))?;
+    } else {
+        ensure!(dir.is_dir(), "Non-directory item at {}", dir.display());
     }
 
     Ok(())
