@@ -1,5 +1,7 @@
 /*!
 Skip running `asciidoctor` if a file is not modofied since the last run
+
+TODO: rebuild the whole project when the number of source files changed.
 */
 
 use std::{

@@ -123,7 +123,7 @@ fn gen_file(path: &Path, bytes: impl AsRef<[u8]>) -> io::Result<bool> {
     }
 }
 
-/// Generates initial file structure
+/// Generates initial file structure without the `theme` directory
 pub fn gen_init_files(base_dir: &Path) -> std::io::Result<()> {
     for (rel_path, bytes) in LIST.iter() {
         let path = base_dir.join(rel_path);

@@ -2,7 +2,7 @@
 
 `adbook` is a tool for building book-like web pages
 
-The name came from [mdBook](https://rust-lang.github.io/mdBook/), which was inspired by [GitBook](https://www.gitbook.com/).
+The name came from [mdBook](https://rust-lang.github.io/mdBook/).
 
 ## Demo
 

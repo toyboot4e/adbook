@@ -17,9 +17,9 @@ use crate::{
     build::{cache::CacheIndex, visit::AdocBookVisitor},
 };
 
-/// Builds an `adbook` structure into a site directory, making use of caches and parallelization
+/// Builds an `adbook` structure into a site directory, making use of cache and parallelization
 ///
-/// book -> tmp -> site
+/// source -> `tmp` -> `site`
 pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
     let site_dir = book.site_dir_path();
     crate::utils::validate_dir(&site_dir)

@@ -16,8 +16,8 @@ An adbook project has such a file structure:
 └── src       # source files
 ```
 
-`book.ron` maps to [`BookRon`]. It indicates a root directory and metadata such as the book name and
-the author name.
+`book.ron` is located at the root and mapped to [`BookRon`]. It indicates a root directory and
+metadata such as the book name and the author name.
 
 [`BookRon`]: crate::book::config::BookRon
 
@@ -35,8 +35,8 @@ it, recursively:
     └── toc.ron      # lists `a.adoc` and `sub_directory`
 ```
 
-`toc.ron` maps to [`TocRon`]. It's similar to `mod.rs` in Rust.
-
+`toc.ron` maps to [`TocRon`]. It's similar to `mod.rs` in Rust; it's a list of source files in the
+directory.
 [`TocRon`]: crate::book::config::TocRon
 !*/
 

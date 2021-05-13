@@ -1,7 +1,7 @@
 /*!
 Handlebars application
 
-HBS templates are supplied [`HbsData`].
+HBS templates are supplied [`HbsInput`].
 */
 
 use {
@@ -23,7 +23,7 @@ use crate::{
 // --------------------------------------------------------------------------------
 // Context
 
-/// Context to generate [`HbsData`]
+/// Context to generate [`HbsInput`]
 #[derive(Debug, Clone)]
 pub struct HbsContext {
     pub src_dir: PathBuf,

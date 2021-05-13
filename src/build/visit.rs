@@ -1,7 +1,7 @@
 /*!
 Implementation of [`crate::book::walk::BookVisitor`]
 
-Maybe support more kinds of source files in the future?
+TODO: Enable other source formats than Asciidoc
 */
 
 use {

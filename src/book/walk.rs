@@ -16,9 +16,11 @@ use crate::book::{
     BookStructure,
 };
 
-/// Converts each file in book
+/// Converter of each source file in the book
 pub trait BookVisitor: Clone + Send + Sync {
-    /// Needs rebuild or we can just copy?
+    /// Can we just copy this file from the previous build?
+    ///
+    /// * `src_file`: absolute path to a source file
     fn can_skip_build(&self, src_file: &Path) -> bool;
     /// Build or just copy the source file.
     ///
@@ -88,6 +90,7 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
         .filter(|src_file| {
             // TODO: maybe don't clone?
             let mut v = v.clone();
+
             if v.can_skip_build(&src_file) {
                 if let Err(err) = v.visit_file(&src_file) {
                     errors.push(err);

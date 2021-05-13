@@ -8,12 +8,12 @@ use {
     std::{fmt, fs, path::Path},
 };
 
-/// "N errors <header text>:"
+/// "N errors (header text):"
 pub fn print_errors(errs: &[impl fmt::Display], header: &str) {
     self::print_items("error", errs, header);
 }
 
-/// "N warnings <header text>:"
+/// "N warnings (header text):"
 pub fn print_warnings(warns: &[impl fmt::Display], header: &str) {
     self::print_items("warning", warns, header);
 }

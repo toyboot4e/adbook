@@ -1,5 +1,9 @@
 /*!
 Configuration types deserialized from `.ron` files
+
+See the [demo files] to know the details.
+
+[demo files]: https://github.com/toyboot4e/adbook/tree/gh-pages
 */
 
 use {
@@ -30,7 +34,7 @@ pub struct BookRon {
     pub adoc_opts: CmdOptions,
 }
 
-/// Deserialized from `toc.ron` in directories in source directory of an `adbook` project
+/// Deserialized from `toc.ron` in sub directories in a source directory of an `adbook` project
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct TocRon {
     /// (name, file) that describes this directory
@@ -39,9 +43,11 @@ pub struct TocRon {
     pub items: Vec<TocRonItem>,
 }
 
+/// `File` | `Dir`
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum TocRonItem {
-    /// (name, url)
+    /// `(title, url)`. If `title` is left as empty (`""`), the sidebar title is extracted from the
+    /// source file.
     File(String, PathBuf),
     Dir(PathBuf),
 }
