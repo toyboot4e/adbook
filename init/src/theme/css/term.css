@@ -264,7 +264,7 @@ main > * {
     max-width: var(--article-max-width);
     width: calc(100vw - var(--sidebar-width));
     /* see also: #sidebar */
-    max-height: calc(
+    height: calc(
         100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
     );
     overflow-x: hidden;
