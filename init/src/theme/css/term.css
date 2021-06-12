@@ -109,16 +109,51 @@ html {
 
 .sidebar li a {
     text-decoration: none;
+    display: block;
 }
 
 .sidebar li a.active {
     color: rgb(192, 192, 192);
+    padding: 0;
 }
 
 .sidebar li a.inactive {
     color: rgb(96, 96, 96);
+    padding: 0;
 }
 
+/* .sidebar ol li, div.sidebar-item-flex { */
+.sidebar ol li, div.sidebar-item-flex {
+    /* FIXME: fill width anyways */
+    width: 100%;
+}
+
+.sidebar-item-flex {
+    /* div for aligning title and toggle button in one line */
+    display: flex;
+}
+
+.sidebar-item-flex-title {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* toggle button */
+.sidebar-item-flex-toggle {
+    margin-left: auto;
+    margin-right: 0;
+    padding: 0 10px;
+}
+
+.sidebar-item-flex-toggle {
+    transition: transform 0.5s;
+}
+
+.expanded .sidebar-item-flex-toggle {
+    transform: rotate(90deg);
+}
+
+/* numbering */
 .sidebar ol {
     list-style-type: none;
     counter-reset: item;
@@ -137,14 +172,15 @@ html {
 }
 
 /* consider nest items */
-
 .sidebar ol > li:before {
+    width: 1px; /* as small as possible */
     content: counters(item, "-") ". ";
     display: table-cell;
-    padding-right: 0.6em;
+    padding-right: 9px;
 }
 
 .sidebar li ol > li:before {
+    width: 1px; /* as small as possible */
     content: counters(item, ".") " ";
 }
 

@@ -23,46 +23,20 @@ use crate::{
 // --------------------------------------------------------------------------------
 // Context
 
-/// Context to generate [`HbsInput`]
-#[derive(Debug, Clone)]
-pub struct HbsContext {
-    // pub src_dir: PathBuf,
-    // pub base_url: String,
-    sidebar: Sidebar,
-}
-
-impl HbsContext {
-    pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
-        let (sidebar, errors) = Sidebar::from_book(book);
-
-        let me = Self {
-            // src_dir: book.src_dir_path(),
-            // base_url: book.book_ron.base_url.clone(),
-            sidebar,
-        };
-
-        (me, errors)
-    }
-
-    /// Creates sidebar context for an article (highlight the article)
-    pub fn sidebar_for_url(&self, url: &str) -> Sidebar {
-        let mut s = self.sidebar.clone();
-        s.set_active_url(url);
-        s
-    }
-}
-
 #[derive(Serialize, Debug, Clone)]
 pub struct SidebarItem {
     pub name: String,
     pub url: Option<String>,
     pub children: Option<Box<Vec<Self>>>,
     pub active: bool,
+    pub depth: usize,
 }
 
 #[derive(Debug, Clone)]
 pub struct Sidebar {
     items: Vec<SidebarItem>,
+    /// Items up to the level is open by default
+    fold_level: Option<usize>,
 }
 
 impl Sidebar {
@@ -130,24 +104,26 @@ impl Sidebar {
                 &book.src_dir_path(),
                 &book.book_ron.base_url,
                 &mut errors,
+                0,
             )
         };
         log::trace!("items: {:#?}", items);
 
-        (Self { items }, errors)
+        (
+            Self {
+                items,
+                fold_level: book.book_ron.fold_level,
+            },
+            errors,
+        )
     }
 
     /// Highlight the sidebar item with that url
     pub fn set_active_url(&mut self, url: &str) {
-        let mut any_hit = false;
-
         for item in self.items.iter_mut() {
             item.active = matches!(&item.url, Some(u) if u == url);
-            any_hit |= item.active;
-
             for child in item.children.iter_mut().flat_map(|xs| xs.iter_mut()) {
                 child.active = matches!(&child.url, Some(u) if u == url);
-                any_hit |= child.active;
             }
         }
     }
@@ -157,10 +133,11 @@ impl Sidebar {
         src_dir: &Path,
         base_url_str: &str,
         errors: &mut Vec<Error>,
+        depth: usize,
     ) -> Vec<SidebarItem> {
         items
             .filter_map(
-                |item| match Self::map_item(item, src_dir, base_url_str, errors) {
+                |item| match Self::map_item(item, src_dir, base_url_str, errors, depth) {
                     Ok(item) => Some(item),
                     Err(err) => {
                         errors.push(err);
@@ -176,6 +153,7 @@ impl Sidebar {
         src_dir: &Path,
         base_url_str: &str,
         errors: &mut Vec<Error>,
+        depth: usize,
     ) -> Result<SidebarItem> {
         match &item {
             TocItem::File(name, file) => Ok(SidebarItem {
@@ -183,19 +161,55 @@ impl Sidebar {
                 url: Some(Self::get_url(src_dir, file, base_url_str)?),
                 children: None,
                 active: false,
+                depth,
             }),
             TocItem::Dir(toc) => {
-                let children =
-                    Self::collect_sidebar_items(toc.items.iter(), src_dir, base_url_str, errors);
+                let children = Self::collect_sidebar_items(
+                    toc.items.iter(),
+                    src_dir,
+                    base_url_str,
+                    errors,
+                    depth + 1,
+                );
                 // add preface
                 Ok(SidebarItem {
                     name: Self::get_title(&toc.name, &toc.summary)?,
                     url: Some(Self::get_url(src_dir, &toc.summary, base_url_str)?),
                     children: Some(Box::new(children)),
                     active: false,
+                    depth,
                 })
             }
         }
+    }
+}
+
+/// Context to generate [`HbsInput`]
+#[derive(Debug, Clone)]
+pub struct HbsContext {
+    // pub src_dir: PathBuf,
+    // pub base_url: String,
+    sidebar: Sidebar,
+}
+
+impl HbsContext {
+    pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
+        let (sidebar, errors) = Sidebar::from_book(book);
+
+        let me = Self {
+            // src_dir: book.src_dir_path(),
+            // base_url: book.book_ron.base_url.clone(),
+            sidebar,
+        };
+
+        (me, errors)
+    }
+
+    /// Creates sidebar context for an article (highlight the article)
+    pub fn sidebar_for_url(&self, url: &str) -> Sidebar {
+        let mut s = self.sidebar.clone();
+        s.set_active_url(url);
+        s
     }
 }
 
