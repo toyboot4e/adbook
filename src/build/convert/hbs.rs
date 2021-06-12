@@ -11,7 +11,7 @@ use {
     std::{
         fs,
         io::{BufRead, BufReader},
-        path::{Path, PathBuf},
+        path::Path,
     },
 };
 
@@ -26,9 +26,9 @@ use crate::{
 /// Context to generate [`HbsInput`]
 #[derive(Debug, Clone)]
 pub struct HbsContext {
-    pub src_dir: PathBuf,
-    pub base_url: String,
-    pub sidebar: Sidebar,
+    // pub src_dir: PathBuf,
+    // pub base_url: String,
+    sidebar: Sidebar,
 }
 
 impl HbsContext {
@@ -36,12 +36,19 @@ impl HbsContext {
         let (sidebar, errors) = Sidebar::from_book(book);
 
         let me = Self {
-            src_dir: book.src_dir_path(),
-            base_url: book.book_ron.base_url.clone(),
+            // src_dir: book.src_dir_path(),
+            // base_url: book.book_ron.base_url.clone(),
             sidebar,
         };
 
         (me, errors)
+    }
+
+    /// Creates sidebar context for an article (highlight the article)
+    pub fn sidebar_for_url(&self, url: &str) -> Sidebar {
+        let mut s = self.sidebar.clone();
+        s.set_active_url(url);
+        s
     }
 }
 
@@ -50,6 +57,7 @@ pub struct SidebarItem {
     pub name: String,
     pub url: Option<String>,
     pub children: Option<Box<Vec<Self>>>,
+    pub active: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -79,10 +87,27 @@ impl Sidebar {
         }
     }
 
+    /// Gets an URL for an article in the sidebar
+    ///
+    /// The `base_url_str` is in for of `/path/to/dir`.
+    pub fn get_url(src_dir: &Path, src_file: &Path, base_url_str: &str) -> Result<String> {
+        let url = src_file
+            .strip_prefix(src_dir)
+            .with_context(|| {
+                anyhow!(
+                    "Unable to strip prefix: `{}` from `{}`",
+                    src_dir.display(),
+                    src_file.display()
+                )
+            })?
+            .with_extension("html");
+
+        let url = format!("{}/{}", base_url_str, url.display());
+        Ok(url)
+    }
+
     pub fn from_book(book: &BookStructure) -> (Self, Vec<Error>) {
         let mut errors = Vec::with_capacity(20);
-
-        let base_url_str = format!("{}/", book.book_ron.base_url);
 
         let summary_item = {
             let (name, file) = (&book.toc.name, &book.toc.summary);
@@ -99,14 +124,39 @@ impl Sidebar {
         };
 
         let items = std::iter::once(&summary_item).chain(&book.toc.items);
-        let items: Vec<SidebarItem> =
-            Self::map_items(items, &book.src_dir_path(), &base_url_str, &mut errors);
+        let items: Vec<SidebarItem> = {
+            Self::collect_sidebar_items(
+                items,
+                &book.src_dir_path(),
+                &book.book_ron.base_url,
+                &mut errors,
+            )
+        };
+        log::trace!("items: {:#?}", items);
 
         (Self { items }, errors)
     }
 
-    /// the `base_url` is a bit tricky. see `format!` in `map_item`
-    fn map_items<'a>(
+    /// Highlight the sidebar item with that url
+    pub fn set_active_url(&mut self, url: &str) {
+        let mut any_hit = false;
+
+        for item in self.items.iter_mut() {
+            item.active = matches!(&item.url, Some(u) if u == url);
+            any_hit |= item.active;
+
+            for child in item.children.iter_mut().flat_map(|xs| xs.iter_mut()) {
+                child.active = matches!(&child.url, Some(u) if u == url);
+                any_hit |= child.active;
+            }
+        }
+
+        if !any_hit {
+            log::error!("Unable to highlight sidebar item with URL {}", url);
+        }
+    }
+
+    fn collect_sidebar_items<'a>(
         items: impl Iterator<Item = &'a TocItem>,
         src_dir: &Path,
         base_url_str: &str,
@@ -132,30 +182,21 @@ impl Sidebar {
         errors: &mut Vec<Error>,
     ) -> Result<SidebarItem> {
         match &item {
-            TocItem::File(name, file) => {
-                let name = Self::get_title(name, file)?;
-                let url = file.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}{}", base_url_str, url.display());
-
-                Ok(SidebarItem {
-                    name,
-                    url: Some(url),
-                    children: None,
-                })
-            }
+            TocItem::File(name, file) => Ok(SidebarItem {
+                name: Self::get_title(name, file)?,
+                url: Some(Self::get_url(src_dir, file, base_url_str)?),
+                children: None,
+                active: false,
+            }),
             TocItem::Dir(toc) => {
-                // preface file
-                let name = Self::get_title(&toc.name, &toc.summary)?;
-
-                let url = toc.summary.strip_prefix(src_dir)?.with_extension("html");
-                let url = format!("{}{}", base_url_str, url.display());
-
-                let children = Self::map_items(toc.items.iter(), src_dir, base_url_str, errors);
-
+                let children =
+                    Self::collect_sidebar_items(toc.items.iter(), src_dir, base_url_str, errors);
+                // add preface
                 Ok(SidebarItem {
-                    name,
-                    url: Some(url),
+                    name: Self::get_title(&toc.name, &toc.summary)?,
+                    url: Some(Self::get_url(src_dir, &toc.summary, base_url_str)?),
                     children: Some(Box::new(children)),
+                    active: false,
                 })
             }
         }
@@ -168,6 +209,7 @@ impl Sidebar {
 /// Variables directly supplied to Handlebars templates
 #[derive(Serialize, Debug, Clone)]
 pub struct HbsInput<'a> {
+    /// Used in Handlebars template for hard coding paths
     pub base_url: String,
     /// html data
     pub h_title: String,

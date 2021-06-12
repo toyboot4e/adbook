@@ -1,6 +1,10 @@
 <li>
     {{~#if this.url~}}
-    <a href="{{this.url}}">
+        {{~#if this.active~}}
+    <a href="{{this.url}}" class="active">
+        {{else}}
+    <a href="{{this.url}}" class="inactive">
+        {{~/if~}}
     {{~/if~}}
         {{!-- {{#if this.num}}
         <strong area-hidden="true">{{this.num}}</strong>

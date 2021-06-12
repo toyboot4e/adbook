@@ -96,16 +96,26 @@ pub fn convert_adoc_buf(
     // maybe apply Handlebars template
     if let Some(hbs_attr) = metadata.find_attr("hbs") {
         let src_file_name = format!("{}", src_file.display());
+        let src_dir = book.src_dir_path();
+        let base_url_str = &book.book_ron.base_url;
 
         let hbs_file_path = {
             let hbs_name = hbs_attr
                 .value()
                 .ok_or_else(|| anyhow!("`hbs` attribute without path"))?;
-            hcx.src_dir.join(hbs_name)
+            src_dir.join(hbs_name)
         };
 
         // `.hbs` files are always located just under `hbs_dir`
-        let hbs_input = HbsInput::new(buf, &metadata, &hcx.base_url, hcx.sidebar.clone());
+        let hbs_input = {
+            // FIXME: the API, the clarity of `src_dir` and `src_dir_path()`
+            let url = hbs::Sidebar::get_url(&src_dir, &src_dir.join(src_file), base_url_str)
+                .map_err(|err| anyhow!("Unable to get URL for file: {}", err))?;
+
+            let sidebar = hcx.sidebar_for_url(&url);
+            HbsInput::new(buf, &metadata, base_url_str, sidebar)
+        };
+
         let output = if book.book_ron.use_default_theme {
             // use default theme
             let mut hbs = hbs::init_hbs_default()?;
