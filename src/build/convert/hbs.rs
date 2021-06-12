@@ -150,10 +150,6 @@ impl Sidebar {
                 any_hit |= child.active;
             }
         }
-
-        if !any_hit {
-            log::error!("Unable to highlight sidebar item with URL {}", url);
-        }
     }
 
     fn collect_sidebar_items<'a>(
