@@ -30,8 +30,6 @@ So we can do this:
 ----
 = Title
 :hbs: theme/hbs/my_cool_template.hbs
-// make sure to put partial templates in `theme/hbs/partials` in this case!
+// All partial templates must be located in `theme/hbs/patials` in this case
 ----
-
-There's no attribute that corresponds to `imagesdir` or `stylesdir`.
 

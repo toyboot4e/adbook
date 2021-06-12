@@ -14,7 +14,7 @@
                 document.getElementById("nav-btn-click").checked = true;
             }
         });
-    </script
+    </script>
 </head>
 
 <body>
@@ -28,19 +28,26 @@
         </div>
 
     <nav id="sidebar" class="sidebar">
-    <ol><li><a href="/adbook/index.html">About</a>
+    <ol><li><a href="/adbook/index.html" class="active">
+        About</a>
     
-</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
+</li><li>
+    <a href="/adbook/demos/summary.html" class="inactive">Demos<ol><li>
+    <a href="/adbook/demos/demo.html" class="inactive">Demo</a>
     
-</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
+</li><li>
+    <a href="/adbook/demos/demo_diagrams.html" class="inactive">Demo (diagrams)</a>
     
 </li></ol></a>
     
-</li><li><a href="/adbook/custom.html">Customizing</a>
+</li><li>
+    <a href="/adbook/custom.html" class="inactive">Customizing</a>
     
-</li><li><a href="/adbook/credits.html">Credits</a>
+</li><li>
+    <a href="/adbook/credits.html" class="inactive">Credits</a>
     
-</li><li><a href="/adbook/todos.html">TODOs</a>
+</li><li>
+    <a href="/adbook/todos.html" class="inactive">TODOs</a>
     
 </li></ol>
 </nav>
@@ -191,26 +198,23 @@ $ adbook build</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><code>adbook</code> uses <a href="https://prismjs.com/">Prism.js</a> to highlight source files by default.</p>
+<p><code>adbook</code> uses <a href="https://prismjs.com/">Prism.js</a> by default to highlight source code.</p>
 </li>
 <li>
-<p><code>adbook</code> requires user to have theme data in their source directory</p>
-</li>
-<li>
-<p><a href="https://github.com/rust-lang/mdBook">mdBook</a> supports a bunch of things that <code>adbook</code> does not:</p>
+<p><a href="https://github.com/rust-lang/mdBook">mdBook</a> supports a bunch more thinkgs:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>enjoying Rust playground</p>
+<p>Rust Playground</p>
 </li>
 <li>
 <p>print view</p>
 </li>
 <li>
-<p>searching</p>
+<p>search</p>
 </li>
 <li>
-<p>changing themes dynamically</p>
+<p>dynamic theme change</p>
 </li>
 </ul>
 </div>

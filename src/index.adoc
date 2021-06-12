@@ -89,13 +89,12 @@ TODO: serve
 
 Other differences:
 
-* `adbook` uses {prism} to highlight source files by default.
-* `adbook` requires user to have theme data in their source directory
-* {mdbook} supports a bunch of things that `adbook` does not:
-** enjoying Rust playground
+* `adbook` uses {prism} by default to highlight source code.
+* {mdbook} supports a bunch more thinkgs:
+** Rust Playground
 ** print view
-** searching
-** changing themes dynamically
+** search
+** dynamic theme change
 
 === Differences from raw `asciidoctor` command
 

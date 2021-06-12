@@ -7,11 +7,9 @@
     authors: ["adbook"],
     title: "adbook demo site",
 
+    use_default_theme: true,
     includes: [
         "static/img",
-        "theme/css",
-        "theme/js",
-        "theme/favicon.svg",
     ],
 
     converts: [

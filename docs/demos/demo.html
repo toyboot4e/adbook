@@ -14,7 +14,7 @@
                 document.getElementById("nav-btn-click").checked = true;
             }
         });
-    </script
+    </script>
 </head>
 
 <body>
@@ -28,19 +28,26 @@
         </div>
 
     <nav id="sidebar" class="sidebar">
-    <ol><li><a href="/adbook/index.html">About</a>
+    <ol><li>
+    <a href="/adbook/index.html" class="inactive">About</a>
     
-</li><li><a href="/adbook/demos/summary.html">Demos<ol><li><a href="/adbook/demos/demo.html">Demo</a>
+</li><li>
+    <a href="/adbook/demos/summary.html" class="inactive">Demos<ol><li><a href="/adbook/demos/demo.html" class="active">
+        Demo</a>
     
-</li><li><a href="/adbook/demos/demo_diagrams.html">Demo (diagrams)</a>
+</li><li>
+    <a href="/adbook/demos/demo_diagrams.html" class="inactive">Demo (diagrams)</a>
     
 </li></ol></a>
     
-</li><li><a href="/adbook/custom.html">Customizing</a>
+</li><li>
+    <a href="/adbook/custom.html" class="inactive">Customizing</a>
     
-</li><li><a href="/adbook/credits.html">Credits</a>
+</li><li>
+    <a href="/adbook/credits.html" class="inactive">Credits</a>
     
-</li><li><a href="/adbook/todos.html">TODOs</a>
+</li><li>
+    <a href="/adbook/todos.html" class="inactive">TODOs</a>
     
 </li></ol>
 </nav>
@@ -641,11 +648,9 @@ fn main() {
     authors: ["adbook"],
     title: "adbook demo site",
 
+    use_default_theme: true,
     includes: [
         "static/img",
-        "theme/css",
-        "theme/js",
-        "theme/favicon.svg",
     ],
 
     converts: [
