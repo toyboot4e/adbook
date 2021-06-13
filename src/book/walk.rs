@@ -64,6 +64,8 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
 }
 
 /// Walks a root [`Toc`] and converts files in parallel
+///
+/// NOTE: make sure to `flush` after calling this method
 pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure, log: bool) {
     let src_files = self::list_src_files(&book);
 
@@ -95,34 +97,38 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
     }
 
     // progress bar
-    let pb = ProgressBar::new(filtered.len() as u64);
+    let pb = {
+        let pb = ProgressBar::new(filtered.len() as u64);
 
-    pb.set_style(
-        ProgressStyle::default_bar()
-            .template("[{elapsed}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
-            .progress_chars("##-"),
-    );
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template("[{elapsed}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
+                .progress_chars("##-"),
+        );
 
-    let pb = Arc::new(Mutex::new(pb));
+        Arc::new(Mutex::new(pb))
+    };
 
-    let xs = filtered
-        .into_iter()
-        .map(|src_file| {
-            // TODO: maybe don't clone?
-            let mut v = v.clone();
-            let pb = Arc::clone(&pb);
-            async_std::task::spawn(async move {
-                let res = v.visit_file(&src_file);
+    let results = {
+        let xs = filtered
+            .into_iter()
+            .map(|src_file| {
+                // TODO: maybe don't clone?
+                let mut v = v.clone();
+                let pb = Arc::clone(&pb);
+                async_std::task::spawn(async move {
+                    let res = v.visit_file(&src_file);
 
-                let pb = pb.lock().expect("unable to lock progress bar");
-                pb.inc(1);
+                    let pb = pb.lock().expect("unable to lock progress bar");
+                    pb.inc(1);
 
-                res
+                    res
+                })
             })
-        })
-        .collect::<Vec<_>>();
+            .collect::<Vec<_>>();
 
-    let results = futures::future::join_all(xs).await;
+        futures::future::join_all(xs).await
+    };
 
     for err in results.into_iter().filter_map(|x| x.err()) {
         errors.push(err);
@@ -130,9 +136,12 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
 
     crate::utils::print_errors(&errors, "while building the book");
 
+    let pb = pb.lock().expect("unable to lock progress bar");
     if log {
-        let pb = pb.lock().expect("unable to lock progress bar");
         let elasped = pb.elapsed();
-        println!("{:.2} seconds to build", elasped.as_secs_f32());
+        let msg = format!("{:.2} seconds", elasped.as_secs_f32());
+        pb.finish_with_message(msg);
+    } else {
+        pb.finish();
     }
 }
