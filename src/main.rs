@@ -32,12 +32,10 @@ fn configure_log() -> Result<()> {
         .trace(Color::BrightBlack);
 
     use {log::LevelFilter, std::env};
-    let level = match env::var("ADBOOK_LOG")
+    let level = match env::var("RUST_LOG")
         .as_ref()
         .map(|s| s.as_str())
-        // users would not want to see `trace` log.
-        // developers should set ADBOOK_LOG` to `TRACE`
-        .unwrap_or("info")
+        .unwrap_or("warn")
     {
         "error" | "Error" | "ERROR" => LevelFilter::Error,
         "warn" | "Warn" | "WARN" => LevelFilter::Warn,
