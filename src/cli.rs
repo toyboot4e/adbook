@@ -56,7 +56,7 @@ pub enum SubCommand {
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
     /// Clears the site directory contents and the build cache
-    Clean(Clean),
+    Clear(Clear),
 }
 
 impl SubCommand {
@@ -65,7 +65,7 @@ impl SubCommand {
             SubCommand::Build(build) => build.run(),
             SubCommand::Init(init) => init.run(),
             SubCommand::Preset(preset) => preset.run(),
-            SubCommand::Clean(clean) => clean.run(),
+            SubCommand::Clear(clear) => clear.run(),
         }
     }
 }
@@ -162,13 +162,13 @@ impl Preset {
     }
 }
 
-/// `adbook clean`
+/// `adbook clear`
 #[derive(Clap, Debug)]
-pub struct Clean {
+pub struct Clear {
     pub dir: Option<String>,
 }
 
-impl Clean {
+impl Clear {
     pub fn run(&mut self) -> Result<()> {
         let dir = self.dir.as_ref().unwrap_or(&".".into()).clone();
 
