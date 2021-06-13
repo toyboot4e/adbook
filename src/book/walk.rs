@@ -63,23 +63,8 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
     files
 }
 
-// /// Walks a root [`Toc`] and converts files one by one
-// pub fn walk_book(v: &mut impl BookVisitor, book: &BookStructure) {
-//     let files = self::list_src_files(&book);
-//     let results = files.iter().map(|file| v.visit_file(file));
-//
-//     let errors: Vec<_> = results
-//         .into_iter()
-//         .filter(|x| x.is_err())
-//         .map(|x| x.unwrap_err())
-//         .collect();
-//
-//     // print errors if any
-//     crate::utils::print_errors(&errors, "while building the book");
-// }
-
 /// Walks a root [`Toc`] and converts files in parallel
-pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure) {
+pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure, log: bool) {
     let src_files = self::list_src_files(&book);
 
     // collect `Future`s
@@ -102,8 +87,16 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
         })
         .collect::<Vec<_>>();
 
+    if filtered.is_empty() {
+        if log {
+            println!("No file to build");
+        }
+        return;
+    }
+
     // progress bar
     let pb = ProgressBar::new(filtered.len() as u64);
+
     pb.set_style(
         ProgressStyle::default_bar()
             .template("[{elapsed}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
@@ -111,6 +104,7 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
     );
 
     let pb = Arc::new(Mutex::new(pb));
+
     let xs = filtered
         .into_iter()
         .map(|src_file| {
@@ -119,7 +113,10 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
             let pb = Arc::clone(&pb);
             async_std::task::spawn(async move {
                 let res = v.visit_file(&src_file);
-                pb.lock().expect("unable to get progress bar").inc(1);
+
+                let pb = pb.lock().expect("unable to lock progress bar");
+                pb.inc(1);
+
                 res
             })
         })
@@ -132,4 +129,10 @@ pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStr
     }
 
     crate::utils::print_errors(&errors, "while building the book");
+
+    if log {
+        let pb = pb.lock().expect("unable to lock progress bar");
+        let elasped = pb.elapsed();
+        println!("{:.2} seconds to build", elasped.as_secs_f32());
+    }
 }

@@ -20,7 +20,7 @@ use crate::{
 /// Builds an `adbook` structure into a site directory, making use of cache and parallelization
 ///
 /// source -> `tmp` -> `site`
-pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
+pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Result<()> {
     let site_dir = book.site_dir_path();
     crate::utils::validate_dir(&site_dir)
         .with_context(|| format!("Failed to create site directory at: {}", site_dir.display()))?;
@@ -38,7 +38,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool) -> Result<()> {
         AdocBookVisitor::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
     log::info!("---- Running builders");
-    block_on(walk_book_async(&mut v, &book));
+    block_on(walk_book_async(&mut v, &book, log));
 
     // 2. copy the build files to the site directory
     log::info!("---- Copying output files to site directory");

@@ -76,6 +76,8 @@ pub struct Build {
     pub dir: Option<String>,
     #[clap(short, long = "force")]
     pub force_rebuild: bool,
+    #[clap(long)]
+    pub log: bool,
 }
 
 impl Build {
@@ -86,7 +88,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         log::info!("===> Building the book");
-        crate::build::build_book(&book, self.force_rebuild)?;
+        crate::build::build_book(&book, self.force_rebuild, self.log)?;
         log::info!("<==> Finished bulding");
 
         Ok(())

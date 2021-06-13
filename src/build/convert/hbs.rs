@@ -107,7 +107,7 @@ impl Sidebar {
                 0,
             )
         };
-        log::trace!("items: {:#?}", items);
+        // log::trace!("items: {:#?}", items);
 
         (
             Self {

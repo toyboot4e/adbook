@@ -11,17 +11,17 @@ description = "Creates a book from AsciiDoc files"
 
 [dependencies]
 # basic
-log = "0.4.11"
-anyhow = "1.0.33"
-thiserror = "1.0.21"
+log = "0.4.14"
+anyhow = "1.0.41"
+thiserror = "1.0.25"
 
 # implementation
-async-std = "1.6.5"
+async-std = "1.9.0"
 colored = "2.0.0"
-futures = { version = "0.3.7", features = [] }
-handlebars = "3.5.0"
-serde = { version = "1.0.116", features = ["derive"] }
-ron = "0.6.2"
+futures = { version = "0.3.15", features = [] }
+handlebars = "4.0.0"
+serde = { version = "1.0.126", features = ["derive"] }
+ron = "0.6.4"
 
 # CLI
 clap = "3.0.0-beta.2"
@@ -31,6 +31,6 @@ fern = { version = "0.6.0", features = ["colored"] }
 chrono = "0.4.19"
 
 # progress bar
-indicatif = "0.15.0"
-rayon = "1.5.0"
+indicatif = "0.16.2"
+rayon = "1.5.1"
 
