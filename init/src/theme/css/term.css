@@ -48,7 +48,7 @@ body {
 }
 
 html {
-  height: -webkit-fill-available;
+    height: -webkit-fill-available;
 }
 
 /* -------------------------------------------------------------------------------- *
@@ -123,7 +123,8 @@ html {
 }
 
 /* .sidebar ol li, div.sidebar-item-flex { */
-.sidebar ol li, div.sidebar-item-flex {
+.sidebar ol li,
+div.sidebar-item-flex {
     /* FIXME: fill width anyways */
     width: 100%;
 }
@@ -562,7 +563,7 @@ b.button::after {
  */
 
 table {
-    width: 100%;
+    /* width: 100%; */
     margin-top: 1em;
     margin-bottom: 1em;
 }
