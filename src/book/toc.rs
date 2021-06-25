@@ -141,7 +141,7 @@ impl Toc {
                                 }
                             };
 
-                            match ron::from_str(&toc_ron_str) {
+                            match crate::utils::load_ron(&toc_ron_str) {
                                 Ok(ron) => ron,
                                 Err(err) => {
                                     errors

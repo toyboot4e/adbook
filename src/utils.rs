@@ -5,8 +5,28 @@ Internal utilities
 use {
     anyhow::*,
     colored::*,
+    serde::de::DeserializeOwned,
     std::{fmt, fs, path::Path},
 };
+
+/// Load the given string as a RON format (or one without outermost parentheses)
+pub fn load_ron<T>(s: &str) -> ron::de::Result<T>
+where
+    T: DeserializeOwned,
+{
+    match ron::de::from_str(&s) {
+        Ok(data) => Ok(data),
+        Err(why) => {
+            // surround the text with parentheses and retry
+            let s = format!("({})", s);
+
+            match ron::de::from_str(&s) {
+                Ok(data) => Ok(data),
+                Err(_why) => Err(why),
+            }
+        }
+    }
+}
 
 /// "N errors (header text):"
 pub fn print_errors(errs: &[impl fmt::Display], header: &str) {

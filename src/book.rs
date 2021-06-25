@@ -1,7 +1,8 @@
 /*! Book data structure
 
 It's based on two kinds of files: `book.ron` and `toc.ron` (toc standing for table of contents).
-Those files are written in the human-friendly [Ron] format.
+Those files are written in the human-friendly [Ron] format (NOTE: in `adbook`, it's allowed to omit
+outermost parentheses in RON format).
 
 [Ron]: https://github.com/ron-rs/ron
 
@@ -115,7 +116,7 @@ impl BookStructure {
             })?;
 
             // Here we actually load `book.ron`
-            ron::from_str(&cfg_str).with_context(|| {
+            crate::utils::load_ron(&cfg_str).with_context(|| {
                 format!("Failed to load book.ron at: {}", book_ron_path.display())
             })?
         };
@@ -131,7 +132,7 @@ impl BookStructure {
                 format!("Unable to read root `toc.ron` at: {}", toc_path.display())
             })?;
 
-            let toc_ron: TocRon = ron::from_str(&toc_str)
+            let toc_ron: TocRon = crate::utils::load_ron(&toc_str)
                 .with_context(|| format!("Failed to parse `toc.ron` at: {}", toc_path.display()))?;
             log::trace!("root toc.ron loaded");
             // log::trace!("{:?}", toc_ron);

@@ -5,7 +5,7 @@ TODO: rebuild the whole project when the number of source files changed.
 */
 
 use std::{
-    fs::{self, File},
+    fs::{self},
     io,
     path::{Path, PathBuf},
     time::SystemTime,
@@ -157,7 +157,8 @@ impl CacheIndex {
         if !index.is_file() {
             Ok(Default::default())
         } else {
-            let me = ron::de::from_reader(File::open(&index)?)?;
+            let s = fs::read_to_string(&index)?;
+            let me = crate::utils::load_ron(&s)?;
             Ok(me)
         }
     }

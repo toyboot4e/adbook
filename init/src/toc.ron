@@ -1,8 +1,8 @@
-(
-    summary: ("", "index.adoc"),
-    // NOTE: using the first argument, the name can optionally be overriden
-    items: [
-        File("", "article.adoc"),
-        // Dir("path"),
-    ],
-)
+// RON format (with or without outermost parentheses)
+
+summary: ("", "index.adoc"),
+// NOTE: using the first argument, the name can optionally be overriden
+items: [
+    File("", "article.adoc"),
+    // Dir("path"),
+],

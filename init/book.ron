@@ -1,62 +1,62 @@
-(
-    base_url: "",
-    src_dir: "src",
-    site_dir: "site",
+// RON format (with or without outermost parentheses)
 
-    authors: ["adbook"],
-    title: "adbook demo site",
+base_url: "",
+src_dir: "src",
+site_dir: "site",
 
-    fold_level: Some(0),
+authors: ["adbook"],
+title: "adbook demo site",
 
-    // whether we copy and use the builtin `src/theme` directory or not
-    use_default_theme: true,
+fold_level: Some(0),
 
-    // files copied to `site` directory
-    includes: [
-        // "static/img",
-        // "theme/css",
-        // "theme/js",
-        // "theme/favicon.svg",
-    ],
+// whether we copy and use the builtin `src/theme` directory or not
+use_default_theme: true,
 
-    // files converted to `site` directory without being added to sidebar
-    converts: [
-        // "404.adoc",
-    ],
+// files copied to `site` directory
+includes: [
+    // "static/img",
+    // "theme/css",
+    // "theme/js",
+    // "theme/favicon.svg",
+],
 
-    // `asciidoctor` command line options
-    adoc_opts: [
-        ("-a", [
-            // default Handlebars template file, relative to the source directroy
-            "hbs@=theme/hbs/article.hbs",
+// files converted to `site` directory without being added to sidebar
+converts: [
+    // "404.adoc",
+],
 
-            // css
-            "linkcss",
-            "stylesdir@={base_url}/theme/css",
-            "stylesheet@=term.css",
+// `asciidoctor` command line options
+adoc_opts: [
+    ("-a", [
+        // default Handlebars template file, relative to the source directroy
+        "hbs@=theme/hbs/article.hbs",
 
-            // image
-            "imagesdir@={base_url}/static/img",
-            "imagesoutdir@={src_dir}/static/img",
+        // css
+        "linkcss",
+        "stylesdir@={base_url}/theme/css",
+        "stylesheet@=term.css",
 
-            // preferences
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            "tabside@=4",
+        // image
+        "imagesdir@={base_url}/static/img",
+        "imagesoutdir@={src_dir}/static/img",
 
-            // features
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
+        // preferences
+        "hardbreaks",
+        "sectnums",
+        "sectnumlevels@=2",
+        "tabside@=4",
 
-            // links (available with `{name}` syntax in AsciiDoc files)
-            "adbook=https://github.com/toyboot4e/adbook[adbook]",
-            "rust=https://www.rust-lang.org/[Rust]",
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
-            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
-            "handlebars=https://handlebarsjs.com/[Handlebars]",
-            "prismjs=https://prismjs.com/[Prism.js]",
-        ]),
-    ]
-)
+        // features
+        "experimental",
+        "stem@=latexmath",
+        "icons@=font",
+
+        // links (available with `{name}` syntax in AsciiDoc files)
+        "adbook=https://github.com/toyboot4e/adbook[adbook]",
+        "rust=https://www.rust-lang.org/[Rust]",
+        "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
+        "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
+        "handlebars=https://handlebarsjs.com/[Handlebars]",
+        "prismjs=https://prismjs.com/[Prism.js]",
+    ]),
+]
