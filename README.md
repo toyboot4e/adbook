@@ -29,6 +29,6 @@ You need [Ruby](https://www.ruby-lang.org/en/) and some package manager. I'd rec
 [asciidoctor](https://asciidoctor.org) and [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) can be installed as gems:
 
 ```sh
-$ rvm install asciidoctor
-$ rvm install asciidoctor-diagram
+$ gem install asciidoctor
+$ gem install asciidoctor-diagram
 ```
