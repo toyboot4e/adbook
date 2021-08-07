@@ -1,8 +1,4 @@
-/* adbook terminal theme
- *
- * It's not feature complete or well designed, so please open issues when you find anything that can
- * be improved!
- */
+/* term.css */
 
 /* -------------------------------------------------------------------------------- *
  * External files
@@ -298,25 +294,6 @@ body {
 }
 
 /* Article, AsciiDoc output */
-main {
-    display: inline-flex;
-    flex-direction: row;
-    max-height: 100%;
-}
-
-main > * {
-    max-width: var(--article-max-width);
-    width: calc(100vw - var(--sidebar-width));
-    /* see also: #sidebar */
-    height: calc(
-        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
-    );
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
 main > div:first-child {
     padding-left: 20px; /* space from sidebar */
 }
@@ -690,9 +667,25 @@ video {
  * -------------------------------------------------------------------------------- */
 
 @media print {
-    /* enable background color (Chrome only?) */
     body {
+        /* enable background color (Chrome only?) */
         -webkit-print-color-adjust: exact !important;
+    }
+
+    /* unset flex */
+    body, main, main > * {
+        display: block !important;
+        flex-direction: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        overflow-x: scroll imporntant;
+        overflow-y: scroll imporntant;
+    }
+
+    #sidebar {
+        display: none;
     }
 
     *,
@@ -729,6 +722,7 @@ video {
     #header {
         border-color: #000;
     }
+
 
     hr {
         background: #000;

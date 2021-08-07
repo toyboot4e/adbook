@@ -12,6 +12,9 @@ fold_level: Some(0),
 // whether we copy and use the builtin `src/theme` directory or not
 use_default_theme: true,
 
+// generate `<src_dir>/all.adoc` automatically
+generate_all: true,
+
 // files copied to `site` directory
 includes: [
     // "static/img",

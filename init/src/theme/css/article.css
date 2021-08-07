@@ -1,0 +1,24 @@
+@import url("term.css");
+
+/* article.css */
+
+/* flex box */
+main {
+    display: inline-flex;
+    flex-direction: row;
+    max-height: 100%;
+}
+
+main > * {
+    max-width: var(--article-max-width);
+    width: calc(100vw - var(--sidebar-width));
+    /* see also: #sidebar */
+    height: calc(
+        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
+    );
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+

@@ -1,0 +1,15 @@
+@import url("term.css");
+
+main {
+    overflow: scroll;
+    height: calc(
+        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
+    );
+}
+
+main > * {
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
