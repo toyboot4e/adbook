@@ -17,6 +17,7 @@ type Result<T> = std::result::Result<T, std::fmt::Error>;
 pub fn gen_all(book: &BookStructure) -> Result<String> {
     let mut out = String::new();
 
+    writeln!(out, "= {}", book.book_ron.title)?;
     writeln!(out, ":stylesheet: all.css")?;
     writeln!(out, "")?;
 
@@ -26,8 +27,7 @@ pub fn gen_all(book: &BookStructure) -> Result<String> {
 }
 
 fn visit(out: &mut String, toc: &Toc, depth: usize) -> Result<()> {
-    // NOTE: We won't convert index.adoc since it should be included in the sidebar
-    // self::write_file(out, &toc.summary, depth)?;
+    self::write_file(out, &toc.summary, depth)?;
 
     let depth = depth + 1;
 
