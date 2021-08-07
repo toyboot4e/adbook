@@ -331,11 +331,17 @@ impl AdocMetadata {
     ///
     /// Replaces placeholder strings in attribute values.
     pub fn extract(text: &str, acx: &AdocRunContext) -> Self {
-        let mut lines = text.lines().filter(|ln| !Self::is_line_to_skip(ln));
+        let mut lines = text
+            .lines()
+            .filter(|ln| !Self::is_line_to_skip(ln))
+            .peekable();
 
         // = Title
-        let title = match lines.next() {
-            Some(ln) if ln.starts_with("= ") => Some(ln[2..].trim().to_string()),
+        let title = match lines.peek() {
+            Some(ln) if ln.starts_with("= ") => {
+                let ln = lines.next().unwrap();
+                Some(ln[2..].trim().to_string())
+            }
             _ => None,
         };
 
