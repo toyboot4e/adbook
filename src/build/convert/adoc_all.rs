@@ -26,7 +26,8 @@ pub fn gen_all(book: &BookStructure) -> Result<String> {
 }
 
 fn visit(out: &mut String, toc: &Toc, depth: usize) -> Result<()> {
-    self::write_file(out, &toc.summary, depth)?;
+    // NOTE: We won't convert index.adoc since it should be included in the sidebar
+    // self::write_file(out, &toc.summary, depth)?;
 
     let depth = depth + 1;
 
