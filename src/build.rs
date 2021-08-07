@@ -14,7 +14,7 @@ use {
 
 use crate::{
     book::{walk::walk_book_async, BookStructure},
-    build::{cache::CacheIndex, visit::AdocBookVisitor},
+    build::{cache::CacheIndex, visit::AdocBookBuilder},
 };
 
 /// Builds an `adbook` structure into a site directory, making use of cache and parallelization
@@ -35,7 +35,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     // 1. build the project
     let (mut v, errors) =
-        AdocBookVisitor::from_book(book, index.create_diff(book)?, &new_cache_dir);
+        AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
     log::info!("---- Running builders");
     block_on(walk_book_async(&mut v, &book, log));

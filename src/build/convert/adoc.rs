@@ -73,6 +73,7 @@ impl AdocRunContext {
         }
     }
 
+    /// Embedded mode: output without header (including title) and footer
     pub fn set_embedded_mode(&mut self, b: bool) {
         if b {
             self.opts.push(("--embedded".to_string(), vec![]));
@@ -86,22 +87,12 @@ impl AdocRunContext {
         }
     }
 
-    /// Important work!
-    pub fn replace_placeholder_strings(&self, arg: &str) -> String {
-        let arg = arg.replace(r#"{base_url}"#, &self.base_url);
-        let arg = arg.replace(r#"{src_dir}"#, &self.src_dir);
-        let arg = arg.replace(r#"{dst_dir}"#, &self.dst_dir);
-
-        arg
-    }
-
-    /// Applies `asciidoctor` options
+    /// Applies `asciidoctor` options defined in `book.ron`
     pub fn apply_options(&self, cmd: &mut Command) {
         // setup directory settings
         cmd.current_dir(&self.src_dir).args(&["-B", &self.src_dir]);
 
-        // We're outputting to stdout and `-D` does nothing.
-        // It's just a helper for specifying destination file path.
+        // we're outputting to stdout, `-D` does nothing:
         // cmd.args(&["-D", &self.dst_dir]);
 
         // setup user options
@@ -119,6 +110,14 @@ impl AdocRunContext {
                 cmd.args(&[opt, &arg]);
             }
         }
+    }
+
+    fn replace_placeholder_strings(&self, arg: &str) -> String {
+        let arg = arg.replace(r#"{base_url}"#, &self.base_url);
+        let arg = arg.replace(r#"{src_dir}"#, &self.src_dir);
+        let arg = arg.replace(r#"{dst_dir}"#, &self.dst_dir);
+
+        arg
     }
 }
 
@@ -142,7 +141,7 @@ pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
     // output to stdout
     cmd.arg(&src_file).args(&["-o", "-"]);
 
-    // require asciidoctor-diagram
+    // require `asciidoctor-diagram`
     cmd.args(&["-r", "asciidoctor-diagram"]);
 
     // prefer verbose output
@@ -154,7 +153,7 @@ pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
     Ok(cmd)
 }
 
-/// Runs `asciidoctor` and returns the output
+/// Runs `asciidoctor` command and returns the output
 pub fn run_asciidoctor(
     src_file: &Path,
     dummy_dst_name: &str,
@@ -183,7 +182,7 @@ pub fn run_asciidoctor(
     Ok(output)
 }
 
-/// Runs `asciidoctor` and write the output to buffer if it's suceceded
+/// Runs `asciidoctor` command and writes the output to a string buffer
 pub fn run_asciidoctor_buf(
     buf: &mut String,
     src_file: &Path,
@@ -222,7 +221,7 @@ pub fn run_asciidoctor_buf(
 }
 
 // --------------------------------------------------------------------------------
-// Metadata extracter
+// Metadata extraction
 
 /// Attribute of an Asciidoctor document
 ///

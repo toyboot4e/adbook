@@ -14,7 +14,7 @@ use {
 };
 
 use crate::{
-    book::{walk::BookVisitor, BookStructure},
+    book::{walk::BookBuilder, BookStructure},
     build::{
         cache::{CacheDiff, CacheIndex},
         convert::{hbs::HbsContext, AdocRunContext},
@@ -23,7 +23,7 @@ use crate::{
 
 /// An `adbook` builder based on `asciidoctor`
 #[derive(Debug, Clone)]
-pub struct AdocBookVisitor {
+pub struct AdocBookBuilder {
     book: BookStructure,
     pub(crate) cache_diff: CacheDiff,
     buf: String,
@@ -35,7 +35,7 @@ pub struct AdocBookVisitor {
     dst_dir: PathBuf,
 }
 
-impl AdocBookVisitor {
+impl AdocBookBuilder {
     pub fn from_book(
         book: &BookStructure,
         cache_diff: CacheDiff,
@@ -130,9 +130,9 @@ impl AdocBookVisitor {
     }
 }
 
-unsafe impl Send for AdocBookVisitor {}
+unsafe impl Send for AdocBookBuilder {}
 
-impl BookVisitor for AdocBookVisitor {
+impl BookBuilder for AdocBookBuilder {
     /// Needs rebuild or we can just copy?
     fn can_skip_build(&self, src_file: &Path) -> bool {
         !self.cache_diff.need_build(&self.book, src_file)

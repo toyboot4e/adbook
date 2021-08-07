@@ -1,5 +1,5 @@
 /*!
-[`BookVisitor`] and a driving procedure of it
+Book builder
 */
 
 use {
@@ -17,7 +17,7 @@ use crate::book::{
 };
 
 /// Converter of each source file in the book
-pub trait BookVisitor: Clone + Send + Sync {
+pub trait BookBuilder: Clone + Send + Sync {
     /// Can we just copy this file from the previous build?
     ///
     /// * `src_file`: absolute path to a source file
@@ -66,7 +66,7 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
 /// Walks a root [`Toc`] and converts files in parallel
 ///
 /// NOTE: make sure to `flush` after calling this method
-pub async fn walk_book_async<V: BookVisitor + 'static>(v: &mut V, book: &BookStructure, log: bool) {
+pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStructure, log: bool) {
     let src_files = self::list_src_files(&book);
 
     // collect `Future`s
