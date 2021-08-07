@@ -32,6 +32,8 @@ Usually those paths are globally specified in `book.ron`.
 */
 
 mod adoc;
+mod adoc_all;
+
 pub mod hbs;
 
 use {
@@ -43,6 +45,8 @@ pub use self::adoc::AdocRunContext;
 use self::hbs::{HbsContext, HbsInput};
 
 use crate::book::BookStructure;
+
+pub use adoc_all::gen_all;
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///

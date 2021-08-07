@@ -27,6 +27,8 @@ pub struct BookRon {
     pub title: String,
     /// Sidebar items up to this level is open by default
     pub fold_level: Option<usize>,
+    /// Generate `all.adoc` or not. Include `all.adoc` if you use it
+    pub generate_all: bool,
     /// Files or directories copied to site directory
     pub includes: Vec<PathBuf>,
     /// Whether we copy and use the default `src/theme` directory or not

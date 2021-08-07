@@ -6,14 +6,13 @@ pub mod cache;
 pub mod convert;
 pub mod visit;
 
-use {
-    anyhow::*,
-    futures::executor::block_on,
-    std::{fs, path::Path},
-};
+use std::{fs, path::Path};
+
+use anyhow::*;
+use futures::executor::block_on;
 
 use crate::{
-    book::{walk::walk_book_async, BookStructure},
+    book::{walk, BookStructure},
     build::{cache::CacheIndex, visit::AdocBookBuilder},
 };
 
@@ -33,14 +32,30 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
 
-    // 1. build the project
+    // 1. generate `all.adoc`
+    if book.book_ron.generate_all {
+        let all =
+            crate::build::convert::gen_all(book).with_context(|| "Unable to create `all.adoc`")?;
+
+        let path = book.book_ron.src_dir.join("all.adoc");
+
+        // overwrite only when it changed
+        match fs::read(&path) {
+            Ok(s) if s == all.as_bytes() => {}
+            _ => {
+                fs::write(path, all)?;
+            }
+        }
+    }
+
+    // 2. build the project
     let (mut v, errors) =
         AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
     log::info!("---- Running builders");
-    block_on(walk_book_async(&mut v, &book, log));
+    block_on(walk::walk_book_async(&mut v, &book, log));
 
-    // 2. copy the build files to the site directory
+    // 3. copy the built files to the site directory
     log::info!("---- Copying output files to site directory");
     {
         let mut errors = Vec::with_capacity(10);
@@ -49,13 +64,13 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
         res?;
     }
 
-    // 3. copy default theme
+    // 4. copy default theme
     if book.book_ron.use_default_theme {
         log::info!("---- Copying default theme");
         crate::book::init::copy_default_theme(&site_dir)?;
     }
 
-    // 4. clean up and save cache
+    // 5. clean up and save cache
     log::info!("---- Updating build cache");
     index.clean_up_and_save(book, v.cache_diff.into_new_cache_data())?;
 
