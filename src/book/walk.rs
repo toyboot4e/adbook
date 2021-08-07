@@ -106,6 +106,9 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStr
                 .progress_chars("##-"),
         );
 
+        // show progress bar
+        pb.inc(0);
+
         Arc::new(Mutex::new(pb))
     };
 
