@@ -1,9 +1,9 @@
-(
-    summary: ("About", "index.adoc"),
-    items: [
-        Dir("demos"),
-        File("", "custom.adoc"),
-        File("", "credits.adoc"),
-        File("", "todos.adoc"),
-    ],
-)
+// RON format (with or without outermost parentheses)
+
+summary: ("About", "index.adoc"),
+items: [
+    Dir("demos"),
+    File("", "custom.adoc"),
+    File("", "credits.adoc"),
+    File("", "todos.adoc"),
+],

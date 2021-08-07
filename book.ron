@@ -1,57 +1,57 @@
-(
-    // toyboot4e.github.io/adbook
-    base_url: "/adbook",
-    src_dir: "src",
-    site_dir: "docs",
+// RON format (with or without outermost parentheses)
 
-    authors: ["adbook"],
-    title: "adbook demo site",
+// toyboot4e.github.io/adbook
+base_url: "/adbook",
+src_dir: "src",
+site_dir: "docs",
 
-    use_default_theme: true,
-    includes: [
-        "static/img",
-    ],
+authors: ["adbook"],
+title: "adbook demo site",
 
-    converts: [
-        // "404.adoc",
-    ],
+use_default_theme: true,
+includes: [
+    "static/img",
+],
 
-    // `asciidoctor` command line options
-    adoc_opts: [
-        ("-a", [
-            // default Handlebars template file, relative to the source directroy
-            "hbs@=theme/hbs/article.hbs",
+converts: [
+    // "404.adoc",
+],
 
-            // css
-            "linkcss",
-            "stylesdir@={base_url}/theme/css",
-            "stylesheet@=term.css",
+// `asciidoctor` command line options
+adoc_opts: [
+    ("-a", [
+        // default Handlebars template file, relative to the source directroy
+        "hbs@=theme/hbs/article.hbs",
 
-            // image
-            "imagesdir@={base_url}/static/img",
-            "imagesoutdir@={src_dir}/static/img",
+        // css
+        "linkcss",
+        "stylesdir@={base_url}/theme/css",
+        "stylesheet@=term.css",
 
-            // preferences
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            "tabside@=4",
+        // image
+        "imagesdir@={base_url}/static/img",
+        "imagesoutdir@={src_dir}/static/img",
 
-            // features
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
+        // preferences
+        "hardbreaks",
+        "sectnums",
+        "sectnumlevels@=2",
+        "tabside@=4",
 
-            // links (available with `{name}` syntax in AsciiDoc files)
-            "adbook=https://github.com/toyboot4e/adbook[adbook]",
-            "rust=https://www.rust-lang.org/[Rust]",
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
-            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
-            "handlebars=https://handlebarsjs.com/[Handlebars]",
-            "prismjs=https://prismjs.com/[Prism.js]",
+        // features
+        "experimental",
+        "stem@=latexmath",
+        "icons@=font",
 
-            "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "prism=https://prismjs.com/[Prism.js]",
-        ]),
-    ]
-)
+        // links (available with `{name}` syntax in AsciiDoc files)
+        "adbook=https://github.com/toyboot4e/adbook[adbook]",
+        "rust=https://www.rust-lang.org/[Rust]",
+        "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
+        "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
+        "handlebars=https://handlebarsjs.com/[Handlebars]",
+        "prismjs=https://prismjs.com/[Prism.js]",
+
+        "adoc=https://asciidoctor.org/[Asciidoctor]",
+        "prism=https://prismjs.com/[Prism.js]",
+    ]),
+]

@@ -1,27 +1,36 @@
-<li>
-    {{~#if this.url~}}
-        {{~#if this.active~}}
-    <a href="{{this.url}}" class="active">
+{{~#if this.children~}}
+<li class="sidebar-item expanded">
+{{else}}
+<li class="sidebar-item">
+{{~/if~}}
+    <div class="sidebar-item-flex">
+        {{~#if this.url~}}
+            {{~#if this.active~}}
+        <a href="{{this.url}}" class="sidebar-item-flex-title active">
+            {{else}}
+        <a href="{{this.url}}" class="sidebar-item-flex-title inactive">
+            {{~/if~}}
+            {{~this.name~}}
+        </a>
         {{else}}
-    <a href="{{this.url}}" class="inactive">
+        <span class="sidebar-item-flex-title">
+            {{~this.name~}}
+        </span>
         {{~/if~}}
-    {{~/if~}}
-        {{!-- {{#if this.num}}
-        <strong area-hidden="true">{{this.num}}</strong>
-        " {{this.name}}"
-        {{else}}
-        "{{this.name}}"
-        {{/if}} --}}
-        {{~this.name~}}
-        {{!-- Recursion --}}
+
         {{~#if this.children~}}
-        <ol>
+        <div class="sidebar-item-flex-toggle">❱</div>
+        {{else}}
+        <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+        {{/if}}
+    </div>
+
+    {{~#if this.children~}}
+    <ol>
         {{~#each this.children~}}
-            {{> sidebar_item}}
+        {{> sidebar_item}}
         {{~/each~}}
-        </ol>
-        {{~/if~}}
-    {{~#if this.url~}}
-    </a>
-    {{/if}}
+    </ol>
+    {{~/if}}
 </li>

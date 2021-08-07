@@ -27,8 +27,8 @@ Then let's get Asciidoctor gems:
 
 [source,bash]
 ----
-$ rvm install asciidoctor
-$ rvm install asciidoctor-diagram
+$ gem install asciidoctor
+$ gem install asciidoctor-diagram
 ----
 
 We're ready!

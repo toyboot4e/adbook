@@ -28,46 +28,38 @@
         </div>
 
     <nav id="sidebar" class="sidebar">
-    <ol><li>
-    <a href="/adbook/index.html" class="inactive">About</a>
-    
-</li><li>
-    <a href="/adbook/demos/summary.html" class="inactive">Demos<ol><li><a href="/adbook/demos/demo.html" class="active">
-        Demo</a>
-    
-</li><li>
-    <a href="/adbook/demos/demo_diagrams.html" class="inactive">Demo (diagrams)</a>
-    
-</li></ol></a>
-    
-</li><li>
-    <a href="/adbook/custom.html" class="inactive">Customizing</a>
-    
-</li><li>
-    <a href="/adbook/credits.html" class="inactive">Credits</a>
-    
-</li><li>
-    <a href="/adbook/todos.html" class="inactive">TODOs</a>
-    
-</li></ol>
+    <ol><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/index.html" class="sidebar-item-flex-title inactive">About</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li><li class="sidebar-item expanded">
+<div class="sidebar-item-flex">        <a href="/adbook/demos/summary.html" class="sidebar-item-flex-title inactive">Demos</a>
+        <div class="sidebar-item-flex-toggle">❱</div>
+            </div><ol><li class="sidebar-item"><div class="sidebar-item-flex"><a href="/adbook/demos/demo.html" class="sidebar-item-flex-title active">
+            Demo</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo_diagrams.html" class="sidebar-item-flex-title inactive">Demo (diagrams)</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li></ol></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/custom.html" class="sidebar-item-flex-title inactive">Customizing</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/credits.html" class="sidebar-item-flex-title inactive">Credits</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/todos.html" class="sidebar-item-flex-title inactive">TODOs</a>
+                <!-- div, takes place and aligns the title to the left -->
+        <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
+            </div></li></ol>
 </nav>
 
-    
-    <div id="dummy-header"></div>
+        <div id="dummy-header"></div>
 
+            <div id="adoc-meta">
+        <span id="author" class="author">toyboot4e</span>        <span id="email" class="email">some mail</span>        <br>        <span id="revdate">Oct 24, 2020</span>    </div>
     
-    
-    <div id="adoc-meta">
-        <span id="author" class="author">toyboot4e</span>
-        <span id="email" class="email">some mail</span>
-        <br>
-        <span id="revdate">Oct 24, 2020</span>
-    </div>
-    
-
     <div id="content" class="article">
-        
-        <main>
+                <main>
             <!-- Asciidoctor output --><div class="sect1">
 <h2 id="_basics">1. Basics</h2>
 <div class="sectionbody">
@@ -639,63 +631,63 @@ fn main() {
 <div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">(
-    // toyboot4e.github.io/adbook
-    base_url: "/adbook",
-    src_dir: "src",
-    site_dir: "docs",
+<pre class="highlight"><code class="language-json" data-lang="json">// RON format (with or without outermost parentheses)
 
-    authors: ["adbook"],
-    title: "adbook demo site",
+// toyboot4e.github.io/adbook
+base_url: "/adbook",
+src_dir: "src",
+site_dir: "docs",
 
-    use_default_theme: true,
-    includes: [
-        "static/img",
-    ],
+authors: ["adbook"],
+title: "adbook demo site",
 
-    converts: [
-        // "404.adoc",
-    ],
+use_default_theme: true,
+includes: [
+    "static/img",
+],
 
-    // `asciidoctor` command line options
-    adoc_opts: [
-        ("-a", [
-            // default Handlebars template file, relative to the source directroy
-            "hbs@=theme/hbs/article.hbs",
+converts: [
+    // "404.adoc",
+],
 
-            // css
-            "linkcss",
-            "stylesdir@={base_url}/theme/css",
-            "stylesheet@=term.css",
+// `asciidoctor` command line options
+adoc_opts: [
+    ("-a", [
+        // default Handlebars template file, relative to the source directroy
+        "hbs@=theme/hbs/article.hbs",
 
-            // image
-            "imagesdir@={base_url}/static/img",
-            "imagesoutdir@={src_dir}/static/img",
+        // css
+        "linkcss",
+        "stylesdir@={base_url}/theme/css",
+        "stylesheet@=term.css",
 
-            // preferences
-            "hardbreaks",
-            "sectnums",
-            "sectnumlevels@=2",
-            "tabside@=4",
+        // image
+        "imagesdir@={base_url}/static/img",
+        "imagesoutdir@={src_dir}/static/img",
 
-            // features
-            "experimental",
-            "stem@=latexmath",
-            "icons@=font",
+        // preferences
+        "hardbreaks",
+        "sectnums",
+        "sectnumlevels@=2",
+        "tabside@=4",
 
-            // links (available with `{name}` syntax in AsciiDoc files)
-            "adbook=https://github.com/toyboot4e/adbook[adbook]",
-            "rust=https://www.rust-lang.org/[Rust]",
-            "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
-            "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
-            "handlebars=https://handlebarsjs.com/[Handlebars]",
-            "prismjs=https://prismjs.com/[Prism.js]",
+        // features
+        "experimental",
+        "stem@=latexmath",
+        "icons@=font",
 
-            "adoc=https://asciidoctor.org/[Asciidoctor]",
-            "prism=https://prismjs.com/[Prism.js]",
-        ]),
-    ]
-)</code></pre>
+        // links (available with `{name}` syntax in AsciiDoc files)
+        "adbook=https://github.com/toyboot4e/adbook[adbook]",
+        "rust=https://www.rust-lang.org/[Rust]",
+        "asciidoctor=https://asciidoctor.org/[Asciidoctor]",
+        "mdbook=https://github.com/rust-lang/mdBook[mdBook]",
+        "handlebars=https://handlebarsjs.com/[Handlebars]",
+        "prismjs=https://prismjs.com/[Prism.js]",
+
+        "adoc=https://asciidoctor.org/[Asciidoctor]",
+        "prism=https://prismjs.com/[Prism.js]",
+    ]),
+]</code></pre>
 </div>
 </div>
 </div>
@@ -754,9 +746,7 @@ The path is relative to the source directory. For more information, see the <a h
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 
     <!-- Prism.js -->
-    
-    <script src="/adbook/theme/js/prism.js"></script>
-    
-</body>
+        <script src="/adbook/theme/js/prism.js"></script>
+    </body>
 
 </html>
