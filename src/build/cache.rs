@@ -157,8 +157,10 @@ impl CacheIndex {
         if !index.is_file() {
             Ok(Default::default())
         } else {
-            let s = fs::read_to_string(&index)?;
-            let me = crate::utils::load_ron(&s)?;
+            let s = fs::read(&index)?;
+            let me = bincode::deserialize(&s).with_context(|| {
+                anyhow!("Error on deserializing cache. Try `adbook clear` if you update `adbook`.")
+            });
             Ok(me)
         }
     }
@@ -199,8 +201,8 @@ impl CacheIndex {
 
         // save cacke
         let index = Self::locate_index(book);
-        let ron = ron::ser::to_string(&Self { cache: new_cache })?;
-        fs::write(&index, ron.as_bytes())?;
+        let bin = bincode::serialize(&Self { cache: new_cache })?;
+        fs::write(&index, bin)?;
         Ok(())
     }
 }
