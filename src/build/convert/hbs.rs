@@ -94,7 +94,7 @@ impl Sidebar {
                 }
             };
 
-            TocItem::File(name, book.toc.summary.to_owned())
+            TocItem::File(name, book.toc.summary.clone())
         };
 
         let items = std::iter::once(&summary_item).chain(&book.toc.items);

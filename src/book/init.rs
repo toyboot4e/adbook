@@ -54,17 +54,14 @@ pub mod files {
 }
 
 /// List of init files relative to root directory
-static LIST: &[(&str, &[u8]); 8] = {
+static LIST: &'static [(&str, &[u8])] = {
     use files::src;
 
     &[
-        // 3
         (".gitignore", files::GIT_IGNORE),
         (".editorconfig", files::EDITOR_CONFIG),
         ("book.ron", files::BOOK),
-        // 1
         ("site", &[]),
-        // 4
         ("src", &[]),
         ("src/toc.ron", src::TOC),
         ("src/index.adoc", src::INDEX),
@@ -73,7 +70,7 @@ static LIST: &[(&str, &[u8]); 8] = {
 };
 
 /// List of theme files relative to `src` directory
-static THEME_ITEMS: &[(&str, &[u8]); 14] = {
+static THEME_ITEMS: &'static [(&str, &[u8])] = {
     use files::src::theme::{self, css, hbs, js};
 
     &[

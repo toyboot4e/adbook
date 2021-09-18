@@ -32,21 +32,22 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
 
-    // 1. generate `all.adoc`
-    if book.book_ron.generate_all {
-        let all =
-            crate::build::convert::gen_all(book).with_context(|| "Unable to create `all.adoc`")?;
+    // TODO: Generate in parallel
+    // // 1. generate `all.adoc`
+    // if book.book_ron.generate_all {
+    //     let all =
+    //         crate::build::convert::gen_all(book).with_context(|| "Unable to create `all.adoc`")?;
 
-        let path = book.book_ron.src_dir.join("all.adoc");
+    //     let path = book.book_ron.src_dir.join("all.adoc");
 
-        // overwrite only when it changed
-        match fs::read(&path) {
-            Ok(s) if s == all.as_bytes() => {}
-            _ => {
-                fs::write(path, all)?;
-            }
-        }
-    }
+    //     // overwrite only when it changed
+    //     match fs::read(&path) {
+    //         Ok(s) if s == all.as_bytes() => {}
+    //         _ => {
+    //             fs::write(path, all)?;
+    //         }
+    //     }
+    // }
 
     // 2. build the project
     let (mut v, errors) =

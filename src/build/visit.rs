@@ -21,7 +21,7 @@ use crate::{
     },
 };
 
-/// An `adbook` builder based on `asciidoctor`
+/// Book builder based on `asciidoctor`
 #[derive(Debug, Clone)]
 pub struct AdocBookBuilder {
     book: BookStructure,

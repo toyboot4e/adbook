@@ -160,7 +160,7 @@ impl CacheIndex {
             let s = fs::read(&index)?;
             let me = bincode::deserialize(&s).with_context(|| {
                 anyhow!("Error on deserializing cache. Try `adbook clear` if you update `adbook`.")
-            });
+            })?;
             Ok(me)
         }
     }
