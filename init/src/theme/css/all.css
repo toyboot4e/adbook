@@ -8,6 +8,7 @@ main {
 }
 
 main > * {
+    max-width: 50em;
     overflow-x: hidden;
     overflow-y: auto;
     padding-left: 10px;

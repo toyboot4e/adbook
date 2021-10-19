@@ -33,7 +33,8 @@
     --sidebar-width: 300px;
     --bg: #2f2f2f;
     --article-max-width: calc(16px * 60);
-    --article-pad: 15px;
+    --content-pad: 15px;
+    --article-pad: 100px;
     --header-height: 50px;
 }
 
@@ -280,10 +281,10 @@ body {
     overflow: hidden;
 }
 
-/* Wrapper of article */
+/* Wrapper of all the colums */
 #content {
-    padding-left: var(--article-pad);
-    padding-right: var(--article-pad);
+    padding-left: var(--content-pad);
+    padding-right: var(--content-pad);
     overflow-x: auto;
     overflow-y: hidden;
 }
@@ -291,11 +292,6 @@ body {
 #dummy-header {
     width: 100vw;
     height: var(--header-height);
-}
-
-/* Article, AsciiDoc output */
-main > div:first-child {
-    padding-left: 20px; /* space from sidebar */
 }
 
 h2 {
@@ -390,6 +386,10 @@ h4 {
 
 h5 {
     font-size: 1.15rem;
+}
+
+h6 {
+    font-size: 1.10rem;
 }
 
 /* link */
@@ -667,9 +667,15 @@ video {
  * -------------------------------------------------------------------------------- */
 
 @media print {
+    /* hide browser header/footer */
+    @page {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
     body {
-        /* enable background color (Chrome only?) */
-        -webkit-print-color-adjust: exact !important;
+        padding-top: 72px;
+        padding-bottom: 72px ;
     }
 
     /* unset flex */
@@ -682,6 +688,12 @@ video {
         max-height: 100% !important;
         overflow-x: scroll imporntant;
         overflow-y: scroll imporntant;
+    }
+
+    /* colors */
+    body {
+        /* enable background color (Chrome only?) */
+        -webkit-print-color-adjust: exact !important;
     }
 
     #sidebar {

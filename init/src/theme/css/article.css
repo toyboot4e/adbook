@@ -18,7 +18,7 @@ main > * {
     );
     overflow-x: hidden;
     overflow-y: auto;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: var(--article-pad);
+    padding-right: var(--article-pad);
 }
 
