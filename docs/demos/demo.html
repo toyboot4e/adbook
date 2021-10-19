@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="toyboot4e">
     <title>Demo in terminal dark theme</title>
-    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/term.css"><!-- Hide sidebar by default if the window is not so wide -->
+    <link rel="icon" href="/adbook/theme/favicon.svg"><link rel="stylesheet" href="/adbook/theme/css/article.css"><!-- Hide sidebar by default if the window is not so wide -->
     <script>
         window.addEventListener("DOMContentLoaded", function() {
             if (document.body.clientWidth <= 900) {
@@ -641,6 +641,9 @@ site_dir: "docs",
 authors: ["adbook"],
 title: "adbook demo site",
 
+// don't generate `all.html`
+generate_all: false,
+
 use_default_theme: true,
 includes: [
     "static/img",
@@ -659,7 +662,7 @@ adoc_opts: [
         // css
         "linkcss",
         "stylesdir@={base_url}/theme/css",
-        "stylesheet@=term.css",
+        "stylesheet@=article.css",
 
         // image
         "imagesdir@={base_url}/static/img",
