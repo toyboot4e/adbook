@@ -37,7 +37,7 @@ adoc_opts: [
         // css
         "linkcss",
         "stylesdir@={base_url}/theme/css",
-        "stylesheet@=term.css",
+        "stylesheet@=article.css",
 
         // image
         "imagesdir@={base_url}/static/img",

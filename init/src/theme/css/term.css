@@ -32,7 +32,7 @@
 :root {
     --sidebar-width: 300px;
     --bg: #2f2f2f;
-    --article-max-width: calc(16px * 60);
+    --article-max-width: calc(16px * 70);
     --content-pad: 15px;
     --article-pad: 100px;
     --header-height: 50px;

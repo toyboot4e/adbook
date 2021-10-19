@@ -1,7 +1,7 @@
 /*!
 Files/directories that are created when initializing a book directory
 
-TODO: Do it automatically. See also: `hbs.rs`
+TODO: Auto gen
 */
 
 use std::{fs, io, path::Path};
@@ -38,7 +38,10 @@ pub mod files {
                 }
             }
             pub mod css {
+                pub static ALL: &[u8] = include_bytes!("../../init/src/theme/css/all.css");
+                pub static ARTICLE: &[u8] = include_bytes!("../../init/src/theme/css/article.css");
                 pub static TERM: &[u8] = include_bytes!("../../init/src/theme/css/term.css");
+
                 pub mod partials {
                     pub static TERM_ADOC: &[u8] =
                         include_bytes!("../../init/src/theme/css/partials/term_adoc.css");
@@ -74,10 +77,10 @@ static THEME_ITEMS: &'static [(&str, &[u8])] = {
     use files::src::theme::{self, css, hbs, js};
 
     &[
-        // 2
+        //
         ("theme", &[]),
         ("theme/favicon.svg", theme::FAVICON),
-        // 5
+        //
         ("theme/hbs", &[]),
         ("theme/hbs/article.hbs", hbs::ARTICLE),
         ("theme/hbs/partials", &[]),
@@ -86,8 +89,10 @@ static THEME_ITEMS: &'static [(&str, &[u8])] = {
             "theme/hbs/partials/sidebar_item.hbs",
             hbs::partials::SIDEBAR_ITEM,
         ),
-        // 5
+        //
         ("theme/css", &[]),
+        ("theme/css/all.css", css::ALL),
+        ("theme/css/article.css", css::ARTICLE),
         ("theme/css/term.css", css::TERM),
         ("theme/css/partials", &[]),
         ("theme/css/partials/term_adoc.css", css::partials::TERM_ADOC),
@@ -95,7 +100,7 @@ static THEME_ITEMS: &'static [(&str, &[u8])] = {
             "theme/css/partials/prism_okidia.css",
             css::partials::PRISM_OKIDIA,
         ),
-        // 2
+        //
         ("theme/js", &[]),
         ("theme/js/prism.js", js::PRISM),
     ]
