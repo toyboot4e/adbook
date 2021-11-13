@@ -2,23 +2,124 @@
 
 /* article.css */
 
-/* flex box */
+/* -------------------------------------------------------------------------------- *
+ * Flex layout
+ * -------------------------------------------------------------------------------- */
+
 main {
     display: inline-flex;
     flex-direction: row;
     max-height: 100%;
 }
 
+/* Article column wrappers */
 main > * {
-    max-width: var(--article-max-width);
-    width: calc(100vw - var(--sidebar-width));
-    /* see also: #sidebar */
+    width: 100vw;
     height: calc(
-        100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
+        100vh - var(--header-height) - 56px /* adoc-meta + scroll bar height */
     );
     overflow-x: hidden;
     overflow-y: auto;
-    padding-left: var(--article-pad);
-    padding-right: var(--article-pad);
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Conditional
+ */
+
+#nav-btn-click:checked ~ #sidebar {
+    display: none;
+}
+
+/* NOTE: CSS media queries don't accept variables
+ * - 15px: content padding
+ * - 300px: sidebar width
+ * - 900px: max article width
+ * - 100px: article left width
+
+ FIXME: The padding changes digitally. I wanted to use margin: auto, but each head is not wrapperd
+ by a div, so I need some hack.
+ */
+
+/* Show article. Nav bar is over it (basically mobile) */
+@media only screen and (max-width: 900px) {
+    main > * {
+        padding-left: var(--content-pad);
+        padding-right: var(--content-pad);
+    }
+
+    /* without sidebar */
+    #nav-btn-click:checked ~ #content main > * {
+        max-width: min(
+            /* calc(100vw - var(--sidebar-width)), */
+            100vw,
+            calc(var(--article-max-width) + var(--article-max-pad) - var(--sidebar-width))
+        );
+    }
+
+    /* with sidebar */
+    #nav-btn-click:not(:checked) ~ #content main > * {
+        max-width: min(
+            100vw,
+            calc(var(--article-max-width) + var(--article-max-pad))
+        );
+    }
+}
+
+/* Show article and nav bar with minimum padding */
+@media only screen and (min-width: 900px) and (max-width: 1400px) {
+    /* with sidebar */
+    #nav-btn-click:not(:checked) ~ #content {
+        margin-left: calc(var(--sidebar-width));
+    }
+
+    main > * {
+        padding-left: var(--content-pad);
+        padding-right: var(--content-pad);
+    }
+
+    /* without sidebar */
+    #nav-btn-click:checked ~ #content main > * {
+        max-width: min(
+            100vw,
+            calc(var(--article-max-width) + (2*var(--article-max-pad)))
+        );
+    }
+
+    /* with sidebar */
+    #nav-btn-click:not(:checked) ~ #content main > * {
+        max-width: min(
+            calc(100vw - var(--sidebar-width)),
+            calc(var(--article-max-width) + (2*var(--article-max-pad)) - var(--sidebar-width))
+        );
+    }
+}
+
+/* Show article and nav bar with max padding */
+@media only screen and (min-width: 1400px) {
+    /* with sidebar */
+    #nav-btn-click:not(:checked) ~ #content {
+        margin-left: calc(var(--sidebar-width));
+    }
+
+    main > * {
+        padding-left: var(--article-max-pad);
+        padding-right: var(--article-max-pad);
+    }
+
+    /* without sidebar */
+    #nav-btn-click:checked ~ #content main > * {
+        max-width: min(
+            calc(100vw - var(--sidebar-width)),
+            calc(var(--article-max-width) + (2*var(--article-max-pad)) - var(--sidebar-width))
+        );
+    }
+
+    /* with sidebar */
+    #nav-btn-click:not(:checked) ~ #content main > * {
+        max-width: min(
+            100vw,
+            calc(var(--article-max-width) + var(--article-max-pad))
+        );
+    }
 }
 

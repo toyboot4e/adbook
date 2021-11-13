@@ -7,12 +7,10 @@
 * setup convert sub command: consider if the file is in site directory or not
 */
 
-use {
-    adbook::cli::Cli,
-    anyhow::*,
-    clap::Clap,
-    fern::colors::{Color, ColoredLevelConfig},
-};
+use adbook::cli::Cli;
+use anyhow::*;
+use clap::Parser;
+use fern::colors::{Color, ColoredLevelConfig};
 
 fn main() -> Result<()> {
     self::configure_log().context("Unable to condifure `adbook` logging system (`fern`)")?;

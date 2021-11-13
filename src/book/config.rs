@@ -39,18 +39,18 @@ pub struct BookRon {
     pub adoc_opts: CmdOptions,
 }
 
-/// Deserialized from `toc.ron` in sub directories in a source directory of an `adbook` project
+/// Deserialized from `index.ron` in sub directories in a source directory of an `adbook` project
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct TocRon {
+pub struct IndexRon {
     /// (name, file) that describes this directory
     pub summary: (String, PathBuf),
     /// Child items
-    pub items: Vec<TocRonItem>,
+    pub items: Vec<IndexRonItem>,
 }
 
 /// `File` | `Dir`
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub enum TocRonItem {
+pub enum IndexRonItem {
     /// `(title, url)`. If `title` is left as empty (`""`), the sidebar title is extracted from the
     /// source file.
     File(String, PathBuf),

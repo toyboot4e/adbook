@@ -16,7 +16,7 @@ use {
 };
 
 use crate::{
-    book::{toc::TocItem, BookStructure},
+    book::{index::IndexItem, BookStructure},
     build::convert::adoc::AdocMetadata,
 };
 
@@ -84,7 +84,7 @@ impl Sidebar {
         let mut errors = Vec::with_capacity(20);
 
         let summary_item = {
-            let (name, file) = (&book.toc.name, &book.toc.summary);
+            let (name, file) = (&book.index.name, &book.index.summary);
 
             let name = match Self::get_title(name, file) {
                 Ok(name) => name,
@@ -94,10 +94,10 @@ impl Sidebar {
                 }
             };
 
-            TocItem::File(name, book.toc.summary.clone())
+            IndexItem::File(name, book.index.summary.clone())
         };
 
-        let items = std::iter::once(&summary_item).chain(&book.toc.items);
+        let items = std::iter::once(&summary_item).chain(&book.index.items);
         let items: Vec<SidebarItem> = {
             Self::collect_sidebar_items(
                 items,
@@ -129,7 +129,7 @@ impl Sidebar {
     }
 
     fn collect_sidebar_items<'a>(
-        items: impl Iterator<Item = &'a TocItem>,
+        items: impl Iterator<Item = &'a IndexItem>,
         src_dir: &Path,
         base_url_str: &str,
         errors: &mut Vec<Error>,
@@ -149,23 +149,23 @@ impl Sidebar {
     }
 
     fn map_item(
-        item: &TocItem,
+        item: &IndexItem,
         src_dir: &Path,
         base_url_str: &str,
         errors: &mut Vec<Error>,
         depth: usize,
     ) -> Result<SidebarItem> {
         match &item {
-            TocItem::File(name, file) => Ok(SidebarItem {
+            IndexItem::File(name, file) => Ok(SidebarItem {
                 name: Self::get_title(name, file)?,
                 url: Some(Self::get_url(src_dir, file, base_url_str)?),
                 children: None,
                 active: false,
                 depth,
             }),
-            TocItem::Dir(toc) => {
+            IndexItem::Dir(index) => {
                 let children = Self::collect_sidebar_items(
-                    toc.items.iter(),
+                    index.items.iter(),
                     src_dir,
                     base_url_str,
                     errors,
@@ -173,8 +173,8 @@ impl Sidebar {
                 );
                 // add preface
                 Ok(SidebarItem {
-                    name: Self::get_title(&toc.name, &toc.summary)?,
-                    url: Some(Self::get_url(src_dir, &toc.summary, base_url_str)?),
+                    name: Self::get_title(&index.name, &index.summary)?,
+                    url: Some(Self::get_url(src_dir, &index.summary, base_url_str)?),
                     children: Some(Box::new(children)),
                     active: false,
                     depth,
