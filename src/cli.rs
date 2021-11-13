@@ -6,7 +6,7 @@ Command line interface by clap 3.0
 `main.rs`:
 
 ```no_run
-use {adbook::cli::Cli, anyhow::*, clap::Clap};
+use {adbook::cli::Cli, anyhow::*, clap::Parser};
 
 fn main() -> Result<()> {
     // initialize your `log` implemetation
@@ -23,16 +23,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use {anyhow::*, clap::Clap, colored::*};
+use anyhow::*;
+use clap::Parser;
+use colored::*;
 
 use crate::book::BookStructure;
 
 // `adbook`
-#[derive(Clap, Debug)]
-#[clap(
-    name = "adbook is a simple SSG powered by asciidoctor",
-    setting = clap::AppSettings::ColoredHelp
-)]
+#[derive(Parser, Debug)]
+#[clap(name = "adbook is a simple SSG powered by asciidoctor")]
 pub struct Cli {
     #[clap(subcommand)]
     pub cmd: SubCommand,
@@ -44,7 +43,7 @@ impl Cli {
     }
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 pub enum SubCommand {
     /// Initializes a directory as an `adbook` project
     #[clap(name = "init", alias = "i")]
@@ -52,7 +51,7 @@ pub enum SubCommand {
     /// Builds an `adbook` project
     #[clap(name = "build", alias = "b")]
     Build(Build),
-    /// Prints one of the preset files: `article.adoc`, `book.ron` or `toc.ron`
+    /// Prints one of the preset files: `article.adoc`, `book.ron` or `index.ron`
     #[clap(name = "preset", alias = "p")]
     Preset(Preset),
     /// Clears the site directory contents and the build cache
@@ -71,7 +70,7 @@ impl SubCommand {
 }
 
 /// `adbook build`
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 pub struct Build {
     pub dir: Option<String>,
     #[clap(short, long = "force")]
@@ -96,7 +95,7 @@ impl Build {
 }
 
 /// `adbook init`
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 pub struct Init {
     pub dir: String,
 }
@@ -130,7 +129,7 @@ impl Init {
 }
 
 /// `adbook preset`
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 pub struct Preset {
     pub file: Option<String>,
 }
@@ -145,8 +144,8 @@ impl Preset {
                 let s = std::str::from_utf8(files::BOOK)?;
                 println!("{}", s);
             }
-            "t" | "toc" | "toc.ron" => {
-                let s = std::str::from_utf8(files::src::TOC)?;
+            "i" | "index" | "index.ron" => {
+                let s = std::str::from_utf8(files::src::INDEX_RON)?;
                 println!("{}", s);
             }
             "a" | "article" | "article.adoc" => {
@@ -154,7 +153,7 @@ impl Preset {
                 println!("{}", s);
             }
             _ => {
-                eprintln!("specify one of `book`, `toc` or `article");
+                eprintln!("specify one of `book`, `index` or `article");
             }
         }
 
@@ -163,7 +162,7 @@ impl Preset {
 }
 
 /// `adbook clear`
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 pub struct Clear {
     pub dir: Option<String>,
 }

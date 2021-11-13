@@ -12,7 +12,7 @@ use {
 };
 
 use crate::book::{
-    toc::{Toc, TocItem},
+    index::{Index, IndexItem},
     BookStructure,
 };
 
@@ -29,20 +29,20 @@ pub trait BookBuilder: Clone + Send + Sync {
 }
 
 fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
-    // note that paths in `Toc` are already canonicalized (can can be passed to visitors directly)
+    // note that paths in `Index` are already canonicalized (can can be passed to visitors directly)
 
     /// [Depth-first] iteration
     ///
     /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
-    fn list_files_rec(toc: &Toc, files: &mut Vec<PathBuf>) {
-        files.push(toc.summary.clone());
-        for item in &toc.items {
+    fn list_files_rec(index: &Index, files: &mut Vec<PathBuf>) {
+        files.push(index.summary.clone());
+        for item in &index.items {
             match item {
-                TocItem::File(_name, path) => {
+                IndexItem::File(_name, path) => {
                     files.push(path.clone());
                 }
-                TocItem::Dir(toc) => {
-                    list_files_rec(toc, files);
+                IndexItem::Dir(index) => {
+                    list_files_rec(index, files);
                 }
             };
         }
@@ -57,13 +57,13 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
         files.push(path);
     }
 
-    // `toc.ron` files
-    list_files_rec(&book.toc, &mut files);
+    // `index.ron` files
+    list_files_rec(&book.index, &mut files);
 
     files
 }
 
-/// Walks a root [`Toc`] and converts files in parallel
+/// Walks a root [`Index`] and converts files in parallel
 ///
 /// NOTE: make sure to `flush` after calling this method
 pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStructure, log: bool) {

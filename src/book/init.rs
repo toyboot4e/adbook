@@ -17,8 +17,8 @@ pub mod files {
     pub mod site {}
 
     pub mod src {
-        pub static TOC: &[u8] = include_bytes!("../../init/src/toc.ron");
-        pub static INDEX: &[u8] = include_bytes!("../../init/src/index.adoc");
+        pub static INDEX_RON: &[u8] = include_bytes!("../../init/src/index.ron");
+        pub static INDEX_ADOC: &[u8] = include_bytes!("../../init/src/index.adoc");
         pub static ARTICLE: &[u8] = include_bytes!("../../init/src/article.adoc");
 
         pub mod static_ {
@@ -66,8 +66,8 @@ static LIST: &'static [(&str, &[u8])] = {
         ("book.ron", files::BOOK),
         ("site", &[]),
         ("src", &[]),
-        ("src/toc.ron", src::TOC),
-        ("src/index.adoc", src::INDEX),
+        ("src/index.ron", src::INDEX_RON),
+        ("src/index.adoc", src::INDEX_RON),
         ("src/article.adoc", src::ARTICLE),
     ]
 };

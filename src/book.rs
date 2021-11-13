@@ -1,8 +1,8 @@
 /*! Book data structure
 
-It's based on two kinds of files: `book.ron` and `toc.ron` (toc standing for table of contents).
-Those files are written in the human-friendly [Ron] format (NOTE: in `adbook`, it's allowed to omit
-outermost parentheses in RON format).
+It's based on two kinds of files: `book.ron` and `index.ron`. Those files are written in the
+human-friendly [Ron] format (NOTE: in `adbook`, it's allowed to omit outermost parentheses in RON
+format).
 
 [Ron]: https://github.com/ron-rs/ron
 
@@ -22,9 +22,9 @@ metadata such as the book name and the author name.
 
 [`BookRon`]: crate::book::config::BookRon
 
-# `toc.ron`
+# `index.ron`
 
-When you run `adbook build`, it will look into `src/toc.ron` and searches files or sub directroes in
+When you run `adbook build`, it will look into `src/index.ron` and searches files or sub directroes in
 it, recursively:
 
 ```sh
@@ -32,19 +32,21 @@ it, recursively:
     ├── a.adoc
     ├── sub_directory
     │   ├── preface.adoc
-    │   └── toc.ron  # lists `preface.adoc`
-    └── toc.ron      # lists `a.adoc` and `sub_directory`
+    │   └── index.ron  # lists `preface.adoc`
+    └── index.ron      # lists `a.adoc` and `sub_directory`
 ```
 
-`toc.ron` maps to [`TocRon`]. It's similar to `mod.rs` in Rust; it's a list of source files in the
+`index.ron` maps to [`IndexRon`]. It's similar to `mod.rs` in Rust; it's a list of source files in the
 directory.
-[`TocRon`]: crate::book::config::TocRon
+[`IndexRon`]: crate::book::config::IndexRon
 !*/
 
 pub mod config;
+pub mod index;
 pub mod init;
-pub mod toc;
 pub mod walk;
+
+const INDEX_RON: &'static str = "index.ron";
 
 use {
     anyhow::*,
@@ -56,8 +58,8 @@ use {
 };
 
 use self::{
-    config::{BookRon, TocRon},
-    toc::Toc,
+    config::{BookRon, IndexRon},
+    index::Index,
 };
 
 /// Error while loading `book.ron`
@@ -69,15 +71,15 @@ pub enum BookLoadError {
     NotFoundRoot,
 }
 
-/// File structure of an adbook project read from `book.ron` and `toc.ron`s
+/// File structure of an adbook project read from `book.ron` and `index.ron`s
 #[derive(Debug, Clone)]
 pub struct BookStructure {
     /// Absolute path to a directory with `book.ron`
     pub root: PathBuf,
     /// `book.ron`
     pub book_ron: BookRon,
-    /// `src/toc.ron`, the recursive book structure
-    pub toc: Toc,
+    /// `src/index.ron`, the recursive book structure
+    pub index: Index,
 }
 
 impl BookStructure {
@@ -126,31 +128,32 @@ impl BookStructure {
 
         let src_dir = root.join(&book_ron.src_dir);
 
-        let (toc, toc_errors) = {
-            let toc_path = src_dir.join("toc.ron");
-            let toc_str = fs::read_to_string(&toc_path).with_context(|| {
-                format!("Unable to read root `toc.ron` at: {}", toc_path.display())
+        let (index, index_errors) = {
+            let index_path = src_dir.join(INDEX_RON);
+            let index_str = fs::read_to_string(&index_path).with_context(|| {
+                format!(
+                    "Unable to read root `index.ron` at: {}",
+                    index_path.display()
+                )
             })?;
 
-            let toc_ron: TocRon = crate::utils::load_ron(&toc_str)
-                .with_context(|| format!("Failed to parse `toc.ron` at: {}", toc_path.display()))?;
-            log::trace!("root toc.ron loaded");
-            // log::trace!("{:?}", toc_ron);
+            let index_ron: IndexRon = crate::utils::load_ron(&index_str).with_context(|| {
+                format!("Failed to parse `index.ron` at: {}", index_path.display())
+            })?;
+            log::trace!("root `index.ron` loaded");
 
-            // Here we actually load a root `toc.ron`
-            log::trace!("loading toc.ron");
-            Toc::from_toc_ron_recursive(&toc_ron, &src_dir)?
+            log::trace!("loading `index.ron`");
+            Index::from_index_ron_recursive(&index_ron, &src_dir)?
         };
 
-        log::trace!("toc.ron loaded");
-        // trace!("{:#?}", toc);
+        log::trace!("`index.ron` loaded");
 
-        crate::utils::print_errors(&toc_errors, "while parsing toc.ron");
+        crate::utils::print_errors(&index_errors, "while parsing `index.ron`");
 
         Ok(Self {
             root,
             book_ron,
-            toc,
+            index,
         })
     }
 }

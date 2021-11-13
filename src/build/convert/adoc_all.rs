@@ -5,7 +5,7 @@ Generates `all.adoc`
 use std::{fmt::Write, path::Path};
 
 use crate::book::{
-    toc::{Toc, TocItem},
+    index::{Index, IndexItem},
     BookStructure,
 };
 
@@ -21,23 +21,23 @@ pub fn gen_all(book: &BookStructure) -> Result<String> {
     writeln!(out, ":stylesheet: all.css")?;
     writeln!(out, "")?;
 
-    self::visit(&mut out, &book.toc, 1)?;
+    self::visit(&mut out, &book.index, 1)?;
 
     Ok(out)
 }
 
-fn visit(out: &mut String, toc: &Toc, depth: usize) -> Result<()> {
-    self::write_file(out, &toc.summary, depth)?;
+fn visit(out: &mut String, index: &Index, depth: usize) -> Result<()> {
+    self::write_file(out, &index.summary, depth)?;
 
     let depth = depth + 1;
 
-    for item in &toc.items {
+    for item in &index.items {
         match item {
-            TocItem::File(_name, abs_path) => {
+            IndexItem::File(_name, abs_path) => {
                 self::write_file(out, abs_path, depth)?;
             }
-            TocItem::Dir(toc) => {
-                self::visit(out, toc, depth)?;
+            IndexItem::Dir(index) => {
+                self::visit(out, index, depth)?;
             }
         }
     }
