@@ -18,59 +18,66 @@
 </head>
 
 <body>
-    <input type="checkbox" id="nav-btn-click" style="display:none;">
+<input type="checkbox" id="nav-btn-click" style="display:none;">
     <div id="header">
         <div id="nav-btn">
             <label for="nav-btn-click">
                 <i class="fa fa-list-ul"></i>
             </label>
         </div><h1>adbook</h1>
-        </div>
+</div>
 
-    <nav id="sidebar" class="sidebar">
+<nav id="sidebar" class="sidebar">
     <ol><li class="sidebar-item"><div class="sidebar-item-flex"><a href="/adbook/index.html" class="sidebar-item-flex-title active">
-            About</a>
-                <!-- div, takes place and aligns the title to the left -->
+About</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li><li class="sidebar-item expanded">
+    </div></li><li class="sidebar-item expanded">
 <div class="sidebar-item-flex">        <a href="/adbook/demos/summary.html" class="sidebar-item-flex-title inactive">Demos</a>
-        <div class="sidebar-item-flex-toggle">❱</div>
-            </div><ol><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo.html" class="sidebar-item-flex-title inactive">Demo</a>
-                <!-- div, takes place and aligns the title to the left -->
+<div class="sidebar-item-flex-toggle">❱</div>
+    </div><ol><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo.html" class="sidebar-item-flex-title inactive">Demo</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo_diagrams.html" class="sidebar-item-flex-title inactive">Demo (diagrams)</a>
-                <!-- div, takes place and aligns the title to the left -->
+    </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo_diagrams.html" class="sidebar-item-flex-title inactive">Demo (diagrams)</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li></ol></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/custom.html" class="sidebar-item-flex-title inactive">Customizing</a>
-                <!-- div, takes place and aligns the title to the left -->
+    </div></li></ol></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/custom.html" class="sidebar-item-flex-title inactive">Customizing</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/credits.html" class="sidebar-item-flex-title inactive">Credits</a>
-                <!-- div, takes place and aligns the title to the left -->
+    </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/credits.html" class="sidebar-item-flex-title inactive">Credits</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/todos.html" class="sidebar-item-flex-title inactive">TODOs</a>
-                <!-- div, takes place and aligns the title to the left -->
+    </div></li><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/todos.html" class="sidebar-item-flex-title inactive">TODOs</a>
+        <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
-            </div></li></ol>
+    </div></li></ol>
 </nav>
+    <div id="dummy-header"></div>
 
-        <div id="dummy-header"></div>
+    <div id="adoc-meta">
+        
+        
+        
+        
+    </div>
 
-            <div id="adoc-meta">
-                                    </div>
-    
     <div id="content" class="article">
-                <main>
+        <main>
             <!-- Asciidoctor output --><div class="sect1">
 <h2 id="_welcome">1. Welcome</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code>adbook</code> is a tool for building book-like webpages. If you like this demo, you might like <code>adbook</code>, too.</p>
 </div>
-<div class="paragraph">
-<p>Scroll right to see a next page; the default theme is using flex layout.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/toyboot4e/adbook">adbook repository</a></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p><a href="https://github.com/toyboot4e/adbook">Repository</a></p>
+<p>Scroll right to see a next page; the default theme is using flex layout. I apologize the strange defalt.</p>
 </div>
 <div class="sect2">
 <h3 id="_installation">1.1. Installation</h3>
@@ -134,11 +141,11 @@ tmp
     ├── index.adoc
     ├── static
     │   └── img
-    ├── theme
-    │   ├── css
-    │   ├── hbs
-    │   └── js
-    └── toc.ron <i class="conum" data-value="4"></i><b>(4)</b>
+    ├── index.ron <i class="conum" data-value="4"></i><b>(4)</b>
+    └── theme
+        ├── css
+        ├── hbs
+        └── js
 
 8 directories, 4 files</code></pre>
 </div>
@@ -151,7 +158,7 @@ tmp
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td><code>site</code> is the site directory, where <code>adbook</code> outputs files.</td>
+<td><code>site</code> is the default html output directory, which can be overridden in <code>book.ron</code>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
@@ -159,7 +166,7 @@ tmp
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><code>toc.ron</code> is very similar to <code>mod.rs</code> and maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.TocRon.html">TocRon</a>. They are located in each directory and lists <code>.adoc</code> files in it.</td>
+<td><code>index.ron</code> is very similar to <code>mod.rs</code> and maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.IndexRon.html">IndexRon</a>. They are located in each directory and lists <code>.adoc</code> files in it.</td>
 </tr>
 </table>
 </div>
@@ -182,7 +189,7 @@ $ adbook build</code></pre>
 <div class="sect2">
 <h3 id="_differences_from_mdbook">2.2. Differences from mdbook</h3>
 <div class="paragraph">
-<p><a href="https://github.com/toyboot4e/adbook">adbook</a> is highly inspired by <a href="https://github.com/rust-lang/mdBook">mdBook</a>, but it uses <a href="https://asciidoctor.org/docs/what-is-asciidoc/">AsciiDoc</a> for source files instead of Markdown. AsciiDoc is an expressive language, as you can see in the demos.</p>
+<p><a href="https://github.com/toyboot4e/adbook">adbook</a> is highly inspired by <a href="https://github.com/rust-lang/mdBook">mdBook</a>, but it uses <a href="https://asciidoctor.org/docs/what-is-asciidoc/">AsciiDoc</a> for source files instead of Markdown. AsciiDoc is an expressive language, as you can see in the demos in the next chapter.</p>
 </div>
 <div class="paragraph">
 <p>Other differences:</p>
@@ -193,7 +200,7 @@ $ adbook build</code></pre>
 <p><code>adbook</code> uses <a href="https://prismjs.com/">Prism.js</a> by default to highlight source code.</p>
 </li>
 <li>
-<p><a href="https://github.com/rust-lang/mdBook">mdBook</a> supports a bunch more thinkgs:</p>
+<p>To be honest, <a href="https://github.com/rust-lang/mdBook">mdBook</a> supports a bunch more things:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -220,9 +227,6 @@ $ adbook build</code></pre>
 <ul>
 <li>
 <p><code>adbook</code> creates multiple page websites while Asciidoctor creates single page websites by default.</p>
-</li>
-<li>
-<p><code>adbook</code> provides some placeholder strings to <em>document attributes</em>, such as <code>{base_url}</code>.</p>
 </li>
 </ul>
 </div>
@@ -251,13 +255,7 @@ $ adbook build</code></pre>
 <li>
 <p><a href="http://www.seinan-gu.ac.jp/~shito/asciidoctor/html_chunk/">Asciidoctor User Manual (unofficial chunked version)</a></p>
 <div class="paragraph">
-<p>Chunked version of the manual generated with <a href="https://github.com/wshito/asciidoctor-chunker">asciidoctor-chunker</a></p>
-</div>
-</li>
-<li>
-<p><a href="https://asciidoctor-docs.netlify.app">Asciidoctor Documentation :: The Docs @ Asciidoctor</a></p>
-<div class="paragraph">
-<p>This is an in-progress official Asciidoctor documentation generated with <a href="https://antora.org/">Antora</a>.</p>
+<p>Chunked version of the old manual site generated with <a href="https://github.com/wshito/asciidoctor-chunker">asciidoctor-chunker</a></p>
 </div>
 </li>
 </ul>
@@ -286,7 +284,7 @@ $ adbook build</code></pre>
 </div>
 </li>
 <li>
-<p>Maybe other SSGs</p>
+<p>Maybe other SSGs such as <a href="https://www.mkdocs.org/">MKDocs</a></p>
 </li>
 <li>
 <p>Maybe org-mode</p>
@@ -342,7 +340,7 @@ $ adbook build</code></pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 
     <!-- Prism.js -->
-        <script src="/adbook/theme/js/prism.js"></script>
-    </body>
+    <script src="/adbook/theme/js/prism.js"></script>
+</body>
 
 </html>

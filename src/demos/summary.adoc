@@ -2,13 +2,11 @@
 
 == This is `demos/summary.adoc`
 
-You can nest directories as this!
-
-`toc.ron` in this directory is:
+`index.ron` in this directory is:
 
 [source,toml]
 ----
-include::demos/toc.ron[]
+include::demos/index.ron[]
 ----
 
 TIP: Titles can be skipped as this: `File("", "demo.adoc")`. Then it is automatically extracted from the AsciiDoc file.

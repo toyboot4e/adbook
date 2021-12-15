@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------------- */
 
 /* Asciidoctor doesn't support multiple CSS files. `adbook` _could_ support it but I was not temped
- * to do.
+ * to do. So let's just import them here:
  */
 
 @import url("partials/term_adoc.css");
@@ -24,17 +24,19 @@
  * Global rules
  * -------------------------------------------------------------------------------- */
 
-/* Insert indentations automatically */
+/* Insert indentations automatically, without adding indents to the source files */
 :not(li) > .paragraph {
     text-indent: 1em;
 }
 
 :root {
-    --sidebar-width: 300px;
+    --sidebar-width: 20em;
     --bg: #2f2f2f;
-    --article-max-width: calc(16px * 70);
+    --article-max-width: calc(52em + (2 * var(--article-max-pad)));
+    /* Required paddings applied to the entire article space */
     --content-pad: 15px;
-    --article-pad: 100px;
+    /* Additional paddings applied to each flex column */
+    --article-max-pad: 60px;
     --header-height: 50px;
 }
 
@@ -53,35 +55,6 @@ html {
  * -------------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------------- *
- * Conditional
- */
-
-#nav-btn-click:checked ~ #sidebar {
-    display: none;
-}
-
-/* Show article. Nav bar is over it */
-@media only screen and (max-width: 900px) {
-    #nav-btn-click ~ #content > main > * {
-        width: calc(100vw - 40px);
-    }
-}
-
-/* Show article and nav bar */
-@media only screen and (min-width: 900px) and (max-width: 1590px) {
-    #nav-btn-click:not(:checked) ~ #content {
-        margin-left: calc(var(--sidebar-width));
-    }
-}
-
-/* Show article and nav bar (no need to care about each other) */
-@media only screen and (min-width: 1590px) {
-    #nav-btn-click:not(:checked) ~ #content {
-        margin-left: calc(var(--sidebar-width));
-    }
-}
-
-/* -------------------------------------------------------------------------------- *
  * sidebar
  */
 
@@ -90,7 +63,11 @@ html {
     top: 0;
     background-color: rgb(45, 45, 45);
     border-right: 1px solid black;
-    width: var(--sidebar-width);
+
+    /* for <ol> */
+    padding-left: 15px;
+
+    width: calc(var(--sidebar-width) - 15px);
     height: 100%;
     /* see also: `main > ` */
     max-height: calc(
@@ -100,8 +77,6 @@ html {
     font-size: 15px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    /* for ol */
-    padding-left: 15px;
 }
 
 .sidebar li a {
@@ -203,10 +178,12 @@ div.sidebar-item-flex {
     padding-top: 10px;
 }
 
+/* Title */
 h1 {
     font-size: 32px;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    height: 40px;
     margin: auto;
 }
 
@@ -283,8 +260,8 @@ body {
 
 /* Wrapper of all the colums */
 #content {
-    padding-left: var(--content-pad);
-    padding-right: var(--content-pad);
+    /* padding-left: var(--content-pad); */
+    /* padding-right: var(--content-pad); */
     overflow-x: auto;
     overflow-y: hidden;
 }

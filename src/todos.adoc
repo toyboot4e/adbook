@@ -5,23 +5,23 @@
 :!sectnums:
 === Polish
 
-* Add `serve` command
-* Add `convert` command
-* Show Handlebars errors
+* [ ] Add `serve` command
+* [ ] Add `convert` command
+* [ ] Show Handlebars errors
 
 :sectnums:
 === High priority
 
-* Highlight current page in the sidebar
-* Fix scrolling on mobiles
-* Do not lock the y scroll (so that we can scroll back when we click a footnote link)
+* [x] Highlight current page in the sidebar
+* [ ] Collapse by level in the sidebar
+* [ ] Fix scrolling on mobiles (consider browser chrome)
+* [ ] Improve cache
+* [ ] Easier x scroll
 
 === Middle priority
 
-* Support Asciidoctor extensions
-** Show footnote content on mouse hover
-
-* Add print view
+* [ ] Show footnote content on mouse hover
+* [x] Add print view (`all.adoc`)
 
 === Low priority
 
