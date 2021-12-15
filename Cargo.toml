@@ -24,7 +24,7 @@ serde = { version = "1.0.126", features = ["derive"] }
 ron = "0.6.4"
 
 # CLI
-clap = "3.0.0-beta.5"
+clap = { version = "3.0.0-rc.4", features = ["derive"] }
 
 # main
 fern = { version = "0.6.0", features = ["colored"] }
