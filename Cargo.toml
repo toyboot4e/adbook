@@ -22,6 +22,7 @@ futures = { version = "0.3.15", features = [] }
 handlebars = "4.0.0"
 serde = { version = "1.0.126", features = ["derive"] }
 ron = "0.6.4"
+which = { version = "4.2.2" }
 
 # CLI
 clap = { version = "3.0.0-rc.4", features = ["derive"] }

@@ -18,7 +18,7 @@ use crate::{
 
 /// Builds an `adbook` structure into a site directory, making use of cache and parallelization
 ///
-/// source -> `tmp` -> `site`
+/// `src` -> `tmp` -> `site`
 pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Result<()> {
     let site_dir = book.site_dir_path();
     crate::utils::validate_dir(&site_dir)
@@ -53,6 +53,12 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     let (mut v, errors) =
         AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
+
+    // ensure `asciidoctor` is in user PATH
+    if which::which("asciidoctor").is_err() {
+        bail!("`asciidoctor` is not in PATH");
+    }
+
     log::info!("---- Running builders");
     block_on(walk::walk_book_async(&mut v, &book, log));
 
