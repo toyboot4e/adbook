@@ -12,7 +12,7 @@ description = "Creates a book from AsciiDoc files"
 [dependencies]
 # basic
 log = "0.4.14"
-anyhow = "1.0.41"
+anyhow = "1.0.51"
 thiserror = "1.0.25"
 
 # implementation

@@ -19,10 +19,10 @@ use crate::book::BookStructure;
 pub fn clear_cache(book: &BookStructure) -> io::Result<()> {
     let root = CacheIndex::locate_cache_root(book);
     if !root.is_dir() {
-        return Ok(());
+        return io::Result::Ok(());
     }
     fs::remove_dir_all(root)?;
-    Ok(())
+    io::Result::Ok(())
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
