@@ -3,7 +3,7 @@
 */
 
 use {
-    anyhow::{bail, ensure, Context, Result},
+    anyhow::{anyhow, bail, ensure, Context, Result},
     std::{
         path::{Path, PathBuf},
         process::Command,
@@ -24,7 +24,7 @@ use crate::book::{config::CmdOptions, BookStructure};
 /// TODO: refactor and prefer it to anyhow::Error
 #[derive(Debug, Error, Clone)]
 pub enum AdocError {
-    #[error("Failed to convert file: {0}\n{1}")]
+    #[error("Failed to convert file: {0}\nasciidoctor output\n--------------------------------\n{1}\n--------------------------------")]
     FailedToConvert(PathBuf, String),
 }
 
@@ -61,16 +61,16 @@ pub struct AdocRunContext {
 }
 
 impl AdocRunContext {
-    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Self {
-        let src_dir = format!("{}", book.src_dir_path().display());
-        let dst_dir = format!("{}", dst_dir.display());
+    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Result<Self> {
+        let src_dir = normalize(&book.src_dir_path())?;
+        let dst_dir = normalize(dst_dir)?;
 
-        Self {
+        Ok(Self {
             src_dir,
             dst_dir,
             opts: book.book_ron.adoc_opts.clone(),
             base_url: book.book_ron.base_url.to_string(),
-        }
+        })
     }
 
     /// Embedded mode: output without header (including title) and footer
@@ -121,19 +121,14 @@ impl AdocRunContext {
     }
 }
 
-/// Creates a slash-delimited string from a canonicalized path
-///
-/// `canonizalize` creates UNC path on Windows, which is not supported by `asciidoctor`.
+/// FIXME: Use more reliable way to sanitize path
 fn normalize(path: &Path) -> Result<String> {
-    let path = if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        path.canonicalize()
-            .with_context(|| "Unable to canonicallize source file path")?
-    };
-
-    // FIXME:
-    Ok(format!("{}", path.display()))
+    let s = format!("{}", path.canonicalize()?.display());
+    s.strip_prefix(r#"\\?\"#)
+        // `\\?\C:\` → `/C:\`
+        .map(|s| s.replace(r#"\\?\"#, "/").to_string())
+        .map(|s| s.replace(r#"/"#, "/").to_string())
+        .ok_or_else(|| anyhow!("Unable to normalize path: {}", path.display()))
 }
 
 /// Sets up `asciidoctor` command
@@ -143,9 +138,12 @@ pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
         "Given non-existing file as conversion source"
     );
 
-    let mut cmd = Command::new("asciidoctor");
+    // NOTE: On windows `Command` did not find `asciidoctor`, so let's give absolute path to it.
+    let asciidoctor = which::which("asciidoctor").unwrap();
+    let mut cmd = Command::new(format!("{}", asciidoctor.display()));
 
     // output to stdout
+    // NOTE: `fs::canonizalize` returns the carsed UNC path on Windows.
     cmd.arg(&normalize(src_file)?).args(&["-o", "-"]);
 
     // require `asciidoctor-diagram`
@@ -161,17 +159,7 @@ pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
 }
 
 /// Runs `asciidoctor` command and returns the output
-pub fn run_asciidoctor(
-    src_file: &Path,
-    dummy_dst_name: &str,
-    acx: &AdocRunContext,
-) -> Result<std::process::Output> {
-    // trace!(
-    //     "Converting adoc: `{}` -> `{}`",
-    //     src_file.display(),
-    //     dummy_dst_name,
-    // );
-
+pub fn run_asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<std::process::Output> {
     let mut cmd =
         self::asciidoctor(src_file, acx).context("when setting up `asciidoctor` options")?;
 
@@ -181,10 +169,8 @@ pub fn run_asciidoctor(
         Ok(output) => output,
         Err(err) => {
             bail!(
-                "when running `asciidoctor`:\n  src: {}\n  dst: {}\n  cmd: {:?}\n  stdout: {:?}",
-                // src_file.display(), dummy_dst_name,
+                "when running `asciidoctor`:\n  src: {}\n  cmd: {:?}\n  stdout: {:?}",
                 normalize(src_file)?,
-                dummy_dst_name,
                 cmd,
                 err
             )
@@ -195,17 +181,13 @@ pub fn run_asciidoctor(
 }
 
 /// Runs `asciidoctor` command and writes the output to a string buffer
-pub fn run_asciidoctor_buf(
-    buf: &mut String,
-    src_file: &Path,
-    dummy_dst_name: &str,
-    acx: &AdocRunContext,
-) -> Result<()> {
-    let output = self::run_asciidoctor(src_file, dummy_dst_name, acx)?;
+pub fn run_asciidoctor_buf(buf: &mut String, src_file: &Path, acx: &AdocRunContext) -> Result<()> {
+    let output = self::run_asciidoctor(src_file, acx)?;
 
-    // ensure the conversion succeeded or else report it as an error
+    // ensure the conversion succeeded 
     ensure!(
         output.status.success(),
+        // ..or else report it as an error
         AdocError::FailedToConvert(
             src_file.to_path_buf(),
             String::from_utf8(output.stderr)

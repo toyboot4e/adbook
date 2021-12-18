@@ -3,7 +3,7 @@ Internal utilities
 */
 
 use {
-    anyhow::{Result, Context, ensure},
+    anyhow::{ensure, Context, Result},
     colored::*,
     serde::de::DeserializeOwned,
     std::{fmt, fs, path::Path},

@@ -50,17 +50,15 @@ pub use adoc_all::gen_all;
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///
-/// * `dummy_dst_name`: used for debug log
 /// * `opts`: options provided with `asciidoctor`
 pub fn convert_adoc(
     src_file: &Path,
-    dummy_dst_name: &str,
     acx: &AdocRunContext,
     hcx: &HbsContext,
     book: &BookStructure,
 ) -> Result<String> {
     let mut buf = String::with_capacity(5 * 1024);
-    self::convert_adoc_buf(&mut buf, src_file, dummy_dst_name, acx, hcx, book)?;
+    self::convert_adoc_buf(&mut buf, src_file, acx, hcx, book)?;
     Ok(buf)
 }
 
@@ -70,7 +68,6 @@ pub fn convert_adoc(
 pub fn convert_adoc_buf(
     buf: &mut String,
     src_file: &Path,
-    dst_name_for_debug: &str,
     acx: &AdocRunContext,
     hcx: &HbsContext,
     book: &BookStructure,
@@ -95,7 +92,7 @@ pub fn convert_adoc_buf(
 
     // run `asciidoctor` and write the output to `buf`
     buf.clear();
-    adoc::run_asciidoctor_buf(buf, src_file, dst_name_for_debug, &acx)?;
+    adoc::run_asciidoctor_buf(buf, src_file, &acx)?;
 
     // maybe apply Handlebars template
     if let Some(hbs_attr) = metadata.find_attr("hbs") {

@@ -5,7 +5,7 @@ HBS templates are supplied [`HbsInput`].
 */
 
 use {
-    anyhow::{anyhow, Error, Result, Context, ensure},
+    anyhow::{anyhow, ensure, Context, Error, Result},
     handlebars::Handlebars,
     serde::Serialize,
     std::{

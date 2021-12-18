@@ -66,7 +66,11 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
 /// Walks a root [`Index`] and converts files in parallel
 ///
 /// NOTE: Make sure to `flush` after calling this method so that the user can read log output.
-pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &BookStructure, log: bool) {
+pub async fn walk_book_async<V: BookBuilder + 'static>(
+    builder: &mut V,
+    book: &BookStructure,
+    log: bool,
+) {
     let src_files_unfiltered = self::list_src_files(&book);
 
     // collect `Future`s
@@ -74,9 +78,7 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &B
 
     let src_files = src_files_unfiltered
         .into_iter()
-        .filter(|src_file| {
-            !builder.can_skip_build(&src_file) 
-        })
+        .filter(|src_file| !builder.can_skip_build(&src_file))
         .collect::<Vec<_>>();
 
     if src_files.is_empty() {

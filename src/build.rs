@@ -51,7 +51,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     // 2. build the project
     let (mut builder, errors) =
-        AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir);
+        AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir)?;
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
 
     // ensure `asciidoctor` is in user PATH

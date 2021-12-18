@@ -40,16 +40,16 @@ impl AdocBookBuilder {
         book: &BookStructure,
         cache_diff: CacheDiff,
         dst_dir: &Path,
-    ) -> (Self, Vec<Error>) {
+    ) -> Result<(Self, Vec<Error>)> {
         let (hcx, errors) = HbsContext::from_book(book);
         log::trace!("handlebars context created");
         // log::trace!("{:#?}", hcx);
 
-        let acx = AdocRunContext::from_book(book, dst_dir);
+        let acx = AdocRunContext::from_book(book, dst_dir)?;
         log::trace!("asciidoc context created");
         // log::trace!("{:#?}", acx);
 
-        (
+        Ok((
             Self {
                 book: book.clone(),
                 cache_diff,
@@ -60,7 +60,7 @@ impl AdocBookBuilder {
                 dst_dir: dst_dir.to_path_buf(),
             },
             errors,
-        )
+        ))
     }
 
     fn src_file_to_dst_file(&self, src_file: &Path) -> Result<PathBuf> {
@@ -114,13 +114,10 @@ impl AdocBookBuilder {
         Ok(dst_file)
     }
 
-    fn convert_file_into_buf(&mut self, src_file: &Path, dst_file: &Path) -> Result<()> {
-        let dst_name_for_debug = format!("{}", dst_file.display());
-
+    fn convert_file_into_buf(&mut self, src_file: &Path) -> Result<()> {
         crate::build::convert::convert_adoc_buf(
             &mut self.buf,
             src_file,
-            &dst_name_for_debug,
             &self.acx,
             &self.hcx,
             &self.book,
@@ -143,6 +140,7 @@ impl BookBuilder for AdocBookBuilder {
     /// * `src_file`: absolute path to a source file
     fn visit_file(&mut self, src_file: &Path) -> Result<()> {
         let dst_file = self.create_dst_file(src_file)?;
+
         if self.can_skip_build(src_file) {
             // just copy
             let src_dir = self.book.src_dir_path();
@@ -160,7 +158,7 @@ impl BookBuilder for AdocBookBuilder {
         } else {
             // convert
             log::trace!("- convert: {}", src_file.display());
-            self.convert_file_into_buf(src_file, &dst_file)?;
+            self.convert_file_into_buf(src_file)?;
         }
 
         fs::write(&dst_file, &self.buf).with_context(|| {
