@@ -65,31 +65,21 @@ fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
 
 /// Walks a root [`Index`] and converts files in parallel
 ///
-/// NOTE: make sure to `flush` after calling this method
-pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStructure, log: bool) {
-    let src_files = self::list_src_files(&book);
+/// NOTE: Make sure to `flush` after calling this method so that the user can read log output.
+pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &BookStructure, log: bool) {
+    let src_files_unfiltered = self::list_src_files(&book);
 
     // collect `Future`s
     let mut errors = Vec::with_capacity(16);
 
-    let filtered = src_files
+    let src_files = src_files_unfiltered
         .into_iter()
         .filter(|src_file| {
-            // TODO: maybe don't clone?
-            let mut v = v.clone();
-
-            if v.can_skip_build(&src_file) {
-                if let Err(err) = v.visit_file(&src_file) {
-                    errors.push(err);
-                }
-                false
-            } else {
-                true
-            }
+            !builder.can_skip_build(&src_file) 
         })
         .collect::<Vec<_>>();
 
-    if filtered.is_empty() {
+    if src_files.is_empty() {
         if log {
             println!("No file to build");
         }
@@ -98,7 +88,7 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStr
 
     // progress bar
     let pb = {
-        let pb = ProgressBar::new(filtered.len() as u64);
+        let pb = ProgressBar::new(src_files.len() as u64);
 
         pb.set_style(
             ProgressStyle::default_bar()
@@ -113,14 +103,14 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(v: &mut V, book: &BookStr
     };
 
     let results = {
-        let xs = filtered
+        let xs = src_files
             .into_iter()
             .map(|src_file| {
-                // TODO: maybe don't clone?
-                let mut v = v.clone();
+                // TODO: cheaper clone?
+                let mut builder = builder.clone();
                 let pb = Arc::clone(&pb);
                 async_std::task::spawn(async move {
-                    let res = v.visit_file(&src_file);
+                    let res = builder.visit_file(&src_file);
 
                     let pb = pb.lock().expect("unable to lock progress bar");
                     pb.inc(1);

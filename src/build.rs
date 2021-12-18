@@ -50,7 +50,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     // }
 
     // 2. build the project
-    let (mut v, errors) =
+    let (mut builder, errors) =
         AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir);
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
 
@@ -60,7 +60,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     }
 
     log::info!("---- Running builders");
-    block_on(walk::walk_book_async(&mut v, &book, log));
+    block_on(walk::walk_book_async(&mut builder, &book, log));
 
     // 3. copy the built files to the site directory
     log::info!("---- Copying output files to site directory");
@@ -79,7 +79,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     // 5. clean up and save cache
     log::info!("---- Updating build cache");
-    index.clean_up_and_save(book, v.cache_diff.into_new_cache_data())?;
+    index.clean_up_and_save(book, builder.cache_diff.into_new_cache_data())?;
 
     Ok(())
 }
