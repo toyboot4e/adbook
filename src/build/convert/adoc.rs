@@ -112,7 +112,7 @@ impl AdocRunContext {
         }
     }
 
-    fn replace_placeholder_strings(&self, arg: &str) -> String {
+    pub fn replace_placeholder_strings(&self, arg: &str) -> String {
         let arg = arg.replace(r#"{base_url}"#, &self.base_url);
         let arg = arg.replace(r#"{src_dir}"#, &self.src_dir);
         let arg = arg.replace(r#"{dst_dir}"#, &self.dst_dir);

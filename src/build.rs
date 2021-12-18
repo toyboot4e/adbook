@@ -9,7 +9,6 @@ pub mod visit;
 use std::{fs, path::Path};
 
 use anyhow::*;
-use futures::executor::block_on;
 
 use crate::{
     book::{walk, BookStructure},
@@ -30,8 +29,6 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
         cache::CacheIndex::load(book)?
     };
 
-    let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
-
     // TODO: Generate in parallel
     // // 1. generate `all.adoc`
     // if book.book_ron.generate_all {
@@ -49,6 +46,10 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     //     }
     // }
 
+    // FIXME: BookVisitor now has in-memory output
+    // output directory
+    let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
+
     // 2. build the project
     let (mut builder, errors) =
         AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir)?;
@@ -60,13 +61,13 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     }
 
     log::info!("---- Running builders");
-    block_on(walk::walk_book_async(&mut builder, &book, log));
+    let outputs = walk::walk_book_await_collect(&mut builder, &book, log);
 
-    // 3. copy the built files to the site directory
-    log::info!("---- Copying output files to site directory");
+    // 3. copy the outputs to the site directory
+    log::info!("---- Writing to site directory");
     {
-        let mut errors = Vec::with_capacity(10);
-        let res = self::overwrite_site_with_temporary_outputs(book, &new_cache_dir, &mut errors);
+        let mut errors = Vec::new();
+        let res = self::create_site_directory(&outputs, book, &new_cache_dir, &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
@@ -79,13 +80,22 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     // 5. clean up and save cache
     log::info!("---- Updating build cache");
+
+    // FIXME: BookVisitor no longer writes output to the new cache directory, so
+    // the "double buffer" doesn't make sense any more
+    {
+        let mut errors = Vec::new();
+        self::write_html_outputs(&mut errors, &book.src_dir_path(), &new_cache_dir, &outputs)?;
+    }
+
     index.clean_up_and_save(book, builder.cache_diff.into_new_cache_data())?;
 
     Ok(())
 }
 
 /// TODO: refactor
-fn overwrite_site_with_temporary_outputs(
+fn create_site_directory(
+    outputs: &[walk::BuildOutput],
     book: &BookStructure,
     out_dir: &Path,
     errors: &mut Vec<Error>,
@@ -178,29 +188,48 @@ fn overwrite_site_with_temporary_outputs(
         }
     }
 
-    // copy the output files to the site directory
-    for entry in fs::read_dir(&out_dir).context("Unable to `read_dir` the tmp directory")? {
-        let entry = entry.context("Unable to read some entry when reading tmp directory item")?;
+    // finally, copy the output (HTML) files to the site directory
+    let src_dir = book.src_dir_path();
+    let site_dir = book.site_dir_path();
+    self::write_html_outputs(errors, &src_dir, &site_dir, outputs)?;
 
-        let src_path = entry.path();
-        let rel_path = src_path.strip_prefix(out_dir).unwrap();
-        let dst_path = site_dir.join(rel_path);
+    Ok(())
+}
 
-        if src_path.is_file() {
-            log::trace!(
-                "- copy `{}` -> `{}`",
-                src_path.display(),
-                dst_path.display()
-            );
-            fs::copy(&src_path, &dst_path)?;
-        } else if src_path.is_dir() {
-            crate::utils::copy_items_rec(&src_path, &dst_path)?;
-        } else {
-            errors.push(anyhow!(
-                "Unexpected kind of file in temporary output directory: `{}`",
-                src_path.display(),
-            ));
+fn write_html_outputs(
+    errors: &mut Vec<Error>,
+    src_dir: &Path,
+    out_dir: &Path,
+    outputs: &[walk::BuildOutput],
+) -> Result<()> {
+    for output in outputs {
+        let dst_path = {
+            let rel_path = output.src_file.with_extension("html");
+            let rel_path = rel_path.strip_prefix(&src_dir).unwrap();
+            out_dir.join(rel_path)
+        };
+
+        println!("{}", dst_path.display());
+
+        let dir = dst_path.parent().unwrap();
+
+        if !dir.exists() {
+            if let Err(err) = fs::create_dir_all(&dir) {
+                errors.push(anyhow!(
+                    "Unable to create directory: {} (IO error: {})",
+                    dir.display(),
+                    err
+                ));
+                continue;
+            }
         }
+
+        if !dir.is_dir() {
+            errors.push(anyhow!("Non-directory: `{}`", dir.display()));
+            continue;
+        }
+
+        fs::write(&dst_path, &output.string)?;
     }
 
     Ok(())

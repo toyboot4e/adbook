@@ -202,6 +202,7 @@ impl CacheIndex {
         // copy htlm files
         let old = Self::locate_old_cache_dir(book)?;
         let new = Self::locate_new_cache_dir(book)?;
+
         // rm -rf old
         fs::remove_dir_all(&old)?;
         // mv new old
