@@ -13,19 +13,19 @@ description = "Creates a book from AsciiDoc files"
 # basic
 log = "0.4.14"
 anyhow = "1.0.51"
-thiserror = "1.0.25"
+thiserror = "1.0.30"
 
 # implementation
-async-std = "1.9.0"
+async-std = "1.10.0"
 colored = "2.0.0"
-futures = { version = "0.3.15", features = [] }
-handlebars = "4.0.0"
-serde = { version = "1.0.126", features = ["derive"] }
-ron = "0.6.4"
-which = { version = "4.2.2" }
+futures = { version = "0.3.17", features = [] }
+handlebars = "4.1.6"
+serde = { version = "1.0.132", features = ["derive"] }
+ron = "0.7.0"
+which = "4.2.2"
 
 # CLI
-clap = { version = "3.0.0-rc.4", features = ["derive"] }
+clap = { version = "3.0.0-rc.7", features = ["derive"] }
 
 # main
 fern = { version = "0.6.0", features = ["colored"] }
