@@ -15,7 +15,7 @@ use {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct BookRon {
     /// Use it to supply absolute paths (use `{base_url}/path` instead of `/path`)
-    // FIXME: remove the trailing slash on deserializing
+    // TODO: remove the trailing slash on deserializing
     pub base_url: String,
     /// The source directory
     pub src_dir: PathBuf,

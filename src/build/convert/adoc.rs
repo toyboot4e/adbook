@@ -113,7 +113,7 @@ impl AdocRunContext {
     }
 }
 
-/// FIXME: Use more reliable way to sanitize path
+/// UNC path is not recognized by `asciidoctor`, so this is the hot fix:
 fn normalize(path: &Path) -> Result<String> {
     let s = format!("{}", path.canonicalize()?.display());
     let s = s

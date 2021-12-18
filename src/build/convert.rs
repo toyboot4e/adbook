@@ -86,7 +86,6 @@ pub fn convert_adoc_buf(
 
     // we use "embedded mode" of `asciidoctor` if we'll apply Handlebars template later
     let mut acx = acx.clone();
-    // FIXME: prefer explicit method of `hbs`
     if metadata.find_attr("hbs").is_some() {
         acx.set_embedded_mode(true);
     }
@@ -109,6 +108,7 @@ pub fn convert_adoc_buf(
         };
 
         // `.hbs` files are always located just under `hbs_dir`
+        //     >>>> currently it's a mess! <<<<
         let hbs_input = {
             // FIXME: the API, the clarity of `src_dir` and `src_dir_path()`
             let url = hbs::Sidebar::get_url(&src_dir, &src_dir.join(src_file), base_url_str)
