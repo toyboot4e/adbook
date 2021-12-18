@@ -189,7 +189,7 @@ impl CacheIndex {
         Ok(tmp_dir)
     }
 
-    /// Cleans up the temporary directory and saves build cache
+    /// Cleans up the temporary output directory and saves build cache
     pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheData) -> Result<()> {
         // copy htlm files
         let old = Self::locate_old_cache_dir(book)?;

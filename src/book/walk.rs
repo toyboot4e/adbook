@@ -3,7 +3,7 @@ Book builder
 */
 
 use {
-    anyhow::*,
+    anyhow::Result,
     indicatif::{ProgressBar, ProgressStyle},
     std::{
         path::{Path, PathBuf},
@@ -25,48 +25,13 @@ pub trait BookBuilder: Clone + Send + Sync {
     /// Build or just copy the source file.
     ///
     /// * `src_file`: absolute path to a source file
-    fn visit_file(&mut self, src_file: &Path) -> Result<()>;
-}
-
-fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
-    // note that paths in `Index` are already canonicalized (can can be passed to visitors directly)
-
-    /// [Depth-first] iteration
-    ///
-    /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
-    fn list_files_rec(index: &Index, files: &mut Vec<PathBuf>) {
-        files.push(index.summary.clone());
-        for item in &index.items {
-            match item {
-                IndexItem::File(_name, path) => {
-                    files.push(path.clone());
-                }
-                IndexItem::Dir(index) => {
-                    list_files_rec(index, files);
-                }
-            };
-        }
-    }
-
-    let mut files = Vec::with_capacity(80);
-
-    // converts
-    let src_dir = book.src_dir_path();
-    for p in &book.book_ron.converts {
-        let path = src_dir.join(p);
-        files.push(path);
-    }
-
-    // `index.ron` files
-    list_files_rec(&book.index, &mut files);
-
-    files
+    fn visit_file(&mut self, src_file: &Path) -> Result<String>;
 }
 
 /// Walks a root [`Index`] and converts files in parallel
 ///
 /// NOTE: Make sure to `flush` after calling this method so that the user can read log output.
-pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &BookStructure, log: bool) {
+pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &BookStructure, log: bool) -> CacheData {
     let src_files_unfiltered = self::list_src_files(&book);
 
     // collect `Future`s
@@ -103,7 +68,7 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &B
     };
 
     let results = {
-        let xs = src_files
+        let tasks = src_files
             .into_iter()
             .map(|src_file| {
                 // TODO: cheaper clone?
@@ -120,11 +85,14 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &B
             })
             .collect::<Vec<_>>();
 
-        futures::future::join_all(xs).await
+        futures::future::join_all(tasks).await
     };
 
-    for err in results.into_iter().filter_map(|x| x.err()) {
-        errors.push(err);
+    for res in results {
+        match res {
+            Ok(output) => todo!(),
+            Err(err)=>errors.push(err),
+        }
     }
 
     crate::utils::print_errors(&errors, "while building the book");
@@ -137,4 +105,39 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(builder: &mut V, book: &B
     } else {
         pb.finish();
     }
+}
+
+fn list_src_files(book: &BookStructure) -> Vec<PathBuf> {
+    // note that paths in `Index` are already canonicalized (can can be passed to visitors directly)
+
+    /// [Depth-first] iteration
+    ///
+    /// [Depth-first]: https://en.wikipedia.org/wiki/Depth-first_search
+    fn list_files_rec(index: &Index, files: &mut Vec<PathBuf>) {
+        files.push(index.summary.clone());
+        for item in &index.items {
+            match item {
+                IndexItem::File(_name, path) => {
+                    files.push(path.clone());
+                }
+                IndexItem::Dir(index) => {
+                    list_files_rec(index, files);
+                }
+            };
+        }
+    }
+
+    let mut files = Vec::with_capacity(80);
+
+    // converts
+    let src_dir = book.src_dir_path();
+    for p in &book.book_ron.converts {
+        let path = src_dir.join(p);
+        files.push(path);
+    }
+
+    // `index.ron` files
+    list_files_rec(&book.index, &mut files);
+
+    files
 }

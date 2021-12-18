@@ -22,11 +22,11 @@ use crate::{
 };
 
 /// Book builder based on `asciidoctor`
+// FIXME: cost of clone
 #[derive(Debug, Clone)]
 pub struct AdocBookBuilder {
     book: BookStructure,
     pub(crate) cache_diff: CacheDiff,
-    buf: String,
     // context to run `asciidoctor` and Handlebars
     acx: AdocRunContext,
     hcx: HbsContext,
@@ -53,7 +53,6 @@ impl AdocBookBuilder {
             Self {
                 book: book.clone(),
                 cache_diff,
-                buf: String::with_capacity(1024 * 5),
                 acx,
                 hcx,
                 src_dir: book.src_dir_path(),
@@ -66,15 +65,13 @@ impl AdocBookBuilder {
     fn src_file_to_dst_file(&self, src_file: &Path) -> Result<PathBuf> {
         // filter files by extension
         match src_file.extension().and_then(|o| o.to_str()) {
-            Some("adoc") => {}
+            // text file is also dealt as an asciidoc file
+            Some("adoc" | "txt") => {}
             Some("md") => {
                 bail!(".md file is not yet supported: {}", src_file.display());
             }
             Some("org") => {
                 bail!(".org file is not yet supported: {}", src_file.display());
-            }
-            Some("txt") => {
-                bail!(".txt file is not yet supported: {}", src_file.display());
             }
             Some("html") => {
                 bail!(".html file is not yet supported: {}", src_file.display());
@@ -96,16 +93,16 @@ impl AdocBookBuilder {
         let dst_file = self.src_file_to_dst_file(src_file)?;
 
         let dst_dir = dst_file.parent().with_context(|| {
-            format!(
-                "Failed to get parent directory of `.adoc` file: {}",
+            anyhow!(
+                "Failed to get parent directory for an output file: {}",
                 src_file.display()
             )
         })?;
 
         if !dst_dir.is_dir() {
             fs::create_dir_all(&dst_dir).with_context(|| {
-                format!(
-                    "Failed to create parent directory of `.adoc` file: {}",
+                anyhow!(
+                    "Failed to create parent directory for an output file: {}",
                     src_file.display(),
                 )
             })?;
@@ -114,11 +111,11 @@ impl AdocBookBuilder {
         Ok(dst_file)
     }
 
-    fn convert_file_into_buf(&mut self, src_file: &Path, dst_file: &Path) -> Result<()> {
+    fn convert_file_into_buf(&mut self, buf: &mut String, src_file: &Path, dst_file: &Path) -> Result<()> {
         let dst_name_for_debug = format!("{}", dst_file.display());
 
         crate::build::convert::convert_adoc_buf(
-            &mut self.buf,
+            buf,
             src_file,
             &dst_name_for_debug,
             &self.acx,
@@ -141,8 +138,10 @@ impl BookBuilder for AdocBookBuilder {
     /// Build or just copy the source file.
     ///
     /// * `src_file`: absolute path to a source file
-    fn visit_file(&mut self, src_file: &Path) -> Result<()> {
-        let dst_file = self.create_dst_file(src_file)?;
+    fn visit_file(&mut self, src_file: &Path) -> Result<String> {
+        let dst_file = self.src_file_to_dst_file(src_file)?;
+        let mut buf= String::with_capacity(1024 * 5);
+
         if self.can_skip_build(src_file) {
             // just copy
             let src_dir = self.book.src_dir_path();
@@ -151,25 +150,17 @@ impl BookBuilder for AdocBookBuilder {
             // FIXME: hard-coded
             let cached_file = cache_dir.join(rel_path).with_extension("html");
 
-            self.buf.clear();
             let mut f = fs::File::open(&cached_file).with_context(|| {
                 format!("Unable to locate cached file at {}", cached_file.display())
             })?;
             // log::trace!("- skip: {}", src_file.display());
-            f.read_to_string(&mut self.buf)?;
+            f.read_to_string(&mut buf)?;
         } else {
             // convert
             log::trace!("- convert: {}", src_file.display());
-            self.convert_file_into_buf(src_file, &dst_file)?;
+            self.convert_file_into_buf(&mut buf, src_file, &dst_file)?;
         }
 
-        fs::write(&dst_file, &self.buf).with_context(|| {
-            format!(
-                "Unexpected error when trying to get access to destination file:\n  {}",
-                dst_file.display(),
-            )
-        })?;
-
-        Ok(())
+        Ok(buf)
     }
 }

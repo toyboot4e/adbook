@@ -89,6 +89,7 @@ pub fn convert_adoc_buf(
 
     // we use "embedded mode" of `asciidoctor` if we'll apply Handlebars template later
     let mut acx = acx.clone();
+    // FIXME: prefer explicit method of `hbs`
     if metadata.find_attr("hbs").is_some() {
         acx.set_embedded_mode(true);
     }
