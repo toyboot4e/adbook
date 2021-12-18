@@ -6,7 +6,7 @@ TODO: Enable other source formats than Asciidoc
 
 use std::{fs, io::prelude::*, path::Path};
 
-use anyhow::{Context, Error, Result};
+use anyhow::{anyhow, Context, Error, Result};
 
 use crate::{
     book::{
@@ -70,13 +70,13 @@ impl AdocBookBuilder {
             let cached_file = cache_dir.join(rel_path).with_extension("html");
 
             let mut f = fs::File::open(&cached_file).with_context(|| {
-                format!(
+                anyhow!(
                     "Unable to locate cached file at {}\nPlease run `adbook clear`",
                     cached_file.display()
                 )
             })?;
 
-            // log::trace!("- skip: {}", src_file.display());
+            log::trace!("- skip: {}", src_file.display());
             f.read_to_string(&mut buf)?;
         } else {
             // convert

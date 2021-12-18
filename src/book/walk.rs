@@ -82,12 +82,17 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(
 ) -> Vec<BuildResult> {
     let src_files_unfiltered = self::list_src_files(&book);
 
+    let mut can_skip_all = false;
+
     let src_files = src_files_unfiltered
         .into_iter()
-        .filter(|src_file| !builder.can_skip_build(&src_file))
+        .map(|src_file| {
+            can_skip_all |= !builder.can_skip_build(&src_file);
+            src_file
+        })
         .collect::<Vec<_>>();
 
-    if src_files.is_empty() {
+    if !can_skip_all || src_files.is_empty() {
         if log {
             println!("No file to build");
         }

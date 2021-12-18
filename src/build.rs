@@ -200,8 +200,8 @@ fn write_html_outputs(
 ) -> Result<()> {
     for output in outputs {
         let dst_path = {
-            let rel_path = output.src_file.with_extension("html");
-            let rel_path = rel_path.strip_prefix(&src_dir).unwrap();
+            let src_file = output.src_file.with_extension("html");
+            let rel_path = src_file.strip_prefix(&src_dir).unwrap();
             out_dir.join(rel_path)
         };
 

@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use crate::book::BookStructure;
 
 pub fn clear_cache(book: &BookStructure) -> io::Result<()> {
-    let root = CacheIndex::locate_cache_root_dir(book);
+    let root = CacheIndex::locate_root(book);
     if !root.is_dir() {
         return io::Result::Ok(());
     }
@@ -142,16 +142,16 @@ pub struct CacheIndex {
 }
 
 impl CacheIndex {
-    fn locate_cache_root_dir(book: &BookStructure) -> PathBuf {
-        let cache_dir = book.root.join(".adbook-cache/");
-        crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
-        cache_dir
+    fn locate_root(book: &BookStructure) -> PathBuf {
+        let root_dir = book.root.join(".adbook-cache/");
+        crate::utils::validate_dir(&root_dir).expect("Unable to locate cache directory");
+        root_dir
     }
 
     fn locate_index(book: &BookStructure) -> PathBuf {
-        let cache_dir = book.root.join(".adbook-cache/");
-        crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
-        cache_dir.join("index")
+        let root_dir = book.root.join(".adbook-cache/");
+        crate::utils::validate_dir(&root_dir).expect("Unable to locate cache directory");
+        root_dir.join("index")
     }
 
     pub fn empty() -> Self {
@@ -183,10 +183,10 @@ impl CacheIndex {
 
     /// `.cache_dir/a`; old files will be here
     pub fn locate_cache_dir(book: &BookStructure) -> Result<PathBuf> {
-        let cache_dir = Self::locate_cache_root_dir(book);
-        let tmp_dir = cache_dir.join("a");
-        crate::utils::validate_dir(&tmp_dir)?;
-        Ok(tmp_dir)
+        let root_dir = Self::locate_root(book);
+        let cache_dir = root_dir.join("a");
+        crate::utils::validate_dir(&cache_dir)?;
+        Ok(cache_dir)
     }
 
     /// Cleans up the temporary output directory and saves build cache
