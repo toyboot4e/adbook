@@ -46,13 +46,8 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     //     }
     // }
 
-    // FIXME: BookVisitor now has in-memory output
-    // output directory
-    let new_cache_dir = CacheIndex::locate_new_cache_dir(book)?;
-
     // 2. build the project
-    let (mut builder, errors) =
-        AdocBookBuilder::from_book(book, index.create_diff(book)?, &new_cache_dir)?;
+    let (mut builder, errors) = AdocBookBuilder::from_book(book, index.create_diff(book)?)?;
     crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
 
     // ensure `asciidoctor` is in user PATH
@@ -67,7 +62,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     log::info!("---- Writing to site directory");
     {
         let mut errors = Vec::new();
-        let res = self::create_site_directory(&outputs, book, &new_cache_dir, &mut errors);
+        let res = self::create_site_directory(&outputs, book, &book.site_dir_path(), &mut errors);
         crate::utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
@@ -81,14 +76,15 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     // 5. clean up and save cache
     log::info!("---- Updating build cache");
 
-    // FIXME: BookVisitor no longer writes output to the new cache directory, so
-    // the "double buffer" doesn't make sense any more
+    // copy outputs to the cache directory
     {
+        let cache_dir = CacheIndex::locate_cache_dir(book)?;
         let mut errors = Vec::new();
-        self::write_html_outputs(&mut errors, &book.src_dir_path(), &new_cache_dir, &outputs)?;
+        self::write_html_outputs(&mut errors, &book.src_dir_path(), &cache_dir, &outputs)?;
+        crate::utils::print_errors(&errors, "while writing outputs to cache");
     }
 
-    index.clean_up_and_save(book, builder.cache_diff.into_new_cache_data())?;
+    index.update_cache_index(book, builder.cache_diff.into_new_cache_data())?;
 
     Ok(())
 }

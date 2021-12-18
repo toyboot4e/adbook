@@ -13,7 +13,7 @@ type Result<T> = std::result::Result<T, std::fmt::Error>;
 
 /// Generates `all.adoc`
 ///
-/// FIXME: footnote
+/// TODO: footnote per article?
 pub fn gen_all(book: &BookStructure) -> Result<String> {
     let mut out = String::new();
 

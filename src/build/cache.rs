@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use crate::book::BookStructure;
 
 pub fn clear_cache(book: &BookStructure) -> io::Result<()> {
-    let root = CacheIndex::locate_cache_root(book);
+    let root = CacheIndex::locate_cache_root_dir(book);
     if !root.is_dir() {
         return io::Result::Ok(());
     }
@@ -142,7 +142,7 @@ pub struct CacheIndex {
 }
 
 impl CacheIndex {
-    fn locate_cache_root(book: &BookStructure) -> PathBuf {
+    fn locate_cache_root_dir(book: &BookStructure) -> PathBuf {
         let cache_dir = book.root.join(".adbook-cache/");
         crate::utils::validate_dir(&cache_dir).expect("Unable to locate cache directory");
         cache_dir
@@ -182,33 +182,20 @@ impl CacheIndex {
     }
 
     /// `.cache_dir/a`; old files will be here
-    pub fn locate_old_cache_dir(book: &BookStructure) -> Result<PathBuf> {
-        let cache_dir = Self::locate_cache_root(book);
+    pub fn locate_cache_dir(book: &BookStructure) -> Result<PathBuf> {
+        let cache_dir = Self::locate_cache_root_dir(book);
         let tmp_dir = cache_dir.join("a");
         crate::utils::validate_dir(&tmp_dir)?;
         Ok(tmp_dir)
     }
 
-    /// `.cache_dir/b`; create new files here
-    pub fn locate_new_cache_dir(book: &BookStructure) -> Result<PathBuf> {
-        let cache_dir = Self::locate_cache_root(book);
-        let tmp_dir = cache_dir.join("b");
-        crate::utils::validate_dir(&tmp_dir)?;
-        Ok(tmp_dir)
-    }
-
     /// Cleans up the temporary output directory and saves build cache
-    pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheIndexData) -> Result<()> {
-        // copy htlm files
-        let old = Self::locate_old_cache_dir(book)?;
-        let new = Self::locate_new_cache_dir(book)?;
-
-        // rm -rf old
-        fs::remove_dir_all(&old)?;
-        // mv new old
-        fs::rename(new, &old)?;
-
-        // save cacke
+    pub fn update_cache_index(
+        &self,
+        book: &BookStructure,
+        new_cache: CacheIndexData,
+    ) -> Result<()> {
+        // save index
         let index = Self::locate_index(book);
         let bin = bincode::serialize(&Self { cache: new_cache })?;
         fs::write(&index, bin)?;

@@ -52,8 +52,6 @@ pub enum AdocError {
 pub struct AdocRunContext {
     /// Source directory
     src_dir: String,
-    /// Destination directory
-    dst_dir: String,
     /// `asciidoctor -a` (attributes) or other options
     opts: CmdOptions,
     /// Used to modify `asciidoctor` attributes supplied to `.adoc` files
@@ -61,13 +59,11 @@ pub struct AdocRunContext {
 }
 
 impl AdocRunContext {
-    pub fn from_book(book: &BookStructure, dst_dir: &Path) -> Result<Self> {
+    pub fn from_book(book: &BookStructure) -> Result<Self> {
         let src_dir = normalize(&book.src_dir_path())?;
-        let dst_dir = normalize(dst_dir)?;
 
         Ok(Self {
             src_dir,
-            dst_dir,
             opts: book.book_ron.adoc_opts.clone(),
             base_url: book.book_ron.base_url.to_string(),
         })
@@ -92,9 +88,6 @@ impl AdocRunContext {
         // setup directory settings
         cmd.current_dir(&self.src_dir).args(&["-B", &self.src_dir]);
 
-        // we're outputting to stdout, `-D` does nothing:
-        // cmd.args(&["-D", &self.dst_dir]);
-
         // setup user options
         for (opt, args) in &self.opts {
             // case 1. option without argument
@@ -115,7 +108,6 @@ impl AdocRunContext {
     pub fn replace_placeholder_strings(&self, arg: &str) -> String {
         let arg = arg.replace(r#"{base_url}"#, &self.base_url);
         let arg = arg.replace(r#"{src_dir}"#, &self.src_dir);
-        let arg = arg.replace(r#"{dst_dir}"#, &self.dst_dir);
 
         arg
     }
@@ -476,7 +468,6 @@ First paragraph!
         // dummy
         let acx = AdocRunContext {
             src_dir: ".".to_string(),
-            dst_dir: ".".to_string(),
             opts: vec![],
             base_url: "".to_string(),
         };
@@ -514,7 +505,6 @@ First paragraph!
         // dummy
         let acx = AdocRunContext {
             src_dir: ".".to_string(),
-            dst_dir: ".".to_string(),
             opts: cmd_opts,
             base_url: "".to_string(),
         };

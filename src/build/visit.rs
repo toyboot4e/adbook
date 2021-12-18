@@ -4,13 +4,9 @@ Implementation of [`crate::book::walk::BookBuilder`]
 TODO: Enable other source formats than Asciidoc
 */
 
-use std::{
-    fs,
-    io::prelude::*,
-    path::{Path, PathBuf},
-};
+use std::{fs, io::prelude::*, path::Path};
 
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{Context, Error, Result};
 
 use crate::{
     book::{
@@ -31,18 +27,14 @@ pub struct AdocBookBuilder {
     // context to run `asciidoctor` and Handlebars
     acx: AdocRunContext,
     hcx: HbsContext,
-    // context to setup output file path
-    src_dir: PathBuf,
-    dst_dir: PathBuf,
 }
 
 impl AdocBookBuilder {
     pub fn from_book(
         book: &BookStructure,
         cache_diff: CacheIndexDiff,
-        dst_dir: &Path,
     ) -> Result<(Self, Vec<Error>)> {
-        let acx = AdocRunContext::from_book(book, dst_dir)?;
+        let acx = AdocRunContext::from_book(book)?;
         log::trace!("asciidoctor context created");
         // log::trace!("{:#?}", acx);
 
@@ -56,60 +48,9 @@ impl AdocBookBuilder {
                 cache_diff,
                 acx,
                 hcx,
-                src_dir: book.src_dir_path(),
-                dst_dir: dst_dir.to_path_buf(),
             },
             errors,
         ))
-    }
-
-    pub fn src_file_to_dst_file(&self, src_file: &Path) -> Result<PathBuf> {
-        // filter files by extension
-        match src_file.extension().and_then(|o| o.to_str()) {
-            // text file is also dealt as an asciidoc file
-            Some("adoc" | "txt") => {}
-            Some("md") => {
-                bail!(".md file is not yet supported: {}", src_file.display());
-            }
-            Some("org") => {
-                bail!(".org file is not yet supported: {}", src_file.display());
-            }
-            Some("html") => {
-                bail!(".html file is not yet supported: {}", src_file.display());
-            }
-            _ => {
-                bail!("Unexpected kind of file: {}", src_file.display());
-            }
-        }
-
-        // get relative path from source directory
-        let rel = src_file
-            .strip_prefix(&self.src_dir)
-            .with_context(|| format!("File not in source directly: {}", src_file.display()))?;
-
-        Ok(self.dst_dir.join(&rel).with_extension("html"))
-    }
-
-    pub fn create_dst_file(&mut self, src_file: &Path) -> Result<PathBuf> {
-        let dst_file = self.src_file_to_dst_file(src_file)?;
-
-        let dst_dir = dst_file.parent().with_context(|| {
-            anyhow!(
-                "Failed to get parent directory for an output file: {}",
-                src_file.display()
-            )
-        })?;
-
-        if !dst_dir.is_dir() {
-            fs::create_dir_all(&dst_dir).with_context(|| {
-                anyhow!(
-                    "Failed to create parent directory for an output file: {}",
-                    src_file.display(),
-                )
-            })?;
-        }
-
-        Ok(dst_file)
     }
 
     fn convert_file_into_buf(&mut self, buf: &mut String, src_file: &Path) -> Result<()> {
@@ -125,7 +66,7 @@ impl AdocBookBuilder {
             let src_dir = self.book.src_dir_path();
             let rel_path = src_file.strip_prefix(&src_dir)?;
 
-            let cache_dir = CacheIndex::locate_old_cache_dir(&self.book)?;
+            let cache_dir = CacheIndex::locate_cache_dir(&self.book)?;
             let cached_file = cache_dir.join(rel_path).with_extension("html");
 
             let mut f = fs::File::open(&cached_file).with_context(|| {
