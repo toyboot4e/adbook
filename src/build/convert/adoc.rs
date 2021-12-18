@@ -3,7 +3,7 @@
 */
 
 use {
-    anyhow::{ensure, Context, Result},
+    anyhow::{bail, ensure, Context, Result},
     std::{
         path::{Path, PathBuf},
         process::Command,
@@ -121,6 +121,21 @@ impl AdocRunContext {
     }
 }
 
+/// Creates a slash-delimited string from a canonicalized path
+///
+/// `canonizalize` creates UNC path on Windows, which is not supported by `asciidoctor`.
+fn normalize(path: &Path) -> Result<String> {
+    let path = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        path.canonicalize()
+            .with_context(|| "Unable to canonicallize source file path")?
+    };
+
+    // FIXME:
+    Ok(format!("{}", path.display()))
+}
+
 /// Sets up `asciidoctor` command
 pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
     ensure!(
@@ -128,18 +143,10 @@ pub fn asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<Command> {
         "Given non-existing file as conversion source"
     );
 
-    let src_file = if src_file.is_absolute() {
-        src_file.to_path_buf()
-    } else {
-        src_file
-            .canonicalize()
-            .with_context(|| "Unable to canonicallize source file path")?
-    };
-
     let mut cmd = Command::new("asciidoctor");
 
     // output to stdout
-    cmd.arg(&src_file).args(&["-o", "-"]);
+    cmd.arg(&normalize(src_file)?).args(&["-o", "-"]);
 
     // require `asciidoctor-diagram`
     cmd.args(&["-r", "asciidoctor-diagram"]);
@@ -170,14 +177,19 @@ pub fn run_asciidoctor(
 
     // trace!("{:?}", cmd);
 
-    let output = cmd.output().with_context(|| {
-        format!(
-            "when running `asciidoctor`:\n  src: {}\n  dst: {}\n  cmd: {:?}",
-            src_file.display(),
-            dummy_dst_name,
-            cmd
-        )
-    })?;
+    let output = match cmd.output() {
+        Ok(output) => output,
+        Err(err) => {
+            bail!(
+                "when running `asciidoctor`:\n  src: {}\n  dst: {}\n  cmd: {:?}\n  stdout: {:?}",
+                // src_file.display(), dummy_dst_name,
+                normalize(src_file)?,
+                dummy_dst_name,
+                cmd,
+                err
+            )
+        }
+    };
 
     Ok(output)
 }
