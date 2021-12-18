@@ -1,12 +1,21 @@
 /*!
 Skip running `asciidoctor` if a file is not modofied since the last run
 
-TODO: rebuild the whole project when the number of source files changed.
+TODO: rebuild the whole project when the number of source files or article title changes.
+
+# Cache directory
+
+```
+.adbook-cache
+├── a               # cached html files
+│   ├── 404.html
+│   └── index.html
+└── index           # cache index
+```
 */
 
 use std::{
-    fs::{self},
-    io,
+    fs, io,
     path::{Path, PathBuf},
     time::SystemTime,
 };
@@ -26,25 +35,24 @@ pub fn clear_cache(book: &BookStructure) -> io::Result<()> {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct CacheEntry {
+pub struct CacheIndexData {
+    entries: Vec<CacheIndexEntry>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct CacheIndexEntry {
     last_modified: SystemTime,
     /// Relative path from source directory
     path: PathBuf,
 }
 
-/// Timestamps stored at `<root>/.adbook-cache`
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct CacheData {
-    entries: Vec<CacheEntry>,
-}
-
-impl Default for CacheData {
+impl Default for CacheIndexData {
     fn default() -> Self {
         Self { entries: vec![] }
     }
 }
 
-impl CacheData {
+impl CacheIndexData {
     pub fn empty() -> Self {
         Self { entries: vec![] }
     }
@@ -59,16 +67,16 @@ impl CacheData {
                 let metadata = fs::metadata(src_file)?;
                 metadata.modified()?
             };
-            entries.push(CacheEntry {
+            entries.push(CacheIndexEntry {
                 last_modified,
                 path: rel_path.to_path_buf(),
             });
             Ok(())
         })?;
-        Ok(CacheData { entries })
+        Ok(Self { entries })
     }
 
-    pub fn find_cache(&self, rel_path: &Path) -> Option<&CacheEntry> {
+    pub fn find_cache(&self, rel_path: &Path) -> Option<&CacheIndexEntry> {
         for e in &self.entries {
             if e.path == rel_path {
                 return Some(e);
@@ -79,21 +87,21 @@ impl CacheData {
 }
 
 #[derive(Debug, Clone)]
-pub struct CacheDiff {
-    old: Option<CacheData>,
-    new: CacheData,
+pub struct CacheIndexDiff {
+    old: Option<CacheIndexData>,
+    new: CacheIndexData,
 }
 
-impl CacheDiff {
-    fn create(book: &BookStructure, old_cache: Option<CacheData>) -> Result<Self> {
-        let now = CacheData::create_new_cache(book)?;
+impl CacheIndexDiff {
+    fn create(book: &BookStructure, old_cache: Option<CacheIndexData>) -> Result<Self> {
+        let now = CacheIndexData::create_new_cache(book)?;
         Ok(Self {
             old: old_cache,
             new: now,
         })
     }
 
-    pub fn into_new_cache_data(self) -> CacheData {
+    pub fn into_new_cache_data(self) -> CacheIndexData {
         self.new
     }
 
@@ -130,7 +138,7 @@ impl CacheDiff {
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct CacheIndex {
-    cache: CacheData,
+    cache: CacheIndexData,
 }
 
 impl CacheIndex {
@@ -148,7 +156,7 @@ impl CacheIndex {
 
     pub fn empty() -> Self {
         Self {
-            cache: CacheData::empty(),
+            cache: CacheIndexData::empty(),
         }
     }
 
@@ -165,11 +173,11 @@ impl CacheIndex {
         }
     }
 
-    pub fn create_diff(&self, book: &BookStructure) -> Result<CacheDiff> {
+    pub fn create_diff(&self, book: &BookStructure) -> Result<CacheIndexDiff> {
         if self.cache.entries.is_empty() {
-            CacheDiff::create(book, None)
+            CacheIndexDiff::create(book, None)
         } else {
-            CacheDiff::create(book, Some(self.cache.clone()))
+            CacheIndexDiff::create(book, Some(self.cache.clone()))
         }
     }
 
@@ -189,8 +197,8 @@ impl CacheIndex {
         Ok(tmp_dir)
     }
 
-    /// Cleans up the temporary directory and saves build cache
-    pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheData) -> Result<()> {
+    /// Cleans up the temporary output directory and saves build cache
+    pub fn clean_up_and_save(&self, book: &BookStructure, new_cache: CacheIndexData) -> Result<()> {
         // copy htlm files
         let old = Self::locate_old_cache_dir(book)?;
         let new = Self::locate_new_cache_dir(book)?;

@@ -16,7 +16,7 @@ use {
 use crate::{
     book::{walk::BookBuilder, BookStructure},
     build::{
-        cache::{CacheDiff, CacheIndex},
+        cache::{CacheIndex, CacheIndexDiff},
         convert::{hbs::HbsContext, AdocRunContext},
     },
 };
@@ -25,8 +25,8 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct AdocBookBuilder {
     book: BookStructure,
-    pub(crate) cache_diff: CacheDiff,
     buf: String,
+    pub(crate) cache_diff: CacheIndexDiff,
     // context to run `asciidoctor` and Handlebars
     acx: AdocRunContext,
     hcx: HbsContext,
@@ -38,7 +38,7 @@ pub struct AdocBookBuilder {
 impl AdocBookBuilder {
     pub fn from_book(
         book: &BookStructure,
-        cache_diff: CacheDiff,
+        cache_diff: CacheIndexDiff,
         dst_dir: &Path,
     ) -> Result<(Self, Vec<Error>)> {
         let (hcx, errors) = HbsContext::from_book(book);
