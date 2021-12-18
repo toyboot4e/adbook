@@ -3,7 +3,7 @@
 */
 
 use {
-    anyhow::{anyhow, bail, ensure, Context, Result},
+    anyhow::{bail, ensure, Context, Result},
     std::{
         path::{Path, PathBuf},
         process::Command,
@@ -124,11 +124,14 @@ impl AdocRunContext {
 /// FIXME: Use more reliable way to sanitize path
 fn normalize(path: &Path) -> Result<String> {
     let s = format!("{}", path.canonicalize()?.display());
-    s.strip_prefix(r#"\\?\"#)
-        // `\\?\C:\` → `/C:\`
-        .map(|s| s.replace(r#"\\?\"#, "/").to_string())
-        .map(|s| s.replace(r#"/"#, "/").to_string())
-        .ok_or_else(|| anyhow!("Unable to normalize path: {}", path.display()))
+    let s = s
+        .strip_prefix(r#"\\?\"#)
+        .map(|s| {
+            // `\\?\C:\` → `c:\`
+            s.replace(r#"\\?\"#, "/")
+        })
+        .unwrap_or(s);
+    Ok(s)
 }
 
 /// Sets up `asciidoctor` command
@@ -184,7 +187,7 @@ pub fn run_asciidoctor(src_file: &Path, acx: &AdocRunContext) -> Result<std::pro
 pub fn run_asciidoctor_buf(buf: &mut String, src_file: &Path, acx: &AdocRunContext) -> Result<()> {
     let output = self::run_asciidoctor(src_file, acx)?;
 
-    // ensure the conversion succeeded 
+    // ensure the conversion succeeded
     ensure!(
         output.status.success(),
         // ..or else report it as an error
