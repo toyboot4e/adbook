@@ -1,21 +1,35 @@
-// RON format (with or without outermost parentheses)
+// Book RON format (with or without outermost parentheses)
+// =======================================================
 
+// Book metadata
+// -------------
+
+// The book is to be deployed in `<protocol>://<host>/<base_url>`
+//
+// See `stylesdir` and `imaegsdir` in `adoc_opts`.
 base_url: "",
+
+// project structure override
 src_dir: "src",
 site_dir: "site",
 
+// book metadata
 authors: ["adbook"],
 title: "adbook demo site",
 
+// Theme settings
+// -------------
+
+// TODO(adbook): support collapsible sidebar
 fold_level: Some(0),
 
 // whether we copy and use the builtin `src/theme` directory or not
 use_default_theme: true,
 
-// generate `<src_dir>/all.adoc` automatically
+// whether generate `<src_dir>/all.adoc` automatically or not
 generate_all: true,
 
-// files copied to `site` directory
+// files in `src/` copied to `site/`
 includes: [
     "static/img",
     // "theme/css",
@@ -23,12 +37,15 @@ includes: [
     // "theme/favicon.svg",
 ],
 
-// files converted to `site` directory without being added to sidebar
+// AsciiDoc files in `src/` converted `site/` directory without being added to sidebar
 converts: [
     // "404.adoc",
 ],
 
 // `asciidoctor` command line options
+// ----------------------------------
+
+// almost equivalent to adding `:attr: value` in every AsciiDoc file
 adoc_opts: [
     ("-a", [
         // default Handlebars template file, relative to the source directroy
