@@ -13,6 +13,7 @@ use anyhow::*;
 use crate::{
     book::{walk, BookStructure},
     build::{cache::CacheIndex, visit::AdocBookBuilder},
+    utils,
 };
 
 /// Builds an `adbook` structure into a site directory, making use of cache and parallelization
@@ -20,7 +21,7 @@ use crate::{
 /// `src` -> `tmp` -> `site`
 pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Result<()> {
     let site_dir = book.site_dir_path();
-    crate::utils::validate_dir(&site_dir)
+    utils::validate_dir(&site_dir)
         .with_context(|| format!("Failed to create site directory at: {}", site_dir.display()))?;
 
     let index = if force_rebuild {
@@ -48,7 +49,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
 
     // 2. build the project
     let (mut builder, errors) = AdocBookBuilder::from_book(book, index.create_diff(book)?)?;
-    crate::utils::print_errors(&errors, "while creating AdocBookVisitor");
+    utils::print_errors(&errors, "while creating AdocBookVisitor");
 
     // ensure `asciidoctor` is in user PATH
     if which::which("asciidoctor").is_err() {
@@ -63,17 +64,74 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     {
         let mut errors = Vec::new();
         let res = self::create_site_directory(&outputs, book, &book.site_dir_path(), &mut errors);
-        crate::utils::print_errors(&errors, "while copying temporary files to site directory");
+        utils::print_errors(&errors, "while copying temporary files to site directory");
         res?;
     }
 
-    // 4. copy default theme
+    // 4. apply `copies` attribute
+    log::info!("---- Copying specified files");
+    {
+        let root = &book.root;
+
+        let mut errors = Vec::new();
+        let mut warns = Vec::new();
+
+        for (a, b) in &book.book_ron.copies {
+            let src = root.join(a);
+            let dst = root.join(b);
+
+            if !src.exists() {
+                warns.push(format!("Non-existing source file: {}", src.display()));
+                continue;
+            }
+
+            // create directory in destination
+            {
+                let dir = if src.is_file() {
+                    dst.parent()
+                } else if src.is_dir() {
+                    Some(dst.as_path())
+                } else {
+                    warns.push(format!("Unexpected kind of item: {}", src.display()));
+                    continue;
+                };
+
+                if let Some(dir) = dir {
+                    if !dir.exists() {
+                        if let Err(err) = fs::create_dir_all(&dir)
+                            .map_err(|err| anyhow!("{} (fs::create_dir({}))", err, dir.display()))
+                        {
+                            errors.push(err);
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            if src.is_file() {
+                if let Err(err) = fs::copy(&src, &dst).map_err(|err| {
+                    anyhow!("{} (fs::copy({}, {}))", err, src.display(), dst.display())
+                }) {
+                    errors.push(err);
+                }
+            } else if src.is_dir() {
+                if let Err(err) = utils::copy_items_rec(&src, &dst) {
+                    errors.push(err);
+                }
+            }
+        }
+
+        utils::print_warnings(&warns, "while applying `copies` attribute");
+        utils::print_errors(&errors, "while applying `copies` attribute");
+    }
+
+    // 5. apply `use_default_theme` attributes
     if book.book_ron.use_default_theme {
         log::info!("---- Copying default theme");
         crate::book::init::copy_default_theme(&site_dir)?;
     }
 
-    // 5. clean up and save cache
+    // 6. clean up and save cache
     log::info!("---- Updating build cache");
 
     // copy outputs to the cache directory
@@ -81,7 +139,7 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
         let cache_dir = CacheIndex::locate_cache_dir(book)?;
         let mut errors = Vec::new();
         self::write_html_outputs(&mut errors, &book.src_dir_path(), &cache_dir, &outputs)?;
-        crate::utils::print_errors(&errors, "while writing outputs to cache");
+        utils::print_errors(&errors, "while writing outputs to cache");
     }
 
     index.update_cache_index(book, builder.cache_diff.into_new_cache_data())?;
@@ -100,7 +158,7 @@ fn create_site_directory(
 
     // clear most files in site directory
     log::trace!("remove files in site directory");
-    crate::utils::clear_directory_items(&site_dir, |path| {
+    utils::clear_directory_items(&site_dir, |path| {
         if path == out_dir {
             return true;
         }
@@ -168,7 +226,7 @@ fn create_site_directory(
                 })?;
             }
 
-            crate::utils::copy_items_rec(&src_path, &dst_path).with_context(|| {
+            utils::copy_items_rec(&src_path, &dst_path).with_context(|| {
                 format!(
                     "Unable to copy included directory:\nsrc: {}\ndst: {}",
                     src_path.display(),

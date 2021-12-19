@@ -37,6 +37,11 @@ includes: [
     // "theme/favicon.svg",
 ],
 
+// manual copy
+copies: [
+    // ("static", "site/static"),
+],
+
 // AsciiDoc files in `src/` converted `site/` directory without being added to sidebar
 converts: [
     // "404.adoc",

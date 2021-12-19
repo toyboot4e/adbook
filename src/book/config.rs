@@ -33,6 +33,9 @@ pub struct BookRon {
     /// Relative path from `src/` that are copied to `site/`
     #[serde(default)]
     pub includes: Vec<PathBuf>,
+    /// File/directory copies
+    #[serde(default)]
+    pub copies: Vec<(PathBuf, PathBuf)>,
     /// Whether we copy and use the default `src/theme` directory or not
     pub use_default_theme: bool,
     /// Files to convert, but not included in the sidebar. Typically `404.adoc`

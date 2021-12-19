@@ -4,7 +4,7 @@ Internal utilities
 
 use std::{fmt, fs, path::Path};
 
-use anyhow::{ensure, Context, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use colored::*;
 use serde::de::DeserializeOwned;
 
@@ -72,7 +72,8 @@ pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
 
     ensure!(
         src_dir.exists() && src_dir.is_dir(),
-        "Given invalid source path to copy their items recursively"
+        "Given invalid source path for recursive copy: {}",
+        src_dir.display(),
     );
 
     if !dst_dir.exists() {
@@ -86,7 +87,13 @@ pub fn copy_items_rec(src_dir: &Path, dst_dir: &Path) -> Result<()> {
         );
     }
 
-    self::copy_items_rec_impl(src_dir, dst_dir).with_context(|| "Error when trying recursive copy")
+    self::copy_items_rec_impl(src_dir, dst_dir).with_context(|| {
+        anyhow!(
+            "Error when trying recursive copy:\n  src_dir: {}\n  dst_dir: {}",
+            src_dir.display(),
+            dst_dir.display(),
+        )
+    })
 }
 
 fn copy_items_rec_impl(src_dir: &Path, dst_dir: &Path) -> Result<()> {
