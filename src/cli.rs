@@ -73,10 +73,12 @@ impl SubCommand {
 #[derive(Parser, Debug)]
 pub struct Build {
     pub dir: Option<String>,
+    /// Clears cache and builds the whole book
     #[clap(short, long = "force")]
     pub force_rebuild: bool,
-    #[clap(long)]
-    pub log: bool,
+    /// Prints verbose log
+    #[clap(short, long)]
+    pub verbose: bool,
 }
 
 impl Build {
@@ -87,7 +89,7 @@ impl Build {
         let book = BookStructure::from_dir(&dir)?;
 
         log::info!("===> Building the book");
-        crate::build::build_book(&book, self.force_rebuild, self.log)?;
+        crate::build::build_book(&book, self.force_rebuild, self.verbose)?;
         log::info!("<==> Finished bulding");
 
         Ok(())
