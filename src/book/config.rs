@@ -25,15 +25,18 @@ pub struct BookRon {
     pub authors: Vec<String>,
     /// Title of the book
     pub title: String,
+    // TODO: Support collapsible sidebar
     /// Sidebar items up to this level is open by default
+    #[serde(default)]
     pub fold_level: Option<usize>,
     /// Generate `all.adoc` or not. Include `all.adoc` if you use it
     pub generate_all: bool,
-    /// Files or directories copied to site directory
+    /// Relative path from `src/` that are copied to `site/`
+    #[serde(default)]
     pub includes: Vec<PathBuf>,
     /// Whether we copy and use the default `src/theme` directory or not
     pub use_default_theme: bool,
-    /// Files to convert but not in sidebar. Typically `404.adoc`
+    /// Files to convert, but not included in the sidebar. Typically `404.adoc`
     pub converts: Vec<PathBuf>,
     /// Additional options for `asciidoctor` command
     pub adoc_opts: CmdOptions,
