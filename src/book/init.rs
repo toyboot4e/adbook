@@ -1,7 +1,7 @@
 /*!
 Files/directories that are created when initializing a book directory
 
-TODO: Auto gen
+TODO: Auto gen with `build.rs`
 */
 
 use std::{fs, io, path::Path};
@@ -67,7 +67,7 @@ static LIST: &'static [(&str, &[u8])] = {
         ("site", &[]),
         ("src", &[]),
         ("src/index.ron", src::INDEX_RON),
-        ("src/index.adoc", src::INDEX_RON),
+        ("src/index.adoc", src::INDEX_ADOC),
         ("src/article.adoc", src::ARTICLE),
     ]
 };
