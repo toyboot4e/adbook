@@ -2,14 +2,13 @@
 `asciidoctor` runner and metadata extracter
 */
 
-use {
-    anyhow::{bail, ensure, Context, Result},
-    std::{
-        path::{Path, PathBuf},
-        process::Command,
-    },
-    thiserror::Error,
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
 };
+
+use anyhow::{bail, ensure, Context, Result};
+use thiserror::Error;
 
 use crate::book::{config::CmdOptions, BookStructure};
 

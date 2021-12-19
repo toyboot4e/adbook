@@ -36,17 +36,16 @@ mod adoc_all;
 
 pub mod hbs;
 
-use {
-    anyhow::*,
-    std::{fmt::Write, fs, path::Path},
-};
+use std::{fmt::Write, fs, path::Path};
+
+use anyhow::*;
 
 pub use self::adoc::AdocRunContext;
-use self::hbs::{HbsContext, HbsInput};
+pub use adoc_all::gen_all;
 
 use crate::book::BookStructure;
 
-pub use adoc_all::gen_all;
+use self::hbs::{HbsContext, HbsInput};
 
 /// Converts an AsciiDoc file to an html string just by running `asciidoctor`
 ///

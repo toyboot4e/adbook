@@ -2,12 +2,11 @@
 Internal utilities
 */
 
-use {
-    anyhow::{ensure, Context, Result},
-    colored::*,
-    serde::de::DeserializeOwned,
-    std::{fmt, fs, path::Path},
-};
+use std::{fmt, fs, path::Path};
+
+use anyhow::{ensure, Context, Result};
+use colored::*;
+use serde::de::DeserializeOwned;
 
 /// Load the given string as a RON format (or one without outermost parentheses)
 pub fn load_ron<T>(s: &str) -> ron::de::Result<T>

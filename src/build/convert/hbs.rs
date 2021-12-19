@@ -4,16 +4,15 @@ Handlebars application
 HBS templates are supplied [`HbsInput`].
 */
 
-use {
-    anyhow::{anyhow, ensure, Context, Error, Result},
-    handlebars::Handlebars,
-    serde::Serialize,
-    std::{
-        fs,
-        io::{BufRead, BufReader},
-        path::Path,
-    },
+use std::{
+    fs,
+    io::{BufRead, BufReader},
+    path::Path,
 };
+
+use anyhow::{anyhow, ensure, Context, Error, Result};
+use handlebars::Handlebars;
+use serde::Serialize;
 
 use crate::{
     book::{index::IndexItem, BookStructure},

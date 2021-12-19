@@ -46,21 +46,20 @@ pub mod index;
 pub mod init;
 pub mod walk;
 
-const INDEX_RON: &'static str = "index.ron";
-
-use {
-    anyhow::*,
-    std::{
-        fs,
-        path::{Path, PathBuf},
-    },
-    thiserror::Error,
+use std::{
+    fs,
+    path::{Path, PathBuf},
 };
+
+use anyhow::*;
+use thiserror::Error;
 
 use self::{
     config::{BookRon, IndexRon},
     index::Index,
 };
+
+const INDEX_RON: &'static str = "index.ron";
 
 /// Error while loading `book.ron`
 #[derive(Error, Debug)]

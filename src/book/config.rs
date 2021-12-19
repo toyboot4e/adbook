@@ -6,10 +6,9 @@ See the [demo files] to know the details.
 [demo files]: https://github.com/toyboot4e/adbook/tree/gh-pages
 */
 
-use {
-    serde::{Deserialize, Serialize},
-    std::path::PathBuf,
-};
+use std::path::PathBuf;
+
+use serde::{Deserialize, Serialize};
 
 /// Deserialized from `book.ron` in the root of an `adbook` project
 #[derive(Deserialize, Serialize, Debug, Clone)]

@@ -6,7 +6,9 @@ Command line interface by clap 3.0
 `main.rs`:
 
 ```no_run
-use {adbook::cli::Cli, anyhow::*, clap::Parser};
+use adbook::cli::Cli;
+use anyhow::*;
+use clap::Parser;
 
 fn main() -> Result<()> {
     // initialize your `log` implemetation
