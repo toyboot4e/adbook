@@ -50,6 +50,22 @@ impl fmt::Display for BuildError {
     }
 }
 
+pub fn can_skip_whole_build(book: &BookStructure, builder: &impl BookBuilder) -> bool {
+    let src_files_unfiltered = self::list_src_files(&book);
+
+    let mut can_skip_all = false;
+
+    let src_files = src_files_unfiltered
+        .into_iter()
+        .map(|src_file| {
+            can_skip_all |= !builder.can_skip_build(&src_file);
+            src_file
+        })
+        .collect::<Vec<_>>();
+
+    !can_skip_all || src_files.is_empty()
+}
+
 pub fn walk_book_await_collect<V: BookBuilder + 'static>(
     builder: &mut V,
     book: &BookStructure,
@@ -72,9 +88,9 @@ pub fn walk_book_await_collect<V: BookBuilder + 'static>(
     outputs
 }
 
-/// Walks a root [`Index`] and converts files in parallel
+/// Walks a root [`Index`] and converts files in parallel. Cached files are skipped and just copied.
 ///
-/// NOTE: Make sure to `flush` after calling this method so that the user can read log output.
+/// NOTE: Make sure to `flush` after calling this method so that the user gets log output.
 pub async fn walk_book_async<V: BookBuilder + 'static>(
     builder: &mut V,
     book: &BookStructure,
@@ -91,13 +107,6 @@ pub async fn walk_book_async<V: BookBuilder + 'static>(
             src_file
         })
         .collect::<Vec<_>>();
-
-    if !can_skip_all || src_files.is_empty() {
-        if log {
-            println!("No file to build");
-        }
-        return Vec::new();
-    }
 
     // progress bar
     let pb = {

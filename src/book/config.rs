@@ -40,7 +40,7 @@ pub struct BookRon {
     pub use_default_theme: bool,
     /// Files to convert, but not included in the sidebar. Typically `404.adoc`
     pub converts: Vec<PathBuf>,
-    /// Additional options for `asciidoctor` command
+    /// `asciidoctor` options
     pub adoc_opts: CmdOptions,
 }
 

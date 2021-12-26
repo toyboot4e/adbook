@@ -51,6 +51,13 @@ pub fn build_book(book: &BookStructure, force_rebuild: bool, log: bool) -> Resul
     let (mut builder, errors) = AdocBookBuilder::from_book(book, index.create_diff(book)?)?;
     utils::print_errors(&errors, "while creating AdocBookVisitor");
 
+    if walk::can_skip_whole_build(book, &builder) {
+        if log {
+            println!("No file to build");
+            return Ok(());
+        }
+    }
+
     // ensure `asciidoctor` is in user PATH
     if which::which("asciidoctor").is_err() {
         bail!("`asciidoctor` is not in PATH");
