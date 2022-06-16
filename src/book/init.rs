@@ -41,6 +41,7 @@ pub mod files {
                 pub static ALL: &[u8] = include_bytes!("../../init/src/theme/css/all.css");
                 pub static ARTICLE: &[u8] = include_bytes!("../../init/src/theme/css/article.css");
                 pub static TERM: &[u8] = include_bytes!("../../init/src/theme/css/term.css");
+                pub static TERM_FRAME: &[u8] = include_bytes!("../../init/src/theme/css/term-frame.css");
 
                 pub mod partials {
                     pub static TERM_ADOC: &[u8] =
@@ -94,6 +95,7 @@ static THEME_ITEMS: &'static [(&str, &[u8])] = {
         ("theme/css/all.css", css::ALL),
         ("theme/css/article.css", css::ARTICLE),
         ("theme/css/term.css", css::TERM),
+        ("theme/css/term-frame.css", css::TERM_FRAME),
         ("theme/css/partials", &[]),
         ("theme/css/partials/term_adoc.css", css::partials::TERM_ADOC),
         (

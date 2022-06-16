@@ -6,11 +6,3 @@ main {
         100vh - var(--header-height) - 44px /* adoc-meta + scroll bar height */
     );
 }
-
-main > * {
-    max-width: 50em;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-}

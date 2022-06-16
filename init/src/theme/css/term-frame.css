@@ -1,0 +1,337 @@
+:root {
+    --sidebar-width: 20em;
+    --article-max-width: 60em;
+    --header-height: 50px;
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Document outline
+ * -------------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------------- *
+ * sidebar
+ */
+
+#sidebar {
+    /* display:flex; */
+
+    position: fixed;
+    top: 0;
+    background-color: rgb(45, 45, 45);
+    border-right: 1px solid black;
+
+    /* for <ol> */
+    padding-left: 15px;
+
+    width: calc(var(--sidebar-width) - 15px);
+    height: 100%;
+    max-height: calc(
+        100vh - var(--header-height) - 10px /* why do we need this space */
+    );
+    overflow-y: auto;
+    font-size: 15px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+.sidebar li a {
+    text-decoration: none;
+    display: block;
+}
+
+.sidebar li a.active {
+    color: rgb(192, 192, 192);
+    padding: 0;
+}
+
+.sidebar li a.inactive {
+    color: rgb(96, 96, 96);
+    padding: 0;
+}
+
+/* .sidebar ol li, div.sidebar-item-flex { */
+.sidebar ol li,
+div.sidebar-item-flex {
+    /* FIXME: fill width anyways */
+    width: 100%;
+}
+
+.sidebar-item-flex {
+    /* div for aligning title and toggle button in one line */
+    display: flex;
+}
+
+.sidebar-item-flex-title {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* toggle button */
+.sidebar-item-flex-toggle {
+    margin-left: auto;
+    margin-right: 0;
+    padding: 0 10px;
+}
+
+.sidebar-item-flex-toggle {
+    transition: transform 0.5s;
+}
+
+.expanded .sidebar-item-flex-toggle {
+    transform: rotate(90deg);
+}
+
+/* numbering */
+.sidebar ol {
+    list-style-type: none;
+    counter-reset: item;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar ol > li {
+    display: table;
+    counter-increment: item;
+    margin-bottom: 1em; /* space between sections */
+}
+
+.sidebar li ol > li {
+    margin: 0.6em; /* space between section items */
+}
+
+/* consider nest items */
+.sidebar ol > li:before {
+    width: 1px; /* as small as possible */
+    content: counters(item, "-") ". ";
+    display: table-cell;
+    padding-right: 9px;
+}
+
+.sidebar li ol > li:before {
+    width: 1px; /* as small as possible */
+    content: counters(item, ".") " ";
+}
+
+/* -------------------------------------------------------------------------------- *
+ * title
+ */
+
+#header {
+    position: absolute;
+    width: 100vw;
+
+    border-bottom: 1px solid #d75f5f;
+    background-color: var(--bg);
+    top: 0px;
+    z-index: 1000;
+    display: flex;
+}
+
+#sidebar {
+    z-index: 999;
+    margin-top: var(--header-height);
+    padding-top: 10px;
+}
+
+/* Title */
+h1 {
+    font-size: 32px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    height: 40px;
+    margin: auto;
+}
+
+#nav-btn {
+    border: none;
+    background: none;
+    margin: 9px 0 0 12px;
+    top: 0;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    z-index: 1001;
+}
+
+#nav-btn i {
+    color: rgb(200, 200, 50);
+}
+
+#nav-btn-click {
+    width: 32px;
+    height: 32px;
+}
+
+h1 {
+    text-align: center;
+}
+
+/* This is some nice trick from the default Asciidoctor CSS! */
+#adoc-meta br {
+    display: none;
+}
+
+#adoc-meta br + span:before {
+    content: "\00a0\2013\00a0";
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Scroll bar
+ */
+
+#content {
+    scrollbar-width: thin;
+    scrollbar-color: #1eaf90 #555555;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #555555;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1eaf90;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4abfa6;
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Article
+ */
+
+body {
+    overflow: hidden;
+}
+
+/* Wrapper of all the colums */
+#content {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#dummy-header {
+    width: 100vw;
+    height: var(--header-height);
+}
+
+h2:first-child {
+    margin-block-start: 0;
+}
+
+/* author, email and revdate in AsciiDoc word */
+#adoc-meta {
+    text-align: center;
+    margin: 0.5em 0 0.5em 0;
+    font-size: 0.9rem;
+    color: #a1a1a1;
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Footer (footnotes)
+ */
+
+/* remove horizontal line */
+#footnotes hr:first-child {
+    display: none;
+}
+
+div#footnotes {
+    margin-top: 1em;
+}
+
+.footnote {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.footnote:first-of-type {
+    padding-top: 1em;
+}
+
+.footnote:last-of-type {
+    padding-bottom: 1em;
+}
+
+/* -------------------------------------------------------------------------------- *
+ * Print
+ * -------------------------------------------------------------------------------- */
+
+@media print {
+    /* hide browser header/footer */
+    @page {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    body {
+        padding-top: 72px;
+        padding-bottom: 72px ;
+    }
+
+    #sidebar {
+        display: none;
+    }
+
+    main {
+        max-width: var(--article-max-width) !important;
+    }
+
+    #content {
+        position: static !important;
+        left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* colors */
+    body {
+        /* enable background color (Chrome only?) */
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    *,
+    *:before {
+        background-color: transparent;
+        color: #000;
+        box-shadow: none;
+        text-shadow: none;
+    }
+
+    /* restore settings */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        text-shadow: none;
+    }
+
+    /* colors */
+    :not(pre) > code {
+        background: #abd3d5;
+    }
+
+    .conum[data-value] {
+        background: #946d6f;
+    }
+
+    .title {
+        color: #000 !important;
+    }
+
+    #header {
+        border-color: #000;
+    }
+
+
+    hr {
+        background: #000;
+    }
+}
