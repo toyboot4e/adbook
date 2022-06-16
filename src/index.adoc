@@ -2,11 +2,19 @@
 
 == Welcome
 
-`adbook` is a tool for building book-like webpages. If you like this demo, you might like `adbook`, too.
+https://github.com/toyboot4e/adbook[adbook repository]
 
-* https://github.com/toyboot4e/adbook[adbook repository]
+=== Introduction
 
-Scroll right to see a next page; the default theme is using flex layout. I apologize the strange defalt.
+`adbook` is a tool for building book-like webpages. Notes:
+
+* {mdbook} vs {adbook}
++
+{mdbook} is a better choice in many ways, but {adbook} uses https://asciidoctor.org/docs/what-is-asciidoc/[AsciiDoc] as the source format.
+
+* `asciidoctor` vs `adbook`
++
+`asciidoctor` creates single page websites by default, while `adbook` creates multiple page websites.
 
 === Installation
 
@@ -33,9 +41,9 @@ $ gem install asciidoctor-diagram
 
 We're ready!
 
-== Overview
+== Usage
 
-=== Usage
+=== New project
 
 Let's create a new book:
 
@@ -49,56 +57,75 @@ And see the files in it:
 
 [source,bash]
 ----
-$ tree my-book -L 2
-tmp
+$ tree my-book/ -L 2
+my-book/
 ├── book.ron // <1>
 ├── site // <2>
 └── src // <3>
     ├── article.adoc
     ├── index.adoc
-    ├── static
-    │   └── img
     ├── index.ron // <4>
-    └── theme
-        ├── css
-        ├── hbs
-        └── js
+    └── static
 
-8 directories, 4 files
+3 directories, 4 files
 ----
-<1> `book.ron` is a base configuration file that maps to https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon]. https://github.com/ron-rs/ron[Ron] is a human-friendly file format.
-<2> `site` is the default html output directory, which can be overridden in `book.ron`.
-<3> `src` is the source directory, which is basically mapped to the site directory.
-<4> `index.ron` is very similar to `mod.rs` and maps to https://docs.rs/adbook/latest/adbook/book/config/struct.IndexRon.html[IndexRon]. They are located in each directory and lists `.adoc` files in it.
+<1> `book.ron` is the root configuration file.
+<2> `site` is the default output directory.
+<3> `src` is the source file directory.
+<4> `index.ron` is very similar to `mod.rs`.
 
-Now we can build our book:
+=== Configuration files
+
+Configruation files are in https://github.com/ron-rs/ron[Ron] format.
+
+* `book.ron` (maps to https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html[BookRon])
++
+It declares books information and build configuration.
+
+* `index.ron` (maps to https://docs.rs/adbook/latest/adbook/book/config/struct.IndexRon.html[IndexRon])
++
+It lists the source files in the directory.
+
+For details, check out the https://github.com/toyboot4e/adbook/tree/gh-pages[source files] of this demo.
+
+=== Build
+
+Let's get into the book directory:
 
 [source,sh]
 ----
 $ cd my-book
-$ adbook build
 ----
 
-For details, check out the https://github.com/toyboot4e/adbook/tree/gh-pages[source files] of this demo.
+We can build our book as this:
 
-TODO: serve
+[source,sh]
+----
+$ # Build the book (using the cached files in `.adbook-cache/`
+$ adbook build
 
-=== Differences from mdbook
+$ # Build the book, clearing all the cache.
+$ # Use the `-f` option on e.g. adding new files:
+$ adbook build --force
+----
 
-{adbook} is highly inspired by {mdbook}, but it uses https://asciidoctor.org/docs/what-is-asciidoc/[AsciiDoc] for source files instead of Markdown. AsciiDoc is an expressive language, as you can see in the demos in the next chapter.
+=== Serving the site
 
-Other differences:
+{adbook} does not have `serve` command (yet). Use other commands:
 
-* `adbook` uses {prism} by default to highlight source code.
-* To be honest, {mdbook} supports a bunch more things:
-** Rust Playground
-** print view
-** search
-** dynamic theme change
+From one shell..
 
-=== Differences from raw `asciidoctor` command
+[source,sh]
+----
+$ python3 -m http.server 8050
+----
 
-* `adbook` creates multiple page websites while Asciidoctor creates single page websites by default.
+From another shell..
+
+[source,sh]
+----
+$ watchexec -e adoc,ron -w src adbook b
+----
 
 == References
 

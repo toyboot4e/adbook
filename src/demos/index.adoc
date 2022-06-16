@@ -1,6 +1,6 @@
 = Demos
 
-== This is `demos/summary.adoc`
+== This is `demos/index.adoc`
 
 `index.ron` in this directory is:
 

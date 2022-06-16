@@ -1,8 +1,8 @@
 // RON format (with or without outermost parentheses)
 
-summary: ("", "summary.adoc"),
+summary: ("", "index.adoc"),
 //        ^ (optional) override the title
 items: [
-    File("Demo", "demo.adoc"),
+    File("", "demo.adoc"),
     File("Demo (diagrams)", "demo_diagrams.adoc"),
 ],

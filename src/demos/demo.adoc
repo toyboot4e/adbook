@@ -1,4 +1,4 @@
-= Demo in terminal dark theme
+= Demo
 :author: toyboot4e
 :email: some mail
 :revdate: Oct 24, 2020

@@ -32,7 +32,7 @@
         <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
     </div></li><li class="sidebar-item expanded">
-<div class="sidebar-item-flex"><a href="/adbook/demos/summary.html" class="sidebar-item-flex-title active">
+<div class="sidebar-item-flex"><a href="/adbook/demos/index.html" class="sidebar-item-flex-title active">
 Demos</a>
 <div class="sidebar-item-flex-toggle">❱</div>
     </div><ol><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo.html" class="sidebar-item-flex-title inactive">Demo</a>
@@ -64,7 +64,7 @@ Demos</a>
     <div id="content" class="article">
         <main>
             <!-- Asciidoctor output --><div class="sect1">
-<h2 id="_this_is_demossummary_adoc">1. This is <code>demos/summary.adoc</code></h2>
+<h2 id="_this_is_demosindex_adoc">1. This is <code>demos/index.adoc</code></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code>index.ron</code> in this directory is:</p>
@@ -73,10 +73,10 @@ Demos</a>
 <div class="content">
 <pre class="highlight"><code class="language-toml" data-lang="toml">// RON format (with or without outermost parentheses)
 
-summary: ("", "summary.adoc"),
+summary: ("", "index.adoc"),
 //        ^ (optional) override the title
 items: [
-    File("Demo", "demo.adoc"),
+    File("", "demo.adoc"),
     File("Demo (diagrams)", "demo_diagrams.adoc"),
 ],</code></pre>
 </div>

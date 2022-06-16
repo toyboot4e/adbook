@@ -33,7 +33,7 @@ About</a>
         <!-- div, takes place and aligns the title to the left -->
         <div class="sidebar-item-flex-toggle" style="opacity: 0;">X</div>
     </div></li><li class="sidebar-item expanded">
-<div class="sidebar-item-flex">        <a href="/adbook/demos/summary.html" class="sidebar-item-flex-title inactive">Demos</a>
+<div class="sidebar-item-flex">        <a href="/adbook/demos/index.html" class="sidebar-item-flex-title inactive">Demos</a>
 <div class="sidebar-item-flex-toggle">❱</div>
     </div><ol><li class="sidebar-item"><div class="sidebar-item-flex">        <a href="/adbook/demos/demo.html" class="sidebar-item-flex-title inactive">Demo</a>
         <!-- div, takes place and aligns the title to the left -->
@@ -67,20 +67,32 @@ About</a>
 <h2 id="_welcome">1. Welcome</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>adbook</code> is a tool for building book-like webpages. If you like this demo, you might like <code>adbook</code>, too.</p>
+<p><a href="https://github.com/toyboot4e/adbook">adbook repository</a></p>
+</div>
+<div class="sect2">
+<h3 id="_introduction">1.1. Introduction</h3>
+<div class="paragraph">
+<p><code>adbook</code> is a tool for building book-like webpages. Notes:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/toyboot4e/adbook">adbook repository</a></p>
+<p><a href="https://github.com/rust-lang/mdBook">mdBook</a> vs <a href="https://github.com/toyboot4e/adbook">adbook</a></p>
+<div class="paragraph">
+<p><a href="https://github.com/rust-lang/mdBook">mdBook</a> is a better choice in many ways, but <a href="https://github.com/toyboot4e/adbook">adbook</a> uses <a href="https://asciidoctor.org/docs/what-is-asciidoc/">AsciiDoc</a> as the source format.</p>
+</div>
+</li>
+<li>
+<p><code>asciidoctor</code> vs <code>adbook</code></p>
+<div class="paragraph">
+<p><code>asciidoctor</code> creates single page websites by default, while <code>adbook</code> creates multiple page websites.</p>
+</div>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Scroll right to see a next page; the default theme is using flex layout. I apologize the strange defalt.</p>
 </div>
 <div class="sect2">
-<h3 id="_installation">1.1. Installation</h3>
+<h3 id="_installation">1.2. Installation</h3>
 <div class="sect3">
 <h4 id="_rust_adbook">Rust &amp; adbook</h4>
 <div class="paragraph">
@@ -114,10 +126,10 @@ $ gem install asciidoctor-diagram</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_overview">2. Overview</h2>
+<h2 id="_usage">2. Usage</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_usage">2.1. Usage</h3>
+<h3 id="_new_project">2.1. New project</h3>
 <div class="paragraph">
 <p>Let&#8217;s create a new book:</p>
 </div>
@@ -132,103 +144,109 @@ Initialized a new adbook project at my-book</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ tree my-book -L 2
-tmp
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ tree my-book/ -L 2
+my-book/
 ├── book.ron <i class="conum" data-value="1"></i><b>(1)</b>
 ├── site <i class="conum" data-value="2"></i><b>(2)</b>
 └── src <i class="conum" data-value="3"></i><b>(3)</b>
     ├── article.adoc
     ├── index.adoc
-    ├── static
-    │   └── img
     ├── index.ron <i class="conum" data-value="4"></i><b>(4)</b>
-    └── theme
-        ├── css
-        ├── hbs
-        └── js
+    └── static
 
-8 directories, 4 files</code></pre>
+3 directories, 4 files</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td><code>book.ron</code> is a base configuration file that maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html">BookRon</a>. <a href="https://github.com/ron-rs/ron">Ron</a> is a human-friendly file format.</td>
+<td><code>book.ron</code> is the root configuration file.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td><code>site</code> is the default html output directory, which can be overridden in <code>book.ron</code>.</td>
+<td><code>site</code> is the default output directory.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td><code>src</code> is the source directory, which is basically mapped to the site directory.</td>
+<td><code>src</code> is the source file directory.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><code>index.ron</code> is very similar to <code>mod.rs</code> and maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.IndexRon.html">IndexRon</a>. They are located in each directory and lists <code>.adoc</code> files in it.</td>
+<td><code>index.ron</code> is very similar to <code>mod.rs</code>.</td>
 </tr>
 </table>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_configuration_files">2.2. Configuration files</h3>
 <div class="paragraph">
-<p>Now we can build our book:</p>
+<p>Configruation files are in <a href="https://github.com/ron-rs/ron">Ron</a> format.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">$ cd my-book
-$ adbook build</code></pre>
+<div class="ulist">
+<ul>
+<li>
+<p><code>book.ron</code> (maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.BookRon.html">BookRon</a>)</p>
+<div class="paragraph">
+<p>It declares books information and build configuration.</p>
 </div>
+</li>
+<li>
+<p><code>index.ron</code> (maps to <a href="https://docs.rs/adbook/latest/adbook/book/config/struct.IndexRon.html">IndexRon</a>)</p>
+<div class="paragraph">
+<p>It lists the source files in the directory.</p>
+</div>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>For details, check out the <a href="https://github.com/toyboot4e/adbook/tree/gh-pages">source files</a> of this demo.</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_build">2.3. Build</h3>
 <div class="paragraph">
-<p>TODO: serve</p>
+<p>Let&#8217;s get into the book directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">$ cd my-book</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can build our book as this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">$ # Build the book (using the cached files in `.adbook-cache/`
+$ adbook build
+
+$ # Build the book, clearing all the cache.
+$ # Use the `-f` option on e.g. adding new files:
+$ adbook build --force</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_differences_from_mdbook">2.2. Differences from mdbook</h3>
+<h3 id="_serving_the_site">2.4. Serving the site</h3>
 <div class="paragraph">
-<p><a href="https://github.com/toyboot4e/adbook">adbook</a> is highly inspired by <a href="https://github.com/rust-lang/mdBook">mdBook</a>, but it uses <a href="https://asciidoctor.org/docs/what-is-asciidoc/">AsciiDoc</a> for source files instead of Markdown. AsciiDoc is an expressive language, as you can see in the demos in the next chapter.</p>
+<p><a href="https://github.com/toyboot4e/adbook">adbook</a> does not have <code>serve</code> command (yet). Use other commands:</p>
 </div>
 <div class="paragraph">
-<p>Other differences:</p>
+<p>From one shell..</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>adbook</code> uses <a href="https://prismjs.com/">Prism.js</a> by default to highlight source code.</p>
-</li>
-<li>
-<p>To be honest, <a href="https://github.com/rust-lang/mdBook">mdBook</a> supports a bunch more things:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Rust Playground</p>
-</li>
-<li>
-<p>print view</p>
-</li>
-<li>
-<p>search</p>
-</li>
-<li>
-<p>dynamic theme change</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">$ python3 -m http.server 8050</code></pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_differences_from_raw_asciidoctor_command">2.3. Differences from raw <code>asciidoctor</code> command</h3>
-<div class="ulist">
-<ul>
-<li>
-<p><code>adbook</code> creates multiple page websites while Asciidoctor creates single page websites by default.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>From another shell..</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">$ watchexec -e adoc,ron -w src adbook b</code></pre>
+</div>
 </div>
 </div>
 </div>
